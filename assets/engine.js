@@ -259,20 +259,29 @@
     return { html, colorMap };
   }
 
-  // Erweitert einen Zellbezug/Bereich um rowDelta Zeilen; $-fixierte Zeilen bleiben unverändert.
-  function shiftRefToken(token, rowDelta) {
+  // Erweitert einen Zellbezug/Bereich um rowDelta Zeilen / colDelta Spalten; $-fixierte Teile bleiben unverändert.
+  function shiftRefToken(token, rowDelta, colDelta) {
     return token.replace(/(\$?)([A-Za-z]{1,3})(\$?)(\d{1,7})/g, (m, colDollar, colLetters, rowDollar, rowNum) => {
-      if (rowDollar) return m;
-      const newRow = parseInt(rowNum, 10) + rowDelta;
-      if (newRow < 1) return m;
-      return colDollar + colLetters + rowDollar + newRow;
+      let newCol = colLetters;
+      if (!colDollar && colDelta) {
+        const idx = colIndexFromLetters(colLetters) + colDelta;
+        if (idx < 0) return m;
+        newCol = colLetter(idx);
+      }
+      let newRow = rowNum;
+      if (!rowDollar && rowDelta) {
+        const parsed = parseInt(rowNum, 10) + rowDelta;
+        if (parsed < 1) return m;
+        newRow = String(parsed);
+      }
+      return colDollar + newCol + rowDollar + newRow;
     });
   }
 
-  function shiftFormula(text, rowDelta) {
+  function shiftFormula(text, rowDelta, colDelta) {
     if (!text.startsWith("=")) return text;
     return tokenizeFormula(text)
-      .map((t) => (t.type === "ref" ? shiftRefToken(t.text, rowDelta) : t.text))
+      .map((t) => (t.type === "ref" ? shiftRefToken(t.text, rowDelta, colDelta || 0) : t.text))
       .join("");
   }
 
@@ -580,9 +589,63 @@
       }
     }
 
+    /* ---- Kopieren & Einfügen (Strg+C / Strg+V) ---- */
+
+    let clipboard = null; // { ref, text }
+
+    function clearCopiedVisual() {
+      Object.values(cellEls).forEach((td) => td.classList.remove("is-copied"));
+    }
+
+    function copySelected() {
+      if (!selectedRef) return;
+      const text = cellText(selectedRef);
+      clipboard = { ref: selectedRef, text };
+      clearCopiedVisual();
+      cellEls[selectedRef].classList.add("is-copied");
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).catch(() => {});
+      }
+    }
+
+    function applyPaste(text, fromRef) {
+      let finalText = text;
+      if (fromRef) {
+        const src = refRowCol(fromRef);
+        const dst = refRowCol(selectedRef);
+        const rowDelta = dst.row - src.row;
+        const colDelta = cols.indexOf(dst.col) - cols.indexOf(src.col);
+        finalText = shiftFormula(text, rowDelta, colDelta);
+      }
+      inputEntries[selectedRef].el.textContent = finalText;
+      handleContentChanged(selectedRef);
+      clearCopiedVisual();
+    }
+
+    function pasteIntoSelected() {
+      if (!selectedRef || !inputEntries[selectedRef]) return;
+
+      if (navigator.clipboard && navigator.clipboard.readText) {
+        navigator.clipboard
+          .readText()
+          .then((text) => {
+            if (clipboard && text === clipboard.text) applyPaste(text, clipboard.ref);
+            else if (text) applyPaste(text, null);
+            else if (clipboard) applyPaste(clipboard.text, clipboard.ref);
+          })
+          .catch(() => {
+            if (clipboard) applyPaste(clipboard.text, clipboard.ref);
+          });
+      } else if (clipboard) {
+        applyPaste(clipboard.text, clipboard.ref);
+      }
+    }
+
     function handleContainerKeydown(e) {
       if (editingRef) return; // wird von handleEditKeydown behandelt
       if (!selectedRef) return;
+
+      const ctrlOrCmd = e.ctrlKey || e.metaKey;
 
       if (e.key === "ArrowUp") {
         e.preventDefault();
@@ -599,6 +662,12 @@
       } else if (e.key === "Tab") {
         e.preventDefault();
         moveSelection(0, e.shiftKey ? -1 : 1);
+      } else if (ctrlOrCmd && (e.key === "c" || e.key === "C")) {
+        e.preventDefault();
+        copySelected();
+      } else if (ctrlOrCmd && (e.key === "v" || e.key === "V")) {
+        e.preventDefault();
+        pasteIntoSelected();
       } else if (e.key === "Enter" || e.key === "F2") {
         if (inputEntries[selectedRef]) {
           e.preventDefault();
@@ -611,7 +680,9 @@
           handleContentChanged(selectedRef);
           contentPreview.textContent = "";
         }
-      } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      } else if (e.key === "Escape") {
+        clearCopiedVisual();
+      } else if (e.key.length === 1 && !ctrlOrCmd && !e.altKey) {
         if (inputEntries[selectedRef]) {
           e.preventDefault();
           enterEditMode(selectedRef, e.key);
@@ -697,7 +768,7 @@
           const targetRef = col + r;
           const targetEntry = inputEntries[targetRef];
           if (!targetEntry) continue;
-          targetEntry.el.textContent = shiftFormula(sourceText, r - sourceRow);
+          targetEntry.el.textContent = shiftFormula(sourceText, r - sourceRow, 0);
           handleContentChanged(targetRef);
         }
       }

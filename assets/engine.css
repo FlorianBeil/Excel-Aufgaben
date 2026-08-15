@@ -375,6 +375,20 @@ td.cell--input {
 
 .cell-editable[contenteditable="true"] {
   caret-color: var(--excel-green-dark);
+  cursor: text;
+}
+
+.is-copied {
+  position: relative;
+}
+
+.is-copied::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border: 2px dashed var(--excel-green-dark);
+  pointer-events: none;
+  z-index: 4;
 }
 
 .tok-func {
