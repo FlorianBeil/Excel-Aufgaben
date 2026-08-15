@@ -34,7 +34,12 @@ html, body {
 
 body {
   font-family: var(--font-body);
-  background: var(--page-bg);
+  background-color: var(--page-bg);
+  background-image: url("img/bg-green.webp");
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   color: var(--text-primary);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -76,8 +81,8 @@ h1, h2, h3, h4 {
 }
 
 .brand__icon {
-  width: 30px;
-  height: 30px;
+  width: 26px;
+  height: 32px;
   display: block;
   flex-shrink: 0;
 }
@@ -87,6 +92,7 @@ h1, h2, h3, h4 {
   width: 100%;
   height: 100%;
   display: block;
+  object-fit: contain;
 }
 
 .brand__wordmark {
