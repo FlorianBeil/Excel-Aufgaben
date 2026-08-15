@@ -95,6 +95,26 @@ Neue Datei `uebungen/<slug>.html` — einfach `uebungen/sverweis-preisliste.html
 kopieren und in `data-exercise-path` sowie im `<title>` den neuen Slug/Titel
 eintragen. Mehr ist nicht nötig, `engine.js` übernimmt Rendering und Prüfung.
 
+## Zell-Engine (Navigation, Formeln)
+
+`assets/engine.js` baut pro Übung ein echtes Tabellen-Feeling nach: Zellen sind per
+Klick/Pfeiltasten/Tab/Enter navigierbar, Formeln werden farbig nach Bezug
+hervorgehoben, es gibt Strg+C/Strg+V (mit automatischer Anpassung relativer
+Bezüge), ein Ausfüllkästchen zum Herunterkopieren, F4 zum Zyklisieren von
+`$`-Fixierungen und einen Argument-Tooltip beim Tippen von Funktionsnamen.
+
+Für den Tooltip müssen Funktionen mit ihren Argumentnamen in `FUNCTION_SIGNATURES`
+(oben in `engine.js`) eingetragen sein — für eine neue Übung mit bisher unbekannter
+Funktion dort einfach einen Eintrag ergänzen, z. B.:
+
+```js
+INDEX: ["Matrix", "Zeile", "[Spalte]"],
+```
+
+Beim Schreiben einer Formel (Zelle beginnt mit `=`) kann man außerdem andere
+Zellen anklicken (oder bei gedrückter Maustaste über einen Bereich ziehen), um
+deren Bezug an der aktuellen Cursor-Position einzufügen — wie in echtem Excel.
+
 ## Design-System
 
 Farben, Schriften und Komponenten (Karten, Tabellen-Grid, Badges, Buttons) liegen
