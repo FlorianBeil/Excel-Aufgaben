@@ -306,6 +306,12 @@ table.sheet thead th {
   text-align: center;
   position: sticky;
   top: 0;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+
+table.sheet thead th.is-active {
+  background: var(--excel-green-tint);
+  color: var(--excel-green-dark);
 }
 
 table.sheet .row-head {
@@ -314,6 +320,12 @@ table.sheet .row-head {
   text-align: center;
   font-weight: 600;
   width: 2.5rem;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+
+table.sheet .row-head.is-active {
+  background: var(--excel-green-tint);
+  color: var(--excel-green-dark);
 }
 
 td.cell--header {
@@ -330,36 +342,119 @@ td.cell--empty {
   background: var(--surface);
 }
 
+td[data-ref] {
+  cursor: cell;
+  position: relative;
+}
+
+td.is-selected {
+  outline: 2px solid var(--excel-green);
+  outline-offset: -2px;
+  z-index: 2;
+}
+
+td.is-fill-preview {
+  outline: 2px dashed var(--excel-green);
+  outline-offset: -2px;
+  z-index: 1;
+}
+
 td.cell--input {
-  padding: 0.25rem;
+  padding: 0.4rem 0.6rem;
   background: #fff;
 }
 
-td.cell--input input {
-  width: 100%;
-  min-width: 150px;
-  border: 1.5px solid var(--excel-green);
-  border-radius: 4px;
-  padding: 0.35rem 0.5rem;
+.cell-editable {
+  min-height: 1.2em;
+  white-space: pre;
+  outline: none;
   font-family: var(--font-mono);
   font-size: 0.88rem;
-  background: #fff;
   color: var(--text-primary);
 }
 
-td.cell--input input:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(16, 124, 65, 0.18);
+.cell-editable[contenteditable="true"] {
+  caret-color: var(--excel-green-dark);
 }
 
-td.cell--input.is-correct input {
-  border-color: var(--success-green);
+.tok-func {
+  color: var(--excel-green-dark);
+  font-weight: 700;
+}
+
+.tok-number {
+  color: #b06000;
+}
+
+.fill-handle {
+  display: none;
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  width: 7px;
+  height: 7px;
+  background: var(--excel-green);
+  border: 1px solid #fff;
+  cursor: crosshair;
+  z-index: 3;
+}
+
+td.cell--input.is-selected .fill-handle {
+  display: block;
+}
+
+td.cell--input.is-correct {
   background: #F1FBF5;
 }
 
-td.cell--input.is-wrong input {
-  border-color: var(--error-red);
+td.cell--input.is-correct .cell-editable {
+  color: var(--success-green);
+}
+
+td.cell--input.is-wrong {
   background: #FEF2F2;
+}
+
+td.cell--input.is-wrong .cell-editable {
+  color: var(--error-red);
+}
+
+/* ---------- Formelleiste ---------- */
+
+.sheet-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0.7rem;
+  background: var(--header-gray);
+  border-bottom: 1px solid var(--grid-gray);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+.sheet-toolbar__namebox {
+  min-width: 3.5rem;
+  font-weight: 700;
+  color: var(--excel-green-dark);
+}
+
+.sheet-toolbar__divider {
+  width: 1px;
+  align-self: stretch;
+  background: var(--grid-gray);
+}
+
+.sheet-toolbar__fx {
+  font-style: italic;
+  color: var(--excel-green);
+  font-weight: 700;
+}
+
+.sheet-toolbar__content {
+  flex: 1;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow-x: auto;
 }
 
 /* ---------- Aktionsleiste & Feedback ---------- */

@@ -11,6 +11,8 @@
     "Schwer": "badge--difficulty-schwer",
   };
 
+  const REF_COLORS = ["#1a73e8", "#e8710a", "#a142f4", "#188038", "#d01884", "#0b8a8a"];
+
   function el(tag, attrs, children) {
     const node = document.createElement(tag);
     if (attrs) {
@@ -35,6 +37,21 @@
       n = Math.floor((n - 1) / 26);
     }
     return s;
+  }
+
+  function colIndexFromLetters(letters) {
+    let n = 0;
+    for (let i = 0; i < letters.length; i++) {
+      n = n * 26 + (letters.charCodeAt(i) - 64);
+    }
+    return n - 1;
+  }
+
+  function escapeHtml(str) {
+    return str
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
   }
 
   /* ---------------- Übersichtsseite ---------------- */
@@ -134,8 +151,8 @@
       );
     }
 
-    const inputRefs = {};
-    root.appendChild(buildSheet(data.grid, inputRefs));
+    const sheet = createSheet(data.grid);
+    root.appendChild(sheet.node);
 
     root.appendChild(
       el("div", { class: "exercise-actions" }, [
@@ -162,7 +179,6 @@
               type: "button",
               id: "btn-solution",
               text: "Lösung anzeigen",
-              style: "margin: 0 0 0 0;",
             })
           : null,
         solutionBox,
@@ -177,53 +193,8 @@
       }
     }
 
-    document.getElementById("btn-check").addEventListener("click", () => checkExercise(data, inputRefs, feedback));
-    document.getElementById("btn-reset").addEventListener("click", () => resetExercise(inputRefs, feedback));
-  }
-
-  function buildSheet(grid, inputRefs) {
-    const cols = grid.cols;
-    const rowCount = grid.rowCount;
-    const cells = grid.cells || {};
-
-    const headRow = el("tr", {}, [
-      el("th", { class: "row-head", text: "" }),
-      ...cols.map((c) => el("th", { text: c })),
-    ]);
-    const thead = el("thead", {}, [headRow]);
-
-    const tbody = el("tbody");
-
-    for (let r = 1; r <= rowCount; r++) {
-      const rowCells = [el("td", { class: "row-head", text: String(r) })];
-
-      cols.forEach((col) => {
-        const ref = col + r;
-        const cellDef = cells[ref];
-        rowCells.push(buildCell(ref, cellDef, inputRefs));
-      });
-
-      tbody.appendChild(el("tr", {}, rowCells));
-    }
-
-    return el("div", { class: "sheet-wrap" }, [el("table", { class: "sheet" }, [thead, tbody])]);
-  }
-
-  function buildCell(ref, cellDef, inputRefs) {
-    if (!cellDef) {
-      return el("td", { class: "cell--empty" });
-    }
-
-    if (cellDef.type === "input") {
-      const input = el("input", { type: "text", "data-ref": ref, autocomplete: "off", spellcheck: "false" });
-      const td = el("td", { class: "cell--input" }, [input]);
-      inputRefs[ref] = { input, td, answer: cellDef.answer || {} };
-      return td;
-    }
-
-    const displayValue = formatValue(cellDef.value, cellDef.format);
-    const cls = cellDef.type === "header" ? "cell--header" : "cell--data";
-    return el("td", { class: cls, text: displayValue });
+    document.getElementById("btn-check").addEventListener("click", () => checkExercise(sheet, feedback));
+    document.getElementById("btn-reset").addEventListener("click", () => resetExercise(sheet, feedback));
   }
 
   function formatValue(value, format) {
@@ -232,6 +203,519 @@
       return value.toLocaleString("de-DE", { style: "currency", currency: "EUR" });
     }
     return String(value);
+  }
+
+  /* ---------------- Tabellen-/Zell-Engine (Navigation, Formeln, Ausfüllen) ---------------- */
+
+  const REF_RE = /^(\$?)([A-Za-z]{1,3})(\$?)(\d{1,7})$/;
+  const REF_TOKEN_RE = /\$?[A-Za-z]{1,3}\$?\d{1,7}(?::\$?[A-Za-z]{1,3}\$?\d{1,7})?/;
+
+  function tokenizeFormula(text) {
+    // Zerlegt eine Formel in Tokens: Zellbezüge/Bereiche, Funktionsnamen, Zahlen, Rest.
+    const tokens = [];
+    const re = new RegExp(
+      "(" + REF_TOKEN_RE.source + ")|([A-Za-z_][A-Za-z0-9_.]*)(?=\\()|(-?\\d+(?:[.,]\\d+)?)|([^A-Za-z0-9]|[A-Za-z0-9])",
+      "g"
+    );
+    let m;
+    while ((m = re.exec(text)) !== null) {
+      if (m[1]) tokens.push({ text: m[1], type: "ref" });
+      else if (m[2]) tokens.push({ text: m[2], type: "func" });
+      else if (m[3]) tokens.push({ text: m[3], type: "number" });
+      else tokens.push({ text: m[4], type: "other" });
+    }
+    return tokens;
+  }
+
+  function refColorMap(tokens) {
+    const map = {};
+    let next = 0;
+    tokens.forEach((t) => {
+      if (t.type !== "ref") return;
+      const key = t.text.toUpperCase();
+      if (!(key in map)) {
+        map[key] = REF_COLORS[next % REF_COLORS.length];
+        next++;
+      }
+    });
+    return map;
+  }
+
+  function renderFormulaMarkup(text) {
+    if (!text.startsWith("=")) {
+      return { html: escapeHtml(text), colorMap: {} };
+    }
+    const tokens = tokenizeFormula(text);
+    const colorMap = refColorMap(tokens);
+    const html = tokens
+      .map((t) => {
+        const safe = escapeHtml(t.text);
+        if (t.type === "ref") return '<span style="color:' + colorMap[t.text.toUpperCase()] + '">' + safe + "</span>";
+        if (t.type === "func") return '<span class="tok-func">' + safe + "</span>";
+        if (t.type === "number") return '<span class="tok-number">' + safe + "</span>";
+        return safe;
+      })
+      .join("");
+    return { html, colorMap };
+  }
+
+  // Erweitert einen Zellbezug/Bereich um rowDelta Zeilen; $-fixierte Zeilen bleiben unverändert.
+  function shiftRefToken(token, rowDelta) {
+    return token.replace(/(\$?)([A-Za-z]{1,3})(\$?)(\d{1,7})/g, (m, colDollar, colLetters, rowDollar, rowNum) => {
+      if (rowDollar) return m;
+      const newRow = parseInt(rowNum, 10) + rowDelta;
+      if (newRow < 1) return m;
+      return colDollar + colLetters + rowDollar + newRow;
+    });
+  }
+
+  function shiftFormula(text, rowDelta) {
+    if (!text.startsWith("=")) return text;
+    return tokenizeFormula(text)
+      .map((t) => (t.type === "ref" ? shiftRefToken(t.text, rowDelta) : t.text))
+      .join("");
+  }
+
+  function getCaretOffset(container) {
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return 0;
+    const range = sel.getRangeAt(0);
+    if (!container.contains(range.startContainer)) return 0;
+    const pre = range.cloneRange();
+    pre.selectNodeContents(container);
+    pre.setEnd(range.endContainer, range.endOffset);
+    return pre.toString().length;
+  }
+
+  function setCaretOffset(container, offset) {
+    const range = document.createRange();
+    const sel = window.getSelection();
+    let remaining = offset;
+    let found = false;
+
+    (function walk(node) {
+      if (found) return;
+      if (node.nodeType === Node.TEXT_NODE) {
+        const len = node.textContent.length;
+        if (remaining <= len) {
+          range.setStart(node, remaining);
+          range.collapse(true);
+          found = true;
+        } else {
+          remaining -= len;
+        }
+      } else {
+        for (let i = 0; i < node.childNodes.length; i++) {
+          walk(node.childNodes[i]);
+          if (found) break;
+        }
+      }
+    })(container);
+
+    if (!found) {
+      range.selectNodeContents(container);
+      range.collapse(false);
+    }
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+
+  function createSheet(grid) {
+    const cols = grid.cols;
+    const rowCount = grid.rowCount;
+    const defs = grid.cells || {};
+
+    const cellEls = {}; // ref -> td
+    const inputEntries = {}; // ref -> { el, td, answer }
+    const colHeadEls = {};
+    const rowHeadEls = {};
+
+    let selectedRef = null;
+    let editingRef = null;
+    let highlightedRefs = [];
+
+    const nameBox = el("span", { class: "sheet-toolbar__namebox", text: "" });
+    const contentPreview = el("span", { class: "sheet-toolbar__content" });
+    const toolbar = el("div", { class: "sheet-toolbar" }, [
+      nameBox,
+      el("span", { class: "sheet-toolbar__divider" }),
+      el("span", { class: "sheet-toolbar__fx", text: "fx" }),
+      contentPreview,
+    ]);
+
+    const headRow = el("tr", {}, [el("th", { class: "row-head", text: "" })]);
+    cols.forEach((c, i) => {
+      const th = el("th", { text: c });
+      colHeadEls[i] = th;
+      headRow.appendChild(th);
+    });
+    const thead = el("thead", {}, [headRow]);
+    const tbody = el("tbody");
+
+    for (let r = 1; r <= rowCount; r++) {
+      const rowHeadTd = el("td", { class: "row-head", text: String(r) });
+      rowHeadEls[r] = rowHeadTd;
+      const rowCells = [rowHeadTd];
+
+      cols.forEach((col) => {
+        const ref = col + r;
+        const cellDef = defs[ref];
+        const td = buildCell(ref, cellDef);
+        cellEls[ref] = td;
+        rowCells.push(td);
+      });
+
+      tbody.appendChild(el("tr", {}, rowCells));
+    }
+
+    const table = el("table", { class: "sheet" }, [thead, tbody]);
+    const wrap = el("div", { class: "sheet-wrap" }, [toolbar, table]);
+    wrap.tabIndex = 0;
+
+    function buildCell(ref, cellDef) {
+      if (!cellDef) {
+        return el("td", { class: "cell--empty", "data-ref": ref });
+      }
+
+      if (cellDef.type === "input") {
+        const content = el("div", {
+          class: "cell-editable",
+          "data-ref": ref,
+          spellcheck: "false",
+          autocomplete: "off",
+        });
+        content.contentEditable = "false";
+
+        const handle = el("span", { class: "fill-handle" });
+        const td = el("td", { class: "cell--input", "data-ref": ref }, [content, handle]);
+
+        inputEntries[ref] = { el: content, td, answer: cellDef.answer || {}, beforeEdit: "" };
+
+        content.addEventListener("input", () => handleContentChanged(ref));
+        content.addEventListener("keydown", (e) => handleEditKeydown(e, ref));
+        content.addEventListener("blur", () => {
+          if (editingRef === ref) commitEdit();
+        });
+        content.addEventListener("paste", (e) => {
+          e.preventDefault();
+          const text = (e.clipboardData || window.clipboardData).getData("text/plain").split("\n")[0];
+          document.execCommand && document.execCommand("insertText", false, text);
+        });
+
+        handle.addEventListener("mousedown", (e) => startFillDrag(e, ref));
+
+        return td;
+      }
+
+      const displayValue = formatValue(cellDef.value, cellDef.format);
+      const cls = cellDef.type === "header" ? "cell--header" : "cell--data";
+      return el("td", { class: cls, "data-ref": ref, text: displayValue });
+    }
+
+    /* ---- Auswahl & Navigation ---- */
+
+    function refRowCol(ref) {
+      const col = ref.match(/[A-Za-z]+/)[0];
+      const row = parseInt(ref.match(/\d+/)[0], 10);
+      return { col, row };
+    }
+
+    function cellText(ref) {
+      if (inputEntries[ref]) return inputEntries[ref].el.textContent;
+      const def = defs[ref];
+      return def ? formatValue(def.value, def.format) : "";
+    }
+
+    function select(ref) {
+      if (!cellEls[ref]) return;
+      if (editingRef && editingRef !== ref) commitEdit();
+
+      if (selectedRef && cellEls[selectedRef]) cellEls[selectedRef].classList.remove("is-selected");
+      const prev = selectedRef ? refRowCol(selectedRef) : null;
+      if (prev) {
+        const prevColIdx = cols.indexOf(prev.col);
+        if (colHeadEls[prevColIdx]) colHeadEls[prevColIdx].classList.remove("is-active");
+        if (rowHeadEls[prev.row]) rowHeadEls[prev.row].classList.remove("is-active");
+      }
+
+      selectedRef = ref;
+      cellEls[ref].classList.add("is-selected");
+      const { col, row } = refRowCol(ref);
+      const colIdx = cols.indexOf(col);
+      if (colHeadEls[colIdx]) colHeadEls[colIdx].classList.add("is-active");
+      if (rowHeadEls[row]) rowHeadEls[row].classList.add("is-active");
+
+      nameBox.textContent = ref;
+      contentPreview.textContent = cellText(ref);
+    }
+
+    function moveSelection(dRow, dCol) {
+      const base = selectedRef || cols[0] + "1";
+      const { col, row } = refRowCol(base);
+      const colIdx = Math.min(Math.max(cols.indexOf(col) + dCol, 0), cols.length - 1);
+      const newRow = Math.min(Math.max(row + dRow, 1), rowCount);
+      select(cols[colIdx] + newRow);
+      wrap.focus({ preventScroll: true });
+    }
+
+    /* ---- Bearbeiten ---- */
+
+    function handleContentChanged(ref) {
+      const entry = inputEntries[ref];
+      if (!entry) return;
+      entry.td.classList.remove("is-correct", "is-wrong");
+
+      const offset = getCaretOffset(entry.el);
+      const text = entry.el.textContent;
+      const { html, colorMap } = renderFormulaMarkup(text);
+      entry.el.innerHTML = html;
+      if (document.activeElement === entry.el) setCaretOffset(entry.el, offset);
+
+      clearRefHighlights();
+      Object.keys(colorMap).forEach((refKey) => applyRefHighlight(refKey, colorMap[refKey]));
+
+      if (selectedRef === ref) contentPreview.textContent = text;
+    }
+
+    function clearRefHighlights() {
+      highlightedRefs.forEach((r) => {
+        if (cellEls[r]) cellEls[r].style.boxShadow = "";
+      });
+      highlightedRefs = [];
+    }
+
+    function applyRefHighlight(refToken, color) {
+      const m = refToken.match(/^(\$?)([A-Za-z]{1,3})(\$?)(\d{1,7})(?::(\$?)([A-Za-z]{1,3})(\$?)(\d{1,7}))?$/);
+      if (!m) return;
+      const c1 = colIndexFromLetters(m[2]);
+      const r1 = parseInt(m[4], 10);
+      const c2 = m[6] ? colIndexFromLetters(m[6]) : c1;
+      const r2 = m[8] ? parseInt(m[8], 10) : r1;
+      const colLo = Math.min(c1, c2),
+        colHi = Math.max(c1, c2);
+      const rowLo = Math.min(r1, r2),
+        rowHi = Math.max(r1, r2);
+
+      for (let ci = colLo; ci <= colHi; ci++) {
+        if (!cols[ci]) continue;
+        for (let ri = rowLo; ri <= rowHi; ri++) {
+          const ref = cols[ci] + ri;
+          if (cellEls[ref]) {
+            cellEls[ref].style.boxShadow = "inset 0 0 0 2px " + color;
+            highlightedRefs.push(ref);
+          }
+        }
+      }
+    }
+
+    function enterEditMode(ref, replacementChar) {
+      const entry = inputEntries[ref];
+      if (!entry) return;
+      if (editingRef && editingRef !== ref) commitEdit();
+      if (selectedRef !== ref) select(ref);
+
+      entry.beforeEdit = entry.el.textContent;
+      if (typeof replacementChar === "string") entry.el.textContent = replacementChar;
+
+      entry.el.contentEditable = "true";
+      editingRef = ref;
+      entry.el.focus();
+      setCaretOffset(entry.el, entry.el.textContent.length);
+      handleContentChanged(ref);
+    }
+
+    function commitEdit() {
+      if (!editingRef) return;
+      const entry = inputEntries[editingRef];
+      if (entry) entry.el.contentEditable = "false";
+      editingRef = null;
+      clearRefHighlights();
+    }
+
+    function cancelEdit() {
+      if (!editingRef) return;
+      const entry = inputEntries[editingRef];
+      if (entry) {
+        entry.el.textContent = entry.beforeEdit;
+        handleContentChanged(editingRef);
+      }
+      commitEdit();
+    }
+
+    function handleEditKeydown(e, ref) {
+      const entry = inputEntries[ref];
+
+      if (e.key === "Tab") {
+        e.preventDefault();
+        commitEdit();
+        moveSelection(0, e.shiftKey ? -1 : 1);
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        commitEdit();
+        moveSelection(1, 0);
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        cancelEdit();
+        wrap.focus({ preventScroll: true });
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        commitEdit();
+        moveSelection(-1, 0);
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        commitEdit();
+        moveSelection(1, 0);
+      } else if (e.key === "ArrowLeft") {
+        if (getCaretOffset(entry.el) === 0) {
+          e.preventDefault();
+          commitEdit();
+          moveSelection(0, -1);
+        }
+      } else if (e.key === "ArrowRight") {
+        if (getCaretOffset(entry.el) === entry.el.textContent.length) {
+          e.preventDefault();
+          commitEdit();
+          moveSelection(0, 1);
+        }
+      }
+    }
+
+    function handleContainerKeydown(e) {
+      if (editingRef) return; // wird von handleEditKeydown behandelt
+      if (!selectedRef) return;
+
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        moveSelection(-1, 0);
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        moveSelection(1, 0);
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        moveSelection(0, -1);
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        moveSelection(0, 1);
+      } else if (e.key === "Tab") {
+        e.preventDefault();
+        moveSelection(0, e.shiftKey ? -1 : 1);
+      } else if (e.key === "Enter" || e.key === "F2") {
+        if (inputEntries[selectedRef]) {
+          e.preventDefault();
+          enterEditMode(selectedRef);
+        }
+      } else if (e.key === "Delete" || e.key === "Backspace") {
+        if (inputEntries[selectedRef]) {
+          e.preventDefault();
+          inputEntries[selectedRef].el.textContent = "";
+          handleContentChanged(selectedRef);
+          contentPreview.textContent = "";
+        }
+      } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        if (inputEntries[selectedRef]) {
+          e.preventDefault();
+          enterEditMode(selectedRef, e.key);
+        }
+      }
+    }
+
+    wrap.addEventListener("keydown", handleContainerKeydown);
+
+    table.addEventListener("click", (e) => {
+      const td = e.target.closest("td[data-ref]");
+      if (!td) return;
+      select(td.dataset.ref);
+      if (document.activeElement !== (inputEntries[td.dataset.ref] || {}).el) wrap.focus({ preventScroll: true });
+    });
+
+    table.addEventListener("dblclick", (e) => {
+      const td = e.target.closest("td[data-ref]");
+      if (!td) return;
+      const ref = td.dataset.ref;
+      if (inputEntries[ref]) enterEditMode(ref);
+    });
+
+    /* ---- Ausfüllen per Fill-Handle (vertikal, wie Excel) ---- */
+
+    let fillDrag = null;
+
+    function startFillDrag(e, sourceRef) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (editingRef) commitEdit();
+      const { col } = refRowCol(sourceRef);
+      fillDrag = { sourceRef, col, previewRefs: [] };
+
+      document.addEventListener("mousemove", onFillMove);
+      document.addEventListener("mouseup", onFillDrop);
+    }
+
+    function clearFillPreview() {
+      if (!fillDrag) return;
+      fillDrag.previewRefs.forEach((r) => {
+        if (cellEls[r]) cellEls[r].classList.remove("is-fill-preview");
+      });
+      fillDrag.previewRefs = [];
+    }
+
+    function onFillMove(e) {
+      if (!fillDrag) return;
+      const targetTd = document.elementFromPoint(e.clientX, e.clientY);
+      const td = targetTd && targetTd.closest ? targetTd.closest("td[data-ref]") : null;
+      if (!td) return;
+      const { col, row } = refRowCol(td.dataset.ref);
+      if (col !== fillDrag.col) return;
+
+      const { row: sourceRow } = refRowCol(fillDrag.sourceRef);
+      clearFillPreview();
+
+      const lo = Math.min(sourceRow, row);
+      const hi = Math.max(sourceRow, row);
+      for (let r = lo; r <= hi; r++) {
+        if (r === sourceRow) continue;
+        const ref = col + r;
+        if (cellEls[ref]) {
+          cellEls[ref].classList.add("is-fill-preview");
+          fillDrag.previewRefs.push(ref);
+        }
+      }
+      fillDrag.targetRow = row;
+    }
+
+    function onFillDrop() {
+      if (!fillDrag) return;
+      const { sourceRef, targetRow } = fillDrag;
+      const sourceEntry = inputEntries[sourceRef];
+      const { col, row: sourceRow } = refRowCol(sourceRef);
+
+      if (sourceEntry && targetRow !== undefined && targetRow !== sourceRow) {
+        const sourceText = sourceEntry.el.textContent;
+        const lo = Math.min(sourceRow, targetRow);
+        const hi = Math.max(sourceRow, targetRow);
+        for (let r = lo; r <= hi; r++) {
+          if (r === sourceRow) continue;
+          const targetRef = col + r;
+          const targetEntry = inputEntries[targetRef];
+          if (!targetEntry) continue;
+          targetEntry.el.textContent = shiftFormula(sourceText, r - sourceRow);
+          handleContentChanged(targetRef);
+        }
+      }
+
+      clearFillPreview();
+      fillDrag = null;
+      document.removeEventListener("mousemove", onFillMove);
+      document.removeEventListener("mouseup", onFillDrop);
+    }
+
+    select(cols[0] + "1");
+
+    return {
+      node: wrap,
+      inputEntries,
+      select,
+      cellText,
+    };
   }
 
   /* ---------------- Prüf-Logik (Mustervergleich) ---------------- */
@@ -272,14 +756,14 @@
     return false;
   }
 
-  function checkExercise(data, inputRefs, feedback) {
-    const refs = Object.keys(inputRefs);
+  function checkExercise(sheet, feedback) {
+    const refs = Object.keys(sheet.inputEntries);
     let answered = 0;
     let correct = 0;
 
     refs.forEach((ref) => {
-      const entry = inputRefs[ref];
-      const result = checkCell(entry.input.value, entry.answer);
+      const entry = sheet.inputEntries[ref];
+      const result = checkCell(entry.el.textContent, entry.answer);
       entry.td.classList.remove("is-correct", "is-wrong");
       if (result === true) {
         entry.td.classList.add("is-correct");
@@ -308,9 +792,9 @@
     }
   }
 
-  function resetExercise(inputRefs, feedback) {
-    Object.values(inputRefs).forEach((entry) => {
-      entry.input.value = "";
+  function resetExercise(sheet, feedback) {
+    Object.entries(sheet.inputEntries).forEach(([ref, entry]) => {
+      entry.el.textContent = "";
       entry.td.classList.remove("is-correct", "is-wrong");
     });
     feedback.classList.remove("is-success", "is-error");

@@ -9,7 +9,8 @@
     "steps": [
       "Klicke in Zelle E2 und schreibe eine SVERWEIS-Formel, die den Preis für das Produkt aus D2 in A2:B7 sucht.",
       "Wichtig: Nutze als 4. Argument FALSCH (0), damit exakt und nicht ungefähr gesucht wird.",
-      "Wiederhole das Gleiche für E3 (Produkt aus D3) und E4 (Produkt aus D4)."
+      "Danach kannst du am kleinen grünen Quadrat unten rechts in E2 klicken und nach unten bis E4 ziehen, um die Formel zu kopieren.",
+      "Tipp: Schreibe die Matrix als $A$2:$B$7, damit sie beim Herunterkopieren nicht mitrutscht."
     ]
   },
   "grid": {
@@ -41,7 +42,7 @@
           "value": 12.99,
           "tolerance": 0.005,
           "patterns": [
-            "^=?SVERWEIS\\(D\\$?2[;,]A\\$?2:B\\$?7[;,]2[;,](0|FALSCH|FALSE)\\)$"
+            "^=?SVERWEIS\\(D\\$?2[;,]\\$?A\\$?2:\\$?B\\$?7[;,]2[;,](0|FALSCH|FALSE)\\)$"
           ]
         }
       },
@@ -53,7 +54,7 @@
           "value": 3.2,
           "tolerance": 0.005,
           "patterns": [
-            "^=?SVERWEIS\\(D\\$?3[;,]A\\$?2:B\\$?7[;,]2[;,](0|FALSCH|FALSE)\\)$"
+            "^=?SVERWEIS\\(D\\$?3[;,]\\$?A\\$?2:\\$?B\\$?7[;,]2[;,](0|FALSCH|FALSE)\\)$"
           ]
         }
       },
@@ -65,7 +66,7 @@
           "value": 0.08,
           "tolerance": 0.005,
           "patterns": [
-            "^=?SVERWEIS\\(D\\$?4[;,]A\\$?2:B\\$?7[;,]2[;,](0|FALSCH|FALSE)\\)$"
+            "^=?SVERWEIS\\(D\\$?4[;,]\\$?A\\$?2:\\$?B\\$?7[;,]2[;,](0|FALSCH|FALSE)\\)$"
           ]
         }
       }
@@ -77,7 +78,8 @@
     "Die Matrix ist der Bereich der gesamten Preisliste: A2:B7.",
     "Der Preis steht in der 2. Spalte der Matrix, also Spaltenindex 2.",
     "FALSCH (oder 0) als letztes Argument sorgt für eine exakte statt ungefähre Suche.",
-    "Du kannst statt der Formel auch direkt den berechneten Preis eintragen, z. B. 12,99."
+    "Du kannst statt der Formel auch direkt den berechneten Preis eintragen, z. B. 12,99.",
+    "Willst du die Formel per Ausfüllkästchen nach unten kopieren, schreibe die Matrix als $A$2:$B$7 (absoluter Bezug) – sonst rutscht sie beim Kopieren mit."
   ],
   "solution": "=SVERWEIS(D2;A2:B7;2;FALSCH)   (analog für D3 und D4)"
 }
