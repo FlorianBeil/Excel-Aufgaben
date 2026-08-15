@@ -1,0 +1,83 @@
+{
+  "slug": "sverweis-preisliste",
+  "title": "Finde den passenden Preis",
+  "category": "SVERWEIS",
+  "difficulty": "Mittel",
+  "description": "Nutze SVERWEIS, um für gesuchte Produkte automatisch den passenden Preis aus einer Liste zu finden.",
+  "task": {
+    "intro": "In Spalte A/B siehst du eine Preisliste. In Spalte D stehen drei gesuchte Produkte. Trage in Spalte E jeweils eine SVERWEIS-Formel ein, die den passenden Preis aus der Liste holt.",
+    "steps": [
+      "Klicke in Zelle E2 und schreibe eine SVERWEIS-Formel, die den Preis für das Produkt aus D2 in A2:B7 sucht.",
+      "Wichtig: Nutze als 4. Argument FALSCH (0), damit exakt und nicht ungefähr gesucht wird.",
+      "Wiederhole das Gleiche für E3 (Produkt aus D3) und E4 (Produkt aus D4)."
+    ]
+  },
+  "grid": {
+    "cols": ["A", "B", "C", "D", "E"],
+    "rowCount": 7,
+    "cells": {
+      "A1": { "value": "Produkt", "type": "header" },
+      "B1": { "value": "Preis", "type": "header" },
+      "D1": { "value": "Gesucht", "type": "header" },
+      "E1": { "value": "Preis", "type": "header" },
+
+      "A2": { "value": "Schraube 4mm" },
+      "B2": { "value": 0.15, "format": "currency" },
+      "A3": { "value": "Dübel 6mm" },
+      "B3": { "value": 0.08, "format": "currency" },
+      "A4": { "value": "Hammer" },
+      "B4": { "value": 12.99, "format": "currency" },
+      "A5": { "value": "Wasserwaage" },
+      "B5": { "value": 8.5, "format": "currency" },
+      "A6": { "value": "Zollstock" },
+      "B6": { "value": 3.2, "format": "currency" },
+      "A7": { "value": "Bohrer-Set" },
+      "B7": { "value": 24.9, "format": "currency" },
+
+      "D2": { "value": "Hammer" },
+      "E2": {
+        "type": "input",
+        "answer": {
+          "value": 12.99,
+          "tolerance": 0.005,
+          "patterns": [
+            "^=?SVERWEIS\\(D\\$?2[;,]A\\$?2:B\\$?7[;,]2[;,](0|FALSCH|FALSE)\\)$"
+          ]
+        }
+      },
+
+      "D3": { "value": "Zollstock" },
+      "E3": {
+        "type": "input",
+        "answer": {
+          "value": 3.2,
+          "tolerance": 0.005,
+          "patterns": [
+            "^=?SVERWEIS\\(D\\$?3[;,]A\\$?2:B\\$?7[;,]2[;,](0|FALSCH|FALSE)\\)$"
+          ]
+        }
+      },
+
+      "D4": { "value": "Dübel 6mm" },
+      "E4": {
+        "type": "input",
+        "answer": {
+          "value": 0.08,
+          "tolerance": 0.005,
+          "patterns": [
+            "^=?SVERWEIS\\(D\\$?4[;,]A\\$?2:B\\$?7[;,]2[;,](0|FALSCH|FALSE)\\)$"
+          ]
+        }
+      }
+    }
+  },
+  "hints": [
+    "SVERWEIS-Aufbau: =SVERWEIS(Suchkriterium; Matrix; Spaltenindex; [Bereich_Verweis])",
+    "Suchkriterium ist die Zelle mit dem gesuchten Produktnamen, z. B. D2.",
+    "Die Matrix ist der Bereich der gesamten Preisliste: A2:B7.",
+    "Der Preis steht in der 2. Spalte der Matrix, also Spaltenindex 2.",
+    "FALSCH (oder 0) als letztes Argument sorgt für eine exakte statt ungefähre Suche.",
+    "Du kannst statt der Formel auch direkt den berechneten Preis eintragen, z. B. 12,99."
+  ],
+  "solution": "=SVERWEIS(D2;A2:B7;2;FALSCH)   (analog für D3 und D4)"
+}

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Excel.Flo – Interaktive Excel-Übungen</title>
+<meta name="description" content="Kostenlose, interaktive Excel-Übungen zu SVERWEIS, Formeln und mehr – direkt im Browser, ohne Anmeldung.">
+<link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/engine.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="index.html">
+      <span class="brand__icon"><img src="assets/img/logo.svg" alt=""></span>
+      <span class="brand__wordmark">Excel<span class="dot">.</span>Flo</span>
+    </a>
+  </div>
+</header>
+
+<main>
+  <div class="page-intro">
+    <h1>Übe Excel-Formeln, interaktiv im Browser</h1>
+    <p>Wähle eine Übung aus. Jede Aufgabe hat ein festes Ziel und eine automatische Prüfung – kein Konto, kein Download nötig.</p>
+  </div>
+
+  <div class="exercise-grid" id="exercise-list" data-manifest-path="assets/exercises/manifest.json">
+    <p class="exercise-grid__empty">Übungen werden geladen …</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  Excel.Flo — Übungsportal
+</footer>
+
+<script src="assets/engine.js"></script>
+</body>
+</html>

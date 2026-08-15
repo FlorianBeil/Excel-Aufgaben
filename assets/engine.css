@@ -1,0 +1,471 @@
+/* Excel.Flo – gemeinsames Design-System für Übersicht & Übungen */
+
+:root {
+  --excel-green: #107C41;
+  --excel-green-dark: #0B5C30;
+  --excel-green-tint: #E9F6EE;
+  --grid-gray: #D7DCE1;
+  --header-gray: #F2F4F6;
+  --error-red: #D92D20;
+  --success-green: #15803D;
+
+  --text-primary: #1F2A24;
+  --text-muted: #5B6B63;
+  --border-color: #E1E5E2;
+  --surface: #FFFFFF;
+  --page-bg: #F7F9F8;
+
+  --font-heading: "Space Grotesk", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  --radius: 10px;
+  --shadow-card: 0 1px 2px rgba(16, 124, 65, 0.06), 0 4px 14px rgba(16, 124, 65, 0.06);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--page-bg);
+  color: var(--text-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-heading);
+  margin: 0;
+  color: var(--text-primary);
+}
+
+/* ---------- Kopfbereich ---------- */
+
+.site-header {
+  background: linear-gradient(135deg, var(--excel-green) 0%, var(--excel-green-dark) 100%);
+  color: #fff;
+  padding: 1.1rem 1.5rem;
+}
+
+.site-header__inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  text-decoration: none;
+  color: #fff;
+}
+
+.brand__icon {
+  width: 30px;
+  height: 30px;
+  display: block;
+  flex-shrink: 0;
+}
+
+.brand__icon img,
+.brand__icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.brand__wordmark {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 1.25rem;
+  letter-spacing: -0.01em;
+}
+
+.brand__wordmark .dot {
+  opacity: 0.75;
+}
+
+.site-header__back {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  text-decoration: none;
+  color: #fff;
+  opacity: 0.9;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  transition: background 0.15s ease;
+}
+
+.site-header__back:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+/* ---------- Layout ---------- */
+
+main {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 2.25rem 1.5rem 4rem;
+}
+
+.page-intro {
+  margin-bottom: 2rem;
+}
+
+.page-intro h1 {
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.page-intro p {
+  color: var(--text-muted);
+  max-width: 620px;
+}
+
+/* ---------- Übersichts-Karten ---------- */
+
+.exercise-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.1rem;
+}
+
+.exercise-card {
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+}
+
+.exercise-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--excel-green);
+  box-shadow: 0 6px 20px rgba(16, 124, 65, 0.14);
+}
+
+.exercise-card__badges {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+
+.badge--category {
+  background: var(--excel-green-tint);
+  color: var(--excel-green-dark);
+}
+
+.badge--difficulty-leicht {
+  background: #E9F6EE;
+  color: var(--success-green);
+}
+
+.badge--difficulty-mittel {
+  background: #FEF3E2;
+  color: #B45309;
+}
+
+.badge--difficulty-schwer {
+  background: #FDE8E8;
+  color: var(--error-red);
+}
+
+.exercise-card h3 {
+  font-size: 1.05rem;
+}
+
+.exercise-card p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  flex-grow: 1;
+}
+
+.exercise-card__cta {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--excel-green);
+}
+
+.exercise-grid__empty {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ---------- Übungs-Seite ---------- */
+
+.exercise-header {
+  margin-bottom: 1.75rem;
+}
+
+.exercise-header__badges {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.exercise-header h1 {
+  font-size: 1.6rem;
+  margin-bottom: 0.6rem;
+}
+
+.exercise-task {
+  background: var(--excel-green-tint);
+  border: 1px solid #CFEBDB;
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.75rem;
+}
+
+.exercise-task__intro {
+  margin: 0 0 0.5rem;
+  color: var(--text-primary);
+}
+
+.exercise-task__steps {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: var(--text-primary);
+}
+
+.exercise-task__steps li {
+  margin-bottom: 0.3rem;
+}
+
+.exercise-task__steps li:last-child {
+  margin-bottom: 0;
+}
+
+/* ---------- Tabellen-Grid ---------- */
+
+.sheet-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--grid-gray);
+  border-radius: var(--radius);
+  background: var(--surface);
+  margin-bottom: 1.5rem;
+}
+
+table.sheet {
+  border-collapse: collapse;
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+}
+
+table.sheet th,
+table.sheet td {
+  border: 1px solid var(--grid-gray);
+  padding: 0.45rem 0.6rem;
+  text-align: left;
+  white-space: nowrap;
+}
+
+table.sheet thead th {
+  background: var(--header-gray);
+  color: var(--text-muted);
+  font-weight: 600;
+  text-align: center;
+  position: sticky;
+  top: 0;
+}
+
+table.sheet .row-head {
+  background: var(--header-gray);
+  color: var(--text-muted);
+  text-align: center;
+  font-weight: 600;
+  width: 2.5rem;
+}
+
+td.cell--header {
+  background: var(--header-gray);
+  font-weight: 600;
+  font-family: var(--font-body);
+}
+
+td.cell--data {
+  font-family: var(--font-mono);
+}
+
+td.cell--empty {
+  background: var(--surface);
+}
+
+td.cell--input {
+  padding: 0.25rem;
+  background: #fff;
+}
+
+td.cell--input input {
+  width: 100%;
+  min-width: 150px;
+  border: 1.5px solid var(--excel-green);
+  border-radius: 4px;
+  padding: 0.35rem 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  background: #fff;
+  color: var(--text-primary);
+}
+
+td.cell--input input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(16, 124, 65, 0.18);
+}
+
+td.cell--input.is-correct input {
+  border-color: var(--success-green);
+  background: #F1FBF5;
+}
+
+td.cell--input.is-wrong input {
+  border-color: var(--error-red);
+  background: #FEF2F2;
+}
+
+/* ---------- Aktionsleiste & Feedback ---------- */
+
+.exercise-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.btn {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  border: 1.5px solid transparent;
+  padding: 0.6rem 1.1rem;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.btn--primary {
+  background: var(--excel-green);
+  color: #fff;
+}
+
+.btn--primary:hover {
+  background: var(--excel-green-dark);
+}
+
+.btn--secondary {
+  background: #fff;
+  border-color: var(--grid-gray);
+  color: var(--text-primary);
+}
+
+.btn--secondary:hover {
+  border-color: var(--excel-green);
+  color: var(--excel-green-dark);
+}
+
+.exercise-feedback {
+  border-radius: var(--radius);
+  padding: 0.8rem 1.1rem;
+  font-size: 0.92rem;
+  margin-bottom: 1.5rem;
+  display: none;
+}
+
+.exercise-feedback.is-success {
+  display: block;
+  background: #F1FBF5;
+  border: 1px solid #BFE8CE;
+  color: var(--success-green);
+}
+
+.exercise-feedback.is-error {
+  display: block;
+  background: #FEF2F2;
+  border: 1px solid #F6C6C6;
+  color: var(--error-red);
+}
+
+.exercise-hints {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.exercise-hints summary {
+  cursor: pointer;
+  padding: 0.85rem 1.1rem;
+  font-weight: 600;
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  color: var(--excel-green-dark);
+}
+
+.exercise-hints ol {
+  margin: 0;
+  padding: 0 1.1rem 1rem 2rem;
+  color: var(--text-primary);
+}
+
+.exercise-hints li {
+  margin-bottom: 0.4rem;
+}
+
+.exercise-solution {
+  margin-top: 0.75rem;
+  font-family: var(--font-mono);
+  background: var(--header-gray);
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  display: none;
+}
+
+.exercise-solution.is-visible {
+  display: block;
+}
+
+.site-footer {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  padding: 2rem 1.5rem;
+}
