@@ -979,12 +979,26 @@
           targetEntry.el.textContent = shiftFormula(sourceText, r - sourceRow, 0);
           handleContentChanged(targetRef);
         }
+        clearRefHighlights();
       }
 
       clearFillPreview();
       fillDrag = null;
       document.removeEventListener("mousemove", onFillMove);
       document.removeEventListener("mouseup", onFillDrop);
+    }
+
+    function resetSheet() {
+      if (editingRef) cancelEdit();
+      clearRefHighlights();
+      clearCopiedVisual();
+      argHint.classList.remove("is-visible");
+      Object.values(inputEntries).forEach((entry) => {
+        entry.el.textContent = "";
+        entry.td.classList.remove("is-correct", "is-wrong");
+      });
+      select(cols[0] + "1");
+      wrap.focus({ preventScroll: true });
     }
 
     select(cols[0] + "1");
@@ -994,6 +1008,7 @@
       inputEntries,
       select,
       cellText,
+      reset: resetSheet,
     };
   }
 
@@ -1072,10 +1087,7 @@
   }
 
   function resetExercise(sheet, feedback) {
-    Object.entries(sheet.inputEntries).forEach(([ref, entry]) => {
-      entry.el.textContent = "";
-      entry.td.classList.remove("is-correct", "is-wrong");
-    });
+    sheet.reset();
     feedback.classList.remove("is-success", "is-error");
     feedback.textContent = "";
 
