@@ -402,7 +402,7 @@
     let selectedRef = null;
     let editingRef = null;
     let highlightedRefs = [];
-    let keyPointRef = null; // aktuell per Pfeiltaste "angepeilte" Zelle beim Formel-Schreiben
+    let keyPoint = null; // { before, after, anchor, current } – Pfeiltasten-Referenzierung beim Formel-Schreiben
 
     const nameBox = el("span", { class: "sheet-toolbar__namebox", text: "" });
     const contentPreview = el("span", { class: "sheet-toolbar__content" });
@@ -464,7 +464,7 @@
         inputEntries[ref] = { el: content, td, answer: cellDef.answer || {}, beforeEdit: "" };
 
         content.addEventListener("input", () => {
-          keyPointRef = null;
+          keyPoint = null;
           handleContentChanged(ref);
         });
         content.addEventListener("keydown", (e) => handleEditKeydown(e, ref));
@@ -628,7 +628,7 @@
 
       entry.el.contentEditable = "true";
       editingRef = ref;
-      keyPointRef = null;
+      keyPoint = null;
       entry.el.focus();
       setCaretOffset(entry.el, entry.el.textContent.length);
       handleContentChanged(ref);
@@ -639,7 +639,7 @@
       const entry = inputEntries[editingRef];
       if (entry) entry.el.contentEditable = "false";
       editingRef = null;
-      keyPointRef = null;
+      keyPoint = null;
       clearRefHighlights();
       argHint.classList.remove("is-visible");
     }
@@ -677,9 +677,13 @@
         entry.el.textContent.startsWith("=") &&
         getCaretOffset(entry.el) === entry.el.textContent.length
       ) {
-        // Pfeiltaste am Formel-Ende: peilt statt Cursor-Bewegung eine Nachbarzelle als Bezug an.
+        // Pfeiltaste am Formel-Ende: peilt statt Cursor-Bewegung eine Nachbarzelle (oder mit
+        // Shift einen Zellbereich) als Bezug an.
         e.preventDefault();
-        const base = keyPointRef ? refRowCol(keyPointRef) : refRowCol(ref);
+        if (!keyPoint) {
+          keyPoint = { before: entry.el.textContent, after: "", anchor: ref, current: ref };
+        }
+        const base = refRowCol(keyPoint.current);
         const baseColIdx = cols.indexOf(base.col);
         let newColIdx = baseColIdx;
         let newRow = base.row;
@@ -687,13 +691,15 @@
         else if (e.key === "ArrowDown") newRow = Math.min(rowCount, base.row + 1);
         else if (e.key === "ArrowLeft") newColIdx = Math.max(0, baseColIdx - 1);
         else if (e.key === "ArrowRight") newColIdx = Math.min(cols.length - 1, baseColIdx + 1);
-        const newPointRef = cols[newColIdx] + newRow;
+        const newCurrent = cols[newColIdx] + newRow;
 
-        const fullText = entry.el.textContent;
-        entry.el.textContent = keyPointRef ? fullText.slice(0, fullText.length - keyPointRef.length) + newPointRef : fullText + newPointRef;
-        keyPointRef = newPointRef;
+        keyPoint.current = newCurrent;
+        if (!e.shiftKey) keyPoint.anchor = newCurrent;
+
+        const insertText = rangeRefText(keyPoint.anchor, keyPoint.current);
+        entry.el.textContent = keyPoint.before + insertText + keyPoint.after;
         handleContentChanged(ref);
-        setCaretOffset(entry.el, entry.el.textContent.length);
+        setCaretOffset(entry.el, keyPoint.before.length + insertText.length);
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
         commitEdit();

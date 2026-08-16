@@ -114,6 +114,9 @@ INDEX: ["Matrix", "Zeile", "[Spalte]"],
 Beim Schreiben einer Formel (Zelle beginnt mit `=`) kann man außerdem andere
 Zellen anklicken (oder bei gedrückter Maustaste über einen Bereich ziehen), um
 deren Bezug an der aktuellen Cursor-Position einzufügen — wie in echtem Excel.
+Steht der Cursor am Formel-Ende, geht das auch per Pfeiltasten: eine Pfeiltaste
+peilt die Nachbarzelle an, Umschalt+Pfeiltaste erweitert das zu einem
+Zellbereich (z. B. `B2:B7`).
 
 ## Design-System
 
