@@ -187,6 +187,13 @@
       }
     });
 
+    // Fortschritt kann im Hintergrund von einem anderen Gerät nachgeladen werden (progress.js) –
+    // Übersicht dann live aktualisieren.
+    document.addEventListener("excelflo:progress-synced", () => {
+      renderTabs();
+      renderList();
+    });
+
     renderTabs();
     renderList();
   }
