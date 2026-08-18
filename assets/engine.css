@@ -236,6 +236,81 @@ main {
   font-style: italic;
 }
 
+.badge--done {
+  background: #E9F6EE;
+  color: var(--success-green);
+}
+
+.badge--level {
+  background: var(--header-gray);
+  color: var(--text-muted);
+}
+
+.exercise-card.is-done {
+  border-color: #BFE8CE;
+}
+
+/* ---------- Level-Tabs & Stufen-Banner ---------- */
+
+.level-tabs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.level-tab {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--border-color);
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 0.12s ease, color 0.12s ease, background 0.12s ease;
+}
+
+.level-tab:hover {
+  border-color: var(--excel-green);
+  color: var(--excel-green-dark);
+}
+
+.level-tab.is-active {
+  background: var(--excel-green);
+  border-color: var(--excel-green);
+  color: #fff;
+}
+
+.level-tab__count {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  opacity: 0.85;
+}
+
+.stage-banner {
+  display: none;
+  margin-bottom: 1.25rem;
+}
+
+.stage-banner.is-visible {
+  display: block;
+}
+
+.stage-banner p {
+  margin: 0;
+  background: var(--excel-green-tint);
+  border: 1px solid #CFEBDB;
+  border-radius: var(--radius);
+  padding: 0.85rem 1.1rem;
+  color: var(--excel-green-dark);
+  font-weight: 600;
+}
+
 /* ---------- Übungs-Seite ---------- */
 
 .exercise-header {
@@ -572,6 +647,22 @@ td.cell--input.is-wrong .cell-editable {
   color: var(--error-red);
 }
 
+.exercise-feedback p {
+  margin: 0;
+}
+
+.exercise-feedback p + p {
+  margin-top: 0.6rem;
+}
+
+.exercise-feedback.is-success .exercise-feedback__explanation {
+  color: var(--text-primary);
+}
+
+.exercise-feedback__next a {
+  margin-top: 0.2rem;
+}
+
 .exercise-hints {
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
@@ -608,6 +699,14 @@ td.cell--input.is-wrong .cell-editable {
 
 .exercise-solution.is-visible {
   display: block;
+}
+
+.exercise-hints__explanation {
+  margin: 0.85rem 1.1rem 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: 0.88rem;
 }
 
 .site-footer {

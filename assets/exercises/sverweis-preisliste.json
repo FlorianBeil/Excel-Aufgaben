@@ -1,7 +1,8 @@
 {
-  "slug": "sverweis-preisliste",
+  "id": "sverweis-preisliste",
   "title": "Finde den passenden Preis",
-  "category": "SVERWEIS",
+  "level": "anfaenger",
+  "category": "verweisfunktionen",
   "difficulty": "Mittel",
   "description": "Nutze SVERWEIS, um für gesuchte Produkte automatisch den passenden Preis aus einer Liste zu finden.",
   "task": {
@@ -41,9 +42,7 @@
         "answer": {
           "value": 12.99,
           "tolerance": 0.005,
-          "patterns": [
-            "^=?SVERWEIS\\(D\\$?2[;,]\\$?A\\$?2:\\$?B\\$?7[;,]2[;,](0|FALSCH|FALSE)\\)$"
-          ]
+          "acceptedFormulas": ["=SVERWEIS(D2;A2:B7;2;FALSCH)"]
         }
       },
 
@@ -53,9 +52,7 @@
         "answer": {
           "value": 3.2,
           "tolerance": 0.005,
-          "patterns": [
-            "^=?SVERWEIS\\(D\\$?3[;,]\\$?A\\$?2:\\$?B\\$?7[;,]2[;,](0|FALSCH|FALSE)\\)$"
-          ]
+          "acceptedFormulas": ["=SVERWEIS(D3;A2:B7;2;FALSCH)"]
         }
       },
 
@@ -65,9 +62,7 @@
         "answer": {
           "value": 0.08,
           "tolerance": 0.005,
-          "patterns": [
-            "^=?SVERWEIS\\(D\\$?4[;,]\\$?A\\$?2:\\$?B\\$?7[;,]2[;,](0|FALSCH|FALSE)\\)$"
-          ]
+          "acceptedFormulas": ["=SVERWEIS(D4;A2:B7;2;FALSCH)"]
         }
       }
     }
@@ -81,5 +76,6 @@
     "Du kannst statt der Formel auch direkt den berechneten Preis eintragen, z. B. 12,99.",
     "Willst du die Formel per Ausfüllkästchen nach unten kopieren, schreibe die Matrix als $A$2:$B$7 (absoluter Bezug) – sonst rutscht sie beim Kopieren mit."
   ],
+  "explanation": "SVERWEIS sucht einen Wert (hier: den Produktnamen aus Spalte D) in der ersten Spalte eines Bereichs (A2:B7) und gibt den Wert aus einer angegebenen Spalte derselben Zeile zurück (hier: Spalte 2 = Preis). FALSCH als letztes Argument erzwingt eine exakte Übereinstimmung – ohne diese Angabe sucht Excel nur ungefähr und kann falsche Treffer liefern.",
   "solution": "=SVERWEIS(D2;A2:B7;2;FALSCH)   (analog für D3 und D4)"
 }

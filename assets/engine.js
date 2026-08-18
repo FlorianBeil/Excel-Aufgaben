@@ -11,6 +11,16 @@
     "Schwer": "badge--difficulty-schwer",
   };
 
+  const LEVELS = [
+    { id: "anfaenger", label: "Anfänger" },
+    { id: "fortgeschritten", label: "Fortgeschritten" },
+    { id: "profi", label: "Profi" },
+  ];
+  const LEVEL_LABELS = LEVELS.reduce((m, l) => {
+    m[l.id] = l.label;
+    return m;
+  }, {});
+
   const REF_COLORS = ["#1a73e8", "#e8710a", "#a142f4", "#188038", "#d01884", "#0b8a8a"];
 
   const FUNCTION_SIGNATURES = {
@@ -69,20 +79,28 @@
       .replace(/>/g, "&gt;");
   }
 
-  /* ---------------- Übersichtsseite ---------------- */
+  function formatCategoryLabel(category) {
+    if (!category) return "";
+    return category.charAt(0).toUpperCase() + category.slice(1);
+  }
+
+  /* ---------------- Übersichtsseite (Level-Tabs, generiert aus dem Manifest) ---------------- */
 
   function initOverview() {
     const root = document.getElementById("exercise-list");
     if (!root) return;
 
     const manifestPath = root.dataset.manifestPath || "assets/exercises/manifest.json";
+    const exercisePagePath = root.dataset.exercisePage || "uebung.html";
+    const tabsRoot = document.getElementById("level-tabs");
+    const bannerRoot = document.getElementById("stage-banner");
 
     fetch(manifestPath)
       .then((res) => {
         if (!res.ok) throw new Error("Manifest konnte nicht geladen werden (" + res.status + ")");
         return res.json();
       })
-      .then((exercises) => renderOverview(root, exercises))
+      .then((exercises) => setupOverview(exercises, root, tabsRoot, bannerRoot, exercisePagePath))
       .catch((err) => {
         root.innerHTML = "";
         root.appendChild(
@@ -91,55 +109,174 @@
       });
   }
 
-  function renderOverview(root, exercises) {
+  function groupByLevel(exercises) {
+    const groups = {};
+    LEVELS.forEach((l) => (groups[l.id] = []));
+    exercises.forEach((ex) => {
+      const levelId = groups[ex.level] ? ex.level : LEVELS[0].id;
+      groups[levelId].push(ex);
+    });
+    return groups;
+  }
+
+  function setupOverview(exercises, root, tabsRoot, bannerRoot, exercisePagePath) {
+    const groups = groupByLevel(exercises);
+    const nonEmptyLevels = LEVELS.filter((l) => groups[l.id].length > 0);
+    const levels = nonEmptyLevels.length ? nonEmptyLevels : LEVELS;
+
+    let activeLevel = (location.hash || "").replace("#", "");
+    if (!levels.some((l) => l.id === activeLevel)) activeLevel = levels[0].id;
+
+    function allDone(list) {
+      return list.length > 0 && window.ExcelFloProgress && list.every((ex) => window.ExcelFloProgress.isCompleted(ex.id));
+    }
+
+    function renderTabs() {
+      if (!tabsRoot) return;
+      tabsRoot.innerHTML = "";
+      levels.forEach((l) => {
+        const count = groups[l.id].length;
+        const doneCount = window.ExcelFloProgress
+          ? groups[l.id].filter((ex) => window.ExcelFloProgress.isCompleted(ex.id)).length
+          : 0;
+        const btn = el(
+          "button",
+          { type: "button", class: "level-tab" + (l.id === activeLevel ? " is-active" : "") },
+          [
+            el("span", { text: l.label }),
+            count ? el("span", { class: "level-tab__count", text: doneCount + "/" + count }) : null,
+          ]
+        );
+        btn.addEventListener("click", () => {
+          activeLevel = l.id;
+          location.hash = l.id;
+          renderTabs();
+          renderList();
+        });
+        tabsRoot.appendChild(btn);
+      });
+    }
+
+    function renderBanner() {
+      if (!bannerRoot) return;
+      bannerRoot.innerHTML = "";
+      bannerRoot.classList.remove("is-visible");
+      if (!window.ExcelFloProgress) return;
+
+      if (levels.every((l) => allDone(groups[l.id]))) {
+        bannerRoot.appendChild(el("p", { text: "🏆 Geschafft! Du hast alle Übungen in allen Stufen abgeschlossen." }));
+        bannerRoot.classList.add("is-visible");
+      } else if (allDone(groups[activeLevel])) {
+        const label = LEVEL_LABELS[activeLevel] || activeLevel;
+        bannerRoot.appendChild(el("p", { text: "✅ Stufe „" + label + "“ abgeschlossen! Wechsle oben zu einer weiteren Stufe." }));
+        bannerRoot.classList.add("is-visible");
+      }
+    }
+
+    function renderList() {
+      renderOverview(root, groups[activeLevel] || [], exercisePagePath);
+      renderBanner();
+    }
+
+    window.addEventListener("hashchange", () => {
+      const h = (location.hash || "").replace("#", "");
+      if (levels.some((l) => l.id === h) && h !== activeLevel) {
+        activeLevel = h;
+        renderTabs();
+        renderList();
+      }
+    });
+
+    renderTabs();
+    renderList();
+  }
+
+  function renderOverview(root, exercises, exercisePagePath) {
     root.innerHTML = "";
 
     if (!exercises || exercises.length === 0) {
-      root.appendChild(el("p", { class: "exercise-grid__empty", text: "Noch keine Übungen verfügbar." }));
+      root.appendChild(el("p", { class: "exercise-grid__empty", text: "In dieser Stufe sind noch keine Übungen verfügbar." }));
       return;
     }
 
     exercises.forEach((ex) => {
       const diffClass = DIFFICULTY_CLASS[ex.difficulty] || "badge--difficulty-mittel";
+      const done = window.ExcelFloProgress && window.ExcelFloProgress.isCompleted(ex.id);
 
-      const card = el("a", { class: "exercise-card", href: "uebungen/" + ex.slug + ".html" }, [
-        el("div", { class: "exercise-card__badges" }, [
-          el("span", { class: "badge badge--category", text: ex.category }),
-          el("span", { class: "badge " + diffClass, text: ex.difficulty }),
-        ]),
-        el("h3", { text: ex.title }),
-        el("p", { text: ex.description || "" }),
-        el("span", { class: "exercise-card__cta", text: "Übung starten →" }),
-      ]);
+      const card = el(
+        "a",
+        { class: "exercise-card" + (done ? " is-done" : ""), href: exercisePagePath + "?id=" + encodeURIComponent(ex.id) },
+        [
+          el("div", { class: "exercise-card__badges" }, [
+            el("span", { class: "badge badge--category", text: formatCategoryLabel(ex.category) }),
+            el("span", { class: "badge " + diffClass, text: ex.difficulty }),
+            done ? el("span", { class: "badge badge--done", text: "✓ erledigt" }) : null,
+          ]),
+          el("h3", { text: ex.title }),
+          el("p", { text: ex.description || "" }),
+          el("span", { class: "exercise-card__cta", text: done ? "Nochmal üben →" : "Übung starten →" }),
+        ]
+      );
 
       root.appendChild(card);
     });
   }
 
-  /* ---------------- Übungsseite ---------------- */
+  /* ---------------- Übungsseite (generisch, lädt Übung anhand ?id=) ---------------- */
 
   function initExercise() {
     const root = document.getElementById("exercise-root");
     if (!root) return;
 
-    const exercisePath = root.dataset.exercisePath;
-    if (!exercisePath) {
-      root.textContent = "Kein data-exercise-path auf #exercise-root gesetzt.";
+    const id = new URLSearchParams(location.search).get("id");
+    if (!id) {
+      root.textContent = "Keine Übungs-ID angegeben (erwartet: ?id=... in der URL).";
       return;
     }
 
-    fetch(exercisePath)
-      .then((res) => {
-        if (!res.ok) throw new Error("Übung konnte nicht geladen werden (" + res.status + ")");
+    const exercisesDir = root.dataset.exercisesDir || "../assets/exercises/";
+    const exercisePagePath = root.dataset.exercisePage || "uebung.html";
+
+    Promise.all([
+      fetch(exercisesDir + id + ".json").then((res) => {
+        if (!res.ok) throw new Error("Übung „" + id + "“ konnte nicht geladen werden (" + res.status + ")");
         return res.json();
-      })
-      .then((data) => renderExercise(root, data))
+      }),
+      fetch(exercisesDir + "manifest.json")
+        .then((res) => (res.ok ? res.json() : []))
+        .catch(() => []),
+    ])
+      .then(([data, manifest]) => renderExercise(root, data, manifest, exercisePagePath))
       .catch((err) => {
         root.textContent = "Fehler beim Laden der Übung: " + err.message;
       });
   }
 
-  function renderExercise(root, data) {
+  function computeNextExercise(manifest, currentId) {
+    if (!manifest || !manifest.length) return { next: null, levelDone: false, allDone: false };
+    const current = manifest.find((ex) => ex.id === currentId);
+    const level = current ? current.level : null;
+    const sameLevel = manifest.filter((ex) => ex.level === level);
+    const idx = sameLevel.findIndex((ex) => ex.id === currentId);
+
+    const doneIds = window.ExcelFloProgress ? window.ExcelFloProgress.getCompletedIds() : [];
+    const doneSet = new Set(doneIds.concat([currentId]));
+
+    let next = null;
+    for (let i = idx + 1; i < sameLevel.length; i++) {
+      if (!doneSet.has(sameLevel[i].id)) {
+        next = sameLevel[i];
+        break;
+      }
+    }
+    if (!next) next = sameLevel.find((ex) => !doneSet.has(ex.id)) || null;
+
+    const levelDone = sameLevel.length > 0 && sameLevel.every((ex) => doneSet.has(ex.id));
+    const allDone = manifest.every((ex) => doneSet.has(ex.id));
+    return { next, levelDone, allDone, levelLabel: LEVEL_LABELS[level] || level };
+  }
+
+  function renderExercise(root, data, manifest, exercisePagePath) {
     document.title = "Excel.Flo – " + data.title;
 
     root.innerHTML = "";
@@ -149,7 +286,8 @@
     root.appendChild(
       el("div", { class: "exercise-header" }, [
         el("div", { class: "exercise-header__badges" }, [
-          el("span", { class: "badge badge--category", text: data.category }),
+          data.level ? el("span", { class: "badge badge--level", text: LEVEL_LABELS[data.level] || data.level }) : null,
+          el("span", { class: "badge badge--category", text: formatCategoryLabel(data.category) }),
           el("span", { class: "badge " + diffClass, text: data.difficulty }),
         ]),
         el("h1", { text: data.title }),
@@ -179,15 +317,15 @@
     const feedback = el("div", { class: "exercise-feedback", id: "exercise-feedback" });
     root.appendChild(feedback);
 
-    if (data.hints && data.hints.length) {
-      const hintItems = data.hints.map((hint) => el("li", { text: hint }));
+    if ((data.hints && data.hints.length) || data.explanation) {
+      const hintItems = (data.hints || []).map((hint) => el("li", { text: hint }));
       const solutionBox = data.solution
         ? el("div", { class: "exercise-solution", id: "exercise-solution", text: data.solution })
         : null;
 
       const details = el("details", { class: "exercise-hints" }, [
         el("summary", { text: "Tipps anzeigen" }),
-        el("ol", {}, hintItems),
+        hintItems.length ? el("ol", {}, hintItems) : null,
         data.solution
           ? el("button", {
               class: "btn btn--secondary",
@@ -197,6 +335,9 @@
             })
           : null,
         solutionBox,
+        data.explanation
+          ? el("p", { class: "exercise-hints__explanation", text: data.explanation })
+          : null,
       ]);
 
       root.appendChild(details);
@@ -208,7 +349,8 @@
       }
     }
 
-    document.getElementById("btn-check").addEventListener("click", () => checkExercise(sheet, feedback));
+    const context = { exerciseData: data, manifest, exercisePagePath };
+    document.getElementById("btn-check").addEventListener("click", () => checkExercise(sheet, feedback, context));
     document.getElementById("btn-reset").addEventListener("click", () => resetExercise(sheet, feedback));
   }
 
@@ -499,6 +641,20 @@
       if (inputEntries[ref]) return inputEntries[ref].el.textContent;
       const def = defs[ref];
       return def ? formatValue(def.value, def.format) : "";
+    }
+
+    // Für den Formel-Auswerter: liefert den rohen Zellwert (Zahl/Text), nicht die formatierte Anzeige.
+    function getCellValue(ref) {
+      const def = defs[ref];
+      if (def && def.value !== undefined) return def.value;
+      const entry = inputEntries[ref];
+      if (entry) {
+        const raw = entry.el.textContent.trim();
+        if (raw === "") return undefined;
+        const num = parseGermanNumber(raw);
+        return num !== null ? num : raw;
+      }
+      return undefined;
     }
 
     function select(ref) {
@@ -1042,6 +1198,7 @@
       inputEntries,
       select,
       cellText,
+      getCellValue,
       reset: resetSheet,
     };
   }
@@ -1058,7 +1215,11 @@
     return raw.trim().toUpperCase().replace(/\s+/g, "");
   }
 
-  function checkCell(rawInput, answer) {
+  // Prüf-Reihenfolge: 1) direkter Zahlenwert  2) Klartext-Formelliste (acceptedFormulas,
+  // normalisiert – $, ;/,, WAHR/FALSCH vs. 1/0 sind dabei egal)  3) Regex-Patterns (Altlast/
+  // Spezialfälle)  4) echte Auswertung der eingegebenen Formel gegen die Zelldaten – fängt
+  // Formulierungen ab, an die vorher niemand gedacht hat.
+  function checkCell(rawInput, answer, getCellValue) {
     const raw = (rawInput || "").trim();
     if (raw === "") return null; // nicht beantwortet
 
@@ -1066,6 +1227,10 @@
       const num = parseGermanNumber(raw);
       const tolerance = answer.tolerance !== undefined ? answer.tolerance : 0.01;
       if (num !== null && Math.abs(num - answer.value) < tolerance) return true;
+    }
+
+    if (window.ExcelFloFormula && answer.acceptedFormulas && answer.acceptedFormulas.length) {
+      if (window.ExcelFloFormula.acceptedFormulaMatch(raw, answer.acceptedFormulas)) return true;
     }
 
     if (answer.patterns && answer.patterns.length) {
@@ -1078,20 +1243,32 @@
           // ungültiges Pattern in den Übungsdaten – überspringen
         }
       }
-      return false;
+    }
+
+    if (
+      window.ExcelFloFormula &&
+      getCellValue &&
+      typeof answer.value === "number" &&
+      raw.startsWith("=")
+    ) {
+      const result = window.ExcelFloFormula.evaluate(raw, getCellValue);
+      if (!window.ExcelFloFormula.isFormulaError(result) && typeof result === "number") {
+        const tolerance = answer.tolerance !== undefined ? answer.tolerance : 0.01;
+        if (Math.abs(result - answer.value) < tolerance) return true;
+      }
     }
 
     return false;
   }
 
-  function checkExercise(sheet, feedback) {
+  function checkExercise(sheet, feedback, context) {
     const refs = Object.keys(sheet.inputEntries);
     let answered = 0;
     let correct = 0;
 
     refs.forEach((ref) => {
       const entry = sheet.inputEntries[ref];
-      const result = checkCell(entry.el.textContent, entry.answer);
+      const result = checkCell(entry.el.textContent, entry.answer, sheet.getCellValue);
       entry.td.classList.remove("is-correct", "is-wrong");
       if (result === true) {
         entry.td.classList.add("is-correct");
@@ -1104,19 +1281,53 @@
     });
 
     feedback.classList.remove("is-success", "is-error");
+    feedback.innerHTML = "";
 
     if (answered === 0) {
       feedback.classList.add("is-error");
-      feedback.textContent = "Bitte trage zuerst eine Antwort ein.";
+      feedback.appendChild(el("p", { text: "Bitte trage zuerst eine Antwort ein." }));
       return;
     }
 
     if (correct === refs.length) {
       feedback.classList.add("is-success");
-      feedback.textContent = "Richtig! Alle " + refs.length + " Felder stimmen. 🎉";
+      feedback.appendChild(el("p", { text: "Richtig! Alle " + refs.length + " Felder stimmen. 🎉" }));
+
+      const data = context && context.exerciseData;
+      if (data && data.explanation) {
+        feedback.appendChild(el("p", { class: "exercise-feedback__explanation", text: data.explanation }));
+      }
+
+      if (data && window.ExcelFloProgress) {
+        window.ExcelFloProgress.markCompleted(data.id);
+        const nextInfo = computeNextExercise(context.manifest, data.id);
+
+        if (nextInfo.allDone) {
+          feedback.appendChild(
+            el("p", { class: "exercise-feedback__next", text: "🏆 Du hast alle Übungen in allen Stufen abgeschlossen!" })
+          );
+        } else if (nextInfo.levelDone) {
+          feedback.appendChild(
+            el("p", {
+              class: "exercise-feedback__next",
+              text: "✅ Stufe „" + nextInfo.levelLabel + "“ abgeschlossen!",
+            })
+          );
+        } else if (nextInfo.next) {
+          const link = el(
+            "a",
+            {
+              class: "btn btn--primary",
+              href: (context.exercisePagePath || "uebung.html") + "?id=" + encodeURIComponent(nextInfo.next.id),
+            },
+            [document.createTextNode("Nächste Übung: " + nextInfo.next.title + " →")]
+          );
+          feedback.appendChild(el("p", { class: "exercise-feedback__next" }, [link]));
+        }
+      }
     } else {
       feedback.classList.add("is-error");
-      feedback.textContent = correct + " von " + refs.length + " Feldern korrekt. Versuch es weiter!";
+      feedback.appendChild(el("p", { text: correct + " von " + refs.length + " Feldern korrekt. Versuch es weiter!" }));
     }
   }
 

@@ -1,0 +1,491 @@
+/* Excel.Flo – eng begrenzter Formel-Auswerter
+ *
+ * Bewusst KEINE General-Purpose-Spreadsheet-Engine (z. B. HyperFormula): die
+ * unterrichteten Funktionen sind fest bekannt, daher reicht ein kleiner,
+ * lizenzfreier eigener Parser/Evaluator. Deckt genau die Funktionen ab, die
+ * in FUNCTION_SIGNATURES (engine.js) unterrichtet werden.
+ *
+ * Nutzung:
+ *   ExcelFloFormula.evaluate(formulaText, getCellValue) -> Wert | Error-Objekt
+ *   ExcelFloFormula.acceptedFormulaMatch(rawInput, acceptedFormulas) -> boolean
+ */
+
+(function () {
+  "use strict";
+
+  /* ---------------- Normalisierung für Formel-Text-Vergleich ---------------- */
+
+  function normalizeForCompare(text) {
+    let t = (text || "").trim().toUpperCase().replace(/\s+/g, "");
+    if (t === "") return "";
+    if (!t.startsWith("=")) t = "=" + t;
+    t = t.replace(/\$/g, "");
+    t = t.replace(/,/g, ";");
+    t = t.replace(/\bWAHR\b/g, "1").replace(/\bTRUE\b/g, "1");
+    t = t.replace(/\bFALSCH\b/g, "0").replace(/\bFALSE\b/g, "0");
+    return t;
+  }
+
+  // Vergleicht die (normalisierte) Nutzereingabe gegen eine Liste erlaubter,
+  // im Klartext geschriebener Formeln (kein Regex nötig).
+  function acceptedFormulaMatch(rawInput, acceptedFormulas) {
+    if (!acceptedFormulas || !acceptedFormulas.length) return false;
+    const input = normalizeForCompare(rawInput);
+    if (!input) return false;
+    return acceptedFormulas.some((f) => normalizeForCompare(f) === input);
+  }
+
+  /* ---------------- Tokenizer ---------------- */
+
+  const TOKEN_RE = /\s*(?:(\$?[A-Za-z]{1,3}\$?\d{1,7})|(\d+(?:\.\d+)?)|("(?:[^"]|"")*")|([A-Za-z_][A-Za-z0-9_.äöüÄÖÜ]*)|(<>|<=|>=|[+\-*/^&=<>(),;:%]))/y;
+
+  function tokenize(text) {
+    const tokens = [];
+    let s = text.trim();
+    if (s.startsWith("=")) s = s.slice(1);
+    TOKEN_RE.lastIndex = 0;
+    let m;
+    while (TOKEN_RE.lastIndex < s.length) {
+      m = TOKEN_RE.exec(s);
+      if (!m || m[0] === "") break;
+      if (m[1]) tokens.push({ type: "ref", value: m[1].replace(/\$/g, "").toUpperCase() });
+      else if (m[2]) tokens.push({ type: "number", value: parseFloat(m[2]) });
+      else if (m[3]) tokens.push({ type: "string", value: m[3].slice(1, -1).replace(/""/g, '"') });
+      else if (m[4]) tokens.push({ type: "ident", value: m[4].toUpperCase() });
+      else if (m[5]) tokens.push({ type: "op", value: m[5] });
+    }
+    return tokens;
+  }
+
+  /* ---------------- Parser (recursive descent) ---------------- */
+
+  function FormulaError(message) {
+    this.message = message;
+  }
+  FormulaError.prototype.isFormulaError = true;
+
+  function parse(tokens) {
+    let pos = 0;
+
+    function peek() {
+      return tokens[pos];
+    }
+    function next() {
+      return tokens[pos++];
+    }
+    function expectOp(op) {
+      const t = next();
+      if (!t || t.type !== "op" || t.value !== op) {
+        throw new FormulaError("Erwartet '" + op + "'");
+      }
+    }
+
+    function parseExpr() {
+      return parseComparison();
+    }
+
+    function parseComparison() {
+      let left = parseConcat();
+      while (peek() && peek().type === "op" && ["=", "<>", "<", ">", "<=", ">="].includes(peek().value)) {
+        const op = next().value;
+        const right = parseConcat();
+        left = { type: "compare", op, left, right };
+      }
+      return left;
+    }
+
+    function parseConcat() {
+      let left = parseAdditive();
+      while (peek() && peek().type === "op" && peek().value === "&") {
+        next();
+        const right = parseAdditive();
+        left = { type: "concat", left, right };
+      }
+      return left;
+    }
+
+    function parseAdditive() {
+      let left = parseTerm();
+      while (peek() && peek().type === "op" && (peek().value === "+" || peek().value === "-")) {
+        const op = next().value;
+        const right = parseTerm();
+        left = { type: "binop", op, left, right };
+      }
+      return left;
+    }
+
+    function parseTerm() {
+      let left = parseUnary();
+      while (peek() && peek().type === "op" && (peek().value === "*" || peek().value === "/")) {
+        const op = next().value;
+        const right = parseUnary();
+        left = { type: "binop", op, left, right };
+      }
+      return left;
+    }
+
+    function parseUnary() {
+      if (peek() && peek().type === "op" && peek().value === "-") {
+        next();
+        return { type: "neg", value: parseUnary() };
+      }
+      return parsePrimary();
+    }
+
+    function parsePrimary() {
+      const t = peek();
+      if (!t) throw new FormulaError("Unerwartetes Formelende");
+
+      if (t.type === "number") {
+        next();
+        return { type: "number", value: t.value };
+      }
+      if (t.type === "string") {
+        next();
+        return { type: "string", value: t.value };
+      }
+      if (t.type === "ref") {
+        next();
+        if (peek() && peek().type === "op" && peek().value === ":") {
+          next();
+          const end = next();
+          if (!end || end.type !== "ref") throw new FormulaError("Ungültiger Bereich");
+          return { type: "range", start: t.value, end: end.value };
+        }
+        return { type: "ref", value: t.value };
+      }
+      if (t.type === "ident") {
+        next();
+        if (peek() && peek().type === "op" && peek().value === "(") {
+          next();
+          const args = [];
+          if (!(peek() && peek().type === "op" && peek().value === ")")) {
+            args.push(parseExpr());
+            while (peek() && peek().type === "op" && peek().value === ";") {
+              next();
+              args.push(parseExpr());
+            }
+          }
+          expectOp(")");
+          return { type: "call", name: t.value, args };
+        }
+        if (t.value === "WAHR" || t.value === "TRUE") return { type: "bool", value: true };
+        if (t.value === "FALSCH" || t.value === "FALSE") return { type: "bool", value: false };
+        throw new FormulaError("Unbekanntes Symbol: " + t.value);
+      }
+      if (t.type === "op" && t.value === "(") {
+        next();
+        const inner = parseExpr();
+        expectOp(")");
+        return inner;
+      }
+      throw new FormulaError("Unerwartetes Token: " + JSON.stringify(t));
+    }
+
+    const result = parseExpr();
+    if (pos < tokens.length) throw new FormulaError("Unerwartete Zeichen am Ende der Formel");
+    return result;
+  }
+
+  /* ---------------- Auswertung ---------------- */
+
+  function colIndexFromLetters(letters) {
+    let n = 0;
+    for (let i = 0; i < letters.length; i++) n = n * 26 + (letters.charCodeAt(i) - 64);
+    return n - 1;
+  }
+  function colLettersFromIndex(index) {
+    let n = index + 1;
+    let s = "";
+    while (n > 0) {
+      const rem = (n - 1) % 26;
+      s = String.fromCharCode(65 + rem) + s;
+      n = Math.floor((n - 1) / 26);
+    }
+    return s;
+  }
+  function refParts(ref) {
+    const m = ref.match(/^([A-Za-z]{1,3})(\d{1,7})$/);
+    return { col: m[1], row: parseInt(m[2], 10) };
+  }
+
+  function rangeToMatrix(rangeNode, getCellValue) {
+    const a = refParts(rangeNode.start);
+    const b = refParts(rangeNode.end);
+    const c1 = colIndexFromLetters(a.col);
+    const c2 = colIndexFromLetters(b.col);
+    const colLo = Math.min(c1, c2);
+    const colHi = Math.max(c1, c2);
+    const rowLo = Math.min(a.row, b.row);
+    const rowHi = Math.max(a.row, b.row);
+
+    const matrix = [];
+    for (let r = rowLo; r <= rowHi; r++) {
+      const row = [];
+      for (let c = colLo; c <= colHi; c++) {
+        row.push(getCellValue(colLettersFromIndex(c) + r));
+      }
+      matrix.push(row);
+    }
+    return matrix;
+  }
+
+  function flatten(matrix) {
+    const out = [];
+    matrix.forEach((row) => row.forEach((v) => out.push(v)));
+    return out;
+  }
+
+  function toNumber(v) {
+    if (typeof v === "number") return v;
+    if (typeof v === "boolean") return v ? 1 : 0;
+    if (typeof v === "string") {
+      const n = parseFloat(v.replace(",", "."));
+      return Number.isNaN(n) ? 0 : n;
+    }
+    return 0;
+  }
+
+  function looseEquals(a, b) {
+    if (typeof a === "number" || typeof b === "number") return toNumber(a) === toNumber(b);
+    return String(a).trim().toLowerCase() === String(b).trim().toLowerCase();
+  }
+
+  function isTruthy(v) {
+    if (typeof v === "boolean") return v;
+    if (typeof v === "number") return v !== 0;
+    if (typeof v === "string") return ["1", "WAHR", "TRUE"].includes(v.trim().toUpperCase());
+    return !!v;
+  }
+
+  // Einfache Kriterien wie SUMMEWENN/ZÄHLENWENN sie nutzen: "10", ">5", "<=3", "Text", "<>0"
+  function matchesCriteria(value, criteria) {
+    if (typeof criteria === "number") return toNumber(value) === criteria;
+    const c = String(criteria).trim();
+    const m = c.match(/^(<>|<=|>=|<|>|=)?(.*)$/);
+    const op = m[1] || "=";
+    const rest = m[2];
+    const numRest = parseFloat(rest.replace(",", "."));
+    const compareNumeric = !Number.isNaN(numRest) && typeof value !== "string";
+
+    if (compareNumeric) {
+      const v = toNumber(value);
+      switch (op) {
+        case ">": return v > numRest;
+        case "<": return v < numRest;
+        case ">=": return v >= numRest;
+        case "<=": return v <= numRest;
+        case "<>": return v !== numRest;
+        default: return v === numRest;
+      }
+    }
+    switch (op) {
+      case "<>": return !looseEquals(value, rest);
+      default: return looseEquals(value, rest);
+    }
+  }
+
+  function roundHalfUp(num, digits) {
+    const factor = Math.pow(10, digits);
+    const sign = num < 0 ? -1 : 1;
+    return (sign * Math.round(Math.abs(num) * factor)) / factor;
+  }
+
+  const FUNCTIONS = {
+    SVERWEIS(args) {
+      const [search, tableArg, colIndexArg, rangeArg] = args;
+      if (tableArg.kind !== "matrix") throw new FormulaError("SVERWEIS: Matrix erwartet");
+      const table = tableArg.value;
+      const colIndex = Math.round(toNumber(colIndexArg.value)) - 1;
+      const wantExact = rangeArg !== undefined && !isTruthy(rangeArg.value);
+
+      if (wantExact) {
+        for (const row of table) {
+          if (looseEquals(row[0], search.value)) return row[colIndex];
+        }
+        throw new FormulaError("SVERWEIS: #NV (kein Treffer)");
+      }
+      // Näherungssuche: sortiert aufsteigend angenommen, größten Wert <= Suchkriterium
+      let best = null;
+      for (const row of table) {
+        if (toNumber(row[0]) <= toNumber(search.value)) best = row;
+        else break;
+      }
+      if (!best) throw new FormulaError("SVERWEIS: #NV (kein Treffer)");
+      return best[colIndex];
+    },
+
+    WVERWEIS(args) {
+      const [search, tableArg, rowIndexArg] = args;
+      const table = tableArg.value; // rows x cols
+      const rowIndex = Math.round(toNumber(rowIndexArg.value)) - 1;
+      const headerRow = table.map((row) => row[0]);
+      for (let c = 0; c < headerRow.length; c++) {
+        if (looseEquals(table[c][0], search.value)) return table[c][rowIndex];
+      }
+      throw new FormulaError("WVERWEIS: #NV (kein Treffer)");
+    },
+
+    WENN(args, rawArgs) {
+      const cond = isTruthy(args[0].value);
+      const branch = cond ? rawArgs[1] : rawArgs[2];
+      if (branch === undefined) return cond;
+      return evalNode(branch.node, branch.getCellValue);
+    },
+
+    SUMME(args) {
+      let sum = 0;
+      args.forEach((a) => {
+        const values = a.kind === "matrix" ? flatten(a.value) : [a.value];
+        values.forEach((v) => {
+          if (typeof v === "number") sum += v;
+        });
+      });
+      return sum;
+    },
+
+    SUMMEWENN(args) {
+      const [rangeArg, criteriaArg, sumRangeArg] = args;
+      const range = flatten(rangeArg.value);
+      const sumRange = sumRangeArg ? flatten(sumRangeArg.value) : range;
+      let sum = 0;
+      range.forEach((v, i) => {
+        if (matchesCriteria(v, criteriaArg.value)) sum += toNumber(sumRange[i]);
+      });
+      return sum;
+    },
+
+    "ZÄHLENWENN": function (args) {
+      const [rangeArg, criteriaArg] = args;
+      const range = flatten(rangeArg.value);
+      return range.filter((v) => matchesCriteria(v, criteriaArg.value)).length;
+    },
+
+    RUNDEN(args) {
+      return roundHalfUp(toNumber(args[0].value), Math.round(toNumber(args[1].value)));
+    },
+
+    VERGLEICH(args) {
+      const [search, rangeArg, typeArg] = args;
+      const list = flatten(rangeArg.value);
+      const matchType = typeArg ? Math.round(toNumber(typeArg.value)) : 1;
+
+      if (matchType === 0) {
+        const idx = list.findIndex((v) => looseEquals(v, search.value));
+        if (idx === -1) throw new FormulaError("VERGLEICH: #NV (kein Treffer)");
+        return idx + 1;
+      }
+      let bestIdx = -1;
+      for (let i = 0; i < list.length; i++) {
+        if (matchType > 0 && toNumber(list[i]) <= toNumber(search.value)) bestIdx = i;
+        else if (matchType < 0 && toNumber(list[i]) >= toNumber(search.value)) bestIdx = i;
+      }
+      if (bestIdx === -1) throw new FormulaError("VERGLEICH: #NV (kein Treffer)");
+      return bestIdx + 1;
+    },
+
+    INDEX(args) {
+      const [rangeArg, rowArg, colArg] = args;
+      const matrix = rangeArg.value;
+      const row = Math.round(toNumber(rowArg.value));
+      const col = colArg ? Math.round(toNumber(colArg.value)) : 1;
+      if (matrix.length === 1) return matrix[0][row - 1] !== undefined && !colArg ? matrix[0][row - 1] : matrix[row - 1][col - 1];
+      return matrix[row - 1][col - 1];
+    },
+
+    MIN(args) {
+      const nums = [];
+      args.forEach((a) => (a.kind === "matrix" ? flatten(a.value) : [a.value]).forEach((v) => typeof v === "number" && nums.push(v)));
+      return nums.length ? Math.min(...nums) : 0;
+    },
+
+    MAX(args) {
+      const nums = [];
+      args.forEach((a) => (a.kind === "matrix" ? flatten(a.value) : [a.value]).forEach((v) => typeof v === "number" && nums.push(v)));
+      return nums.length ? Math.max(...nums) : 0;
+    },
+
+    MITTELWERT(args) {
+      const nums = [];
+      args.forEach((a) => (a.kind === "matrix" ? flatten(a.value) : [a.value]).forEach((v) => typeof v === "number" && nums.push(v)));
+      if (!nums.length) throw new FormulaError("MITTELWERT: #DIV/0!");
+      return nums.reduce((s, v) => s + v, 0) / nums.length;
+    },
+  };
+
+  function evalNode(node, getCellValue) {
+    switch (node.type) {
+      case "number":
+        return node.value;
+      case "string":
+        return node.value;
+      case "bool":
+        return node.value;
+      case "ref":
+        return getCellValue(node.value);
+      case "range":
+        return rangeToMatrix(node, getCellValue);
+      case "neg":
+        return -toNumber(evalNode(node.value, getCellValue));
+      case "concat":
+        return String(evalNode(node.left, getCellValue)) + String(evalNode(node.right, getCellValue));
+      case "binop": {
+        const l = toNumber(evalNode(node.left, getCellValue));
+        const r = toNumber(evalNode(node.right, getCellValue));
+        switch (node.op) {
+          case "+": return l + r;
+          case "-": return l - r;
+          case "*": return l * r;
+          case "/":
+            if (r === 0) throw new FormulaError("#DIV/0!");
+            return l / r;
+        }
+        throw new FormulaError("Unbekannter Operator: " + node.op);
+      }
+      case "compare": {
+        const l = evalNode(node.left, getCellValue);
+        const r = evalNode(node.right, getCellValue);
+        switch (node.op) {
+          case "=": return looseEquals(l, r);
+          case "<>": return !looseEquals(l, r);
+          case "<": return toNumber(l) < toNumber(r);
+          case ">": return toNumber(l) > toNumber(r);
+          case "<=": return toNumber(l) <= toNumber(r);
+          case ">=": return toNumber(l) >= toNumber(r);
+        }
+        throw new FormulaError("Unbekannter Vergleich: " + node.op);
+      }
+      case "call": {
+        const fn = FUNCTIONS[node.name];
+        if (!fn) throw new FormulaError("Unbekannte Funktion: " + node.name);
+        const evaluatedArgs = node.args.map((argNode) => {
+          const value = evalNode(argNode, getCellValue);
+          return { kind: argNode.type === "range" ? "matrix" : "scalar", value, node: argNode, getCellValue };
+        });
+        const rawArgs = node.args.map((argNode) => ({ node: argNode, getCellValue }));
+        return fn(evaluatedArgs, rawArgs);
+      }
+      default:
+        throw new FormulaError("Unbekannter Knoten: " + node.type);
+    }
+  }
+
+  function evaluate(formulaText, getCellValue) {
+    try {
+      const tokens = tokenize(formulaText);
+      if (!tokens.length) return new FormulaError("Leere Formel");
+      const ast = parse(tokens);
+      return evalNode(ast, getCellValue);
+    } catch (e) {
+      if (e && e.isFormulaError) return e;
+      return new FormulaError(e.message || "Formelfehler");
+    }
+  }
+
+  window.ExcelFloFormula = {
+    evaluate,
+    acceptedFormulaMatch,
+    normalizeForCompare,
+    isFormulaError: (v) => v instanceof FormulaError,
+  };
+})();
