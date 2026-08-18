@@ -1,14 +1,34 @@
 # Excel.Flo – Übungsportal
 
-Statische Sammlung interaktiver Excel-Übungen. Kein Framework, kein Build-Schritt,
-kein Backend, kein API-Key — reines HTML/CSS/JS. Jede Übung hat eine feste Aufgabe
-mit fest bekannten richtigen Antworten, die per Mustervergleich geprüft werden.
+Interaktive Excel-Übungen für den Excel Master Kurs. Kein Framework, kein
+Build-Schritt — reines HTML/CSS/JS, gehostet auf GitHub Pages. Jede Übung ist
+ein Datensatz (JSON), keine eigene Seite/Datei — die generische Portal-Engine
+(`assets/engine.js`) rendert daraus Tabelle, Eingabe und Prüfung.
+
+## Struktur
+
+```
+/index.html                → leitet auf /portal/ weiter
+/portal/index.html         → Übersicht mit Level-Tabs, generiert aus manifest.json
+/portal/uebung.html        → generische Übungsseite, lädt Übung anhand ?id=
+/assets/engine.js          → Rendering, Navigation, Prüf-Logik
+/assets/engine.css         → Design-System
+/assets/formula-engine.js  → eigener, eng begrenzter Formel-Auswerter
+/assets/progress.js        → Fortschritts-Speicherung (aktuell localStorage)
+/assets/iframe-resize.js   → meldet Seitenhöhe per postMessage (Ablefy-Einbettung)
+/assets/exercises/manifest.json     → Liste aller Übungen für die Übersicht
+/assets/exercises/<id>.json         → ein Datensatz pro Übung
+```
+
+Jede Übung hat dadurch automatisch eine stabile, verlinkbare URL:
+`/portal/uebung.html?id=<id>` — für Deep-Links am Ende einzelner Kapitel im
+Kurs, während der zentrale Menüpunkt auf `/portal/` (Übersicht) zeigt.
 
 ## Lokal testen
 
-Da die Seiten `fetch()` für die JSON-Dateien nutzen, funktioniert das direkte Öffnen
-per `file://` in manchen Browsern nicht (CORS). Stattdessen einen einfachen lokalen
-Server starten, z. B.:
+Da die Seiten `fetch()` für die JSON-Dateien nutzen, funktioniert das direkte
+Öffnen per `file://` in manchen Browsern nicht (CORS). Stattdessen einen
+einfachen lokalen Server starten, z. B.:
 
 ```bash
 python -m http.server 8080
@@ -20,23 +40,22 @@ und dann `http://localhost:8080` öffnen.
 
 Repo-Root wie hier vorliegend pushen, dann in den Repo-Einstellungen unter
 **Pages** den Branch (z. B. `main`) und Ordner `/ (root)` als Quelle wählen.
-`index.html` im Root wird automatisch als Startseite ausgeliefert.
+`index.html` im Root leitet automatisch auf `/portal/` weiter.
 
 ## Neue Übung hinzufügen
 
-Jede Übung besteht aus zwei Teilen: einem Eintrag im Manifest und einer Datendatei,
-die die Tabelle, Aufgabe und Lösung beschreibt. Eine dünne HTML-Shell lädt beides
-zur Laufzeit über `assets/engine.js`.
+Neue Übung = neuer Datensatz, kein neuer Seiten-Code.
 
 ### 1. Übungsdaten anlegen
 
-Neue Datei unter `assets/exercises/<slug>.json`. Aufbau:
+Neue Datei unter `assets/exercises/<id>.json`. Aufbau:
 
 ```json
 {
-  "slug": "eindeutiger-slug",
+  "id": "eindeutige-id",
   "title": "Titel der Übung",
-  "category": "SVERWEIS",
+  "level": "anfaenger",
+  "category": "verweisfunktionen",
   "difficulty": "Leicht | Mittel | Schwer",
   "description": "Kurzbeschreibung für die Übersichtskarte.",
   "task": {
@@ -55,45 +74,90 @@ Neue Datei unter `assets/exercises/<slug>.json`. Aufbau:
         "answer": {
           "value": 12.5,
           "tolerance": 0.005,
-          "patterns": ["^=?SUMME\\(A2:B2\\)$"]
+          "acceptedFormulas": ["=SUMME(A2:B2)"]
         }
       }
     }
   },
   "hints": ["Tipp 1", "Tipp 2"],
+  "explanation": "Wird nach erfolgreichem Lösen angezeigt sowie im Tipps-Panel.",
   "solution": "=SUMME(A2:B2)"
 }
 ```
 
+- `level`: `"anfaenger"` | `"fortgeschritten"` | `"profi"` — bestimmt den Tab
+  auf der Übersicht. Profi = fortgeschrittene Formeln (verschachtelte
+  Funktionen, INDEX/VERGLEICH, dynamische Arrays) — **nicht** Power Query/
+  Power Pivot/DAX, das gehört zum separaten Power Kurs.
+- `category`: freie Taxonomie zur Gruppierung (`verweisfunktionen`,
+  `textfunktionen`, …), wird auch als Badge angezeigt.
+
 **Zell-Typen** (`grid.cells["<Zellbezug>"]`):
 
 - Kein Eintrag → leere Gridzelle.
-- `{ "value": ... }` → normale Datenzelle. Optional `"type": "header"` für fette
-  Kopfzeilen-Optik, `"format": "currency"` für Euro-Formatierung von Zahlen.
-- `{ "type": "input", "answer": {...} }` → Eingabefeld, das geprüft wird.
+- `{ "value": ... }` → normale Datenzelle. Optional `"type": "header"` für
+  fette Kopfzeilen-Optik, `"format": "currency"` für Euro-Formatierung.
+- `{ "type": "input", "answer": {...} }` → Eingabefeld, das geprüft wird. Eine
+  Übung kann mehrere Eingabezellen haben; „abgeschlossen" heißt: alle davon
+  korrekt.
 
-**Antworten prüfen** (`answer`):
+**Antworten prüfen** (`answer`) — mehrstufig, in dieser Reihenfolge:
 
-- `patterns`: Array von Regex-Strings. Die Nutzereingabe wird vor dem Test
-  Leerzeichen-bereinigt und in Großbuchstaben umgewandelt — Patterns entsprechend
-  ohne Leerzeichen schreiben. `[;,]` verwenden, um sowohl Semikolon (deutsches
-  Excel) als auch Komma zu akzeptieren.
-- `value` + `tolerance`: Erlaubt zusätzlich die direkte Eingabe des berechneten
-  Zahlenergebnisses (mit Komma oder Punkt als Dezimaltrennzeichen) statt der Formel.
-- Eine Zelle ist korrekt, wenn **entweder** ein Pattern **oder** der Zahlenwert
-  passt.
+1. `value` + `tolerance`: direkte Zahlenwert-Eingabe statt Formel (Komma oder
+   Punkt als Dezimaltrennzeichen).
+2. `acceptedFormulas`: Array **im Klartext** geschriebener Formeln (kein
+   Regex nötig). Vergleich erfolgt normalisiert — Groß-/Kleinschreibung,
+   Leerzeichen, `;` vs. `,`, `$`-Fixierung und `WAHR`/`FALSCH` vs. `1`/`0`
+   sind dabei egal. Eine Formel wie `=SVERWEIS(D2;A2:B7;2;FALSCH)` reicht
+   als einziger Eintrag, um auch `=sverweis(d2,$a$2:$b$7,2,0)` zu akzeptieren.
+3. `patterns`: Regex-Array, nur für Sonderfälle, die sich mit (2) nicht
+   abbilden lassen.
+4. **Formel-Auswertung** (`assets/formula-engine.js`): wenn keine der obigen
+   Stufen greift, wird die eingetippte Formel tatsächlich gegen die
+   Zelldaten der Übung ausgewertet und das Ergebnis mit `value` verglichen.
+   Fängt Formulierungen ab, an die beim Schreiben der Übung niemand gedacht
+   hat. Unterstützte Funktionen: siehe `FUNCTION_SIGNATURES` in
+   `assets/engine.js` (SVERWEIS, WVERWEIS, WENN, SUMME, SUMMEWENN,
+   ZÄHLENWENN, RUNDEN, VERGLEICH, INDEX, MIN, MAX, MITTELWERT). Bewusst kein
+   HyperFormula o. ä. — Lizenz (AGPL/kommerziell) passt nicht zu einem
+   bezahlten Kursprodukt; stattdessen ein kleiner eigener, isoliert
+   getesteter Parser/Evaluator (Test: `node` gegen `formula-engine.js` mit
+   einer lokalen Testdatei, siehe Git-Historie für ein Beispiel).
+
+Eine Zelle ist korrekt, sobald **eine** der vier Stufen zutrifft.
 
 ### 2. Im Manifest eintragen
 
-In `assets/exercises/manifest.json` einen Eintrag ergänzen (gleiche Felder wie
-oben: `slug`, `title`, `category`, `difficulty`, `description`). Reihenfolge im
-Array bestimmt die Reihenfolge auf der Übersichtsseite.
+In `assets/exercises/manifest.json` einen Eintrag ergänzen (gleiche Felder
+wie oben: `id`, `title`, `level`, `category`, `difficulty`, `description`).
+Reihenfolge im Array bestimmt die Reihenfolge auf der Übersichtsseite
+innerhalb einer Stufe. Das war's — `portal/uebung.html` lädt die neue Übung
+automatisch über `?id=<id>`, keine weitere Datei nötig.
 
-### 3. HTML-Shell erstellen
+## Fortschritt
 
-Neue Datei `uebungen/<slug>.html` — einfach `uebungen/sverweis-preisliste.html`
-kopieren und in `data-exercise-path` sowie im `<title>` den neuen Slug/Titel
-eintragen. Mehr ist nicht nötig, `engine.js` übernimmt Rendering und Prüfung.
+`assets/progress.js` erzeugt beim ersten Besuch automatisch eine anonyme ID
+(kein Login, keine Pflicht-Anmeldung) und speichert abgeschlossene Übungen —
+aktuell in `localStorage` des Browsers. Die API (`ExcelFloProgress.*`) ist
+bewusst stabil gehalten, damit die Anbindung an ein serverseitiges Backend
+(geplant: Supabase, für geräteübergreifenden Fortschritt + optionale
+E-Mail-Verknüpfung) später nur diese eine Datei ersetzt, ohne den Rest des
+Codes anzufassen.
+
+Nach erfolgreichem Abschluss einer Übung: Erklärung wird angezeigt, die
+nächste unerledigte Übung derselben Stufe wird vorgeschlagen (kein Zwang),
+und bei vollständig abgeschlossener Stufe bzw. allen Stufen erscheint eine
+entsprechende Meldung (auf der Übungs- und der Übersichtsseite).
+
+## Einbettung per iframe (Ablefy)
+
+GitHub Pages setzt keine `X-Frame-Options`/CSP-Header, die Embedding
+blockieren würden — hier ist nichts zu konfigurieren. `assets/iframe-resize.js`
+meldet die Seitenhöhe per `postMessage` an die Elternseite, damit im iframe
+kein unnötiger Scrollbalken entsteht (die Elternseite muss die Nachricht
+`{ type: "excelflo:resize", height }` selbst auswerten und die iframe-Höhe
+setzen). Der Zugriffsschutz läuft vollständig über Ablefy — das Portal prüft
+selbst keine Kaufberechtigung.
 
 ## Zell-Engine (Navigation, Formeln)
 
@@ -120,6 +184,7 @@ Zellbereich (z. B. `B2:B7`).
 
 ## Design-System
 
-Farben, Schriften und Komponenten (Karten, Tabellen-Grid, Badges, Buttons) liegen
-zentral in `assets/engine.css`. Neue Übungen sollten ausschließlich vorhandene
-Klassen nutzen, damit alle Seiten optisch konsistent bleiben.
+Farben, Schriften und Komponenten (Karten, Tabellen-Grid, Badges, Buttons,
+Level-Tabs) liegen zentral in `assets/engine.css`. Neue Übungen sollten
+ausschließlich vorhandene Klassen nutzen, damit alle Seiten optisch
+konsistent bleiben.
