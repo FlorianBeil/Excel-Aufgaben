@@ -1,5 +1,13 @@
 [
   {
+    "id": "summe-umsatz",
+    "title": "Summe der Umsätze berechnen",
+    "level": "anfaenger",
+    "category": "grundfunktionen",
+    "difficulty": "Leicht",
+    "description": "Nutze die SUMME-Funktion, um mehrere Werte auf einmal zu addieren."
+  },
+  {
     "id": "sverweis-preisliste",
     "title": "Finde den passenden Preis",
     "level": "anfaenger",

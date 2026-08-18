@@ -366,6 +366,9 @@
     if (format === "currency" && typeof value === "number") {
       return value.toLocaleString("de-DE", { style: "currency", currency: "EUR" });
     }
+    if (format === "currency0" && typeof value === "number") {
+      return value.toLocaleString("de-DE", { style: "currency", currency: "EUR", minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
     return String(value);
   }
 
@@ -1298,7 +1301,8 @@
 
     if (correct === refs.length) {
       feedback.classList.add("is-success");
-      feedback.appendChild(el("p", { text: "Richtig! Alle " + refs.length + " Felder stimmen. 🎉" }));
+      const successText = refs.length === 1 ? "Richtig! 🎉" : "Richtig! Alle " + refs.length + " Felder stimmen. 🎉";
+      feedback.appendChild(el("p", { text: successText }));
 
       const data = context && context.exerciseData;
       if (data && data.explanation) {
