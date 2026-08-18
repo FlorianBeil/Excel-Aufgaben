@@ -8,6 +8,14 @@
     "description": "Nutze die SUMME-Funktion, um mehrere Werte auf einmal zu addieren."
   },
   {
+    "id": "mittelwert-noten",
+    "title": "Notendurchschnitt berechnen",
+    "level": "anfaenger",
+    "category": "grundfunktionen",
+    "difficulty": "Leicht",
+    "description": "Nutze die MITTELWERT-Funktion, um den Durchschnitt mehrerer Werte zu berechnen."
+  },
+  {
     "id": "sverweis-preisliste",
     "title": "Finde den passenden Preis",
     "level": "anfaenger",
