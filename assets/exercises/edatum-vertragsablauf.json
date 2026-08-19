@@ -5,9 +5,9 @@
   "category": "datumsfunktionen",
   "description": "Nutze EDATUM, um ausgehend vom Vertragsbeginn das Ablaufdatum zu berechnen.",
   "task": {
-    "intro": "Alle Verträge laufen genau 12 Monate. Berechne mit EDATUM das jeweilige Ablaufdatum.",
+    "intro": "Alle Verträge laufen genau 6 Monate. Berechne mit EDATUM das jeweilige Ablaufdatum.",
     "steps": [
-      "Trage in Zelle B2 eine EDATUM-Formel ein, die 12 Monate zum Vertragsbeginn addiert.",
+      "Trage in Zelle B2 eine EDATUM-Formel ein, die 6 Monate zum Vertragsbeginn addiert.",
       "Danach kannst du die Formel per Ausfüllkästchen bis B5 herunterziehen."
     ]
   },
@@ -22,9 +22,9 @@
       "B2": {
         "type": "input",
         "answer": {
-          "value": 46661,
+          "value": 46478,
           "tolerance": 0.5,
-          "acceptedFormulas": ["=EDATUM(A2;12)"]
+          "acceptedFormulas": ["=EDATUM(A2;6)"]
         }
       },
 
@@ -32,9 +32,9 @@
       "B3": {
         "type": "input",
         "answer": {
-          "value": 46461,
+          "value": 46280,
           "tolerance": 0.5,
-          "acceptedFormulas": ["=EDATUM(A3;12)"]
+          "acceptedFormulas": ["=EDATUM(A3;6)"]
         }
       },
 
@@ -42,9 +42,9 @@
       "B4": {
         "type": "input",
         "answer": {
-          "value": 46631,
+          "value": 46447,
           "tolerance": 0.5,
-          "acceptedFormulas": ["=EDATUM(A4;12)"]
+          "acceptedFormulas": ["=EDATUM(A4;6)"]
         }
       },
 
@@ -52,18 +52,18 @@
       "B5": {
         "type": "input",
         "answer": {
-          "value": 46753,
+          "value": 46569,
           "tolerance": 0.5,
-          "acceptedFormulas": ["=EDATUM(A5;12)"]
+          "acceptedFormulas": ["=EDATUM(A5;6)"]
         }
       }
     }
   },
   "hints": [
     "EDATUM-Aufbau: =EDATUM(Ausgangsdatum; Monate)",
-    "Ausgangsdatum ist der Vertragsbeginn, Monate gibst du als Zahl an, z. B. 12 für ein Jahr.",
+    "Ausgangsdatum ist der Vertragsbeginn, Monate gibst du als Zahl an, z. B. 6 für ein halbes Jahr.",
     "Das Ergebnis von EDATUM ist selbst wieder ein Datum."
   ],
-  "explanation": "EDATUM(A2;12) addiert 12 Monate zum Ausgangsdatum in A2 und gibt das daraus resultierende Datum zurück – hier also das Ablaufdatum ein Jahr nach Vertragsbeginn.",
-  "solution": "=EDATUM(A2;12)   (analog für B3 bis B5)"
+  "explanation": "EDATUM(A2;6) addiert 6 Monate zum Ausgangsdatum in A2 und gibt das daraus resultierende Datum zurück – hier also das Ablaufdatum ein halbes Jahr nach Vertragsbeginn.",
+  "solution": "=EDATUM(A2;6)   (analog für B3 bis B5)"
 }

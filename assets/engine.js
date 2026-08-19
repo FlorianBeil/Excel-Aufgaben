@@ -628,7 +628,7 @@
         const handle = el("span", { class: "fill-handle" });
         const td = el("td", { class: "cell--input", "data-ref": ref }, [content, handle]);
 
-        inputEntries[ref] = { el: content, td, answer: cellDef.answer || {}, beforeEdit: "" };
+        inputEntries[ref] = { el: content, td, answer: cellDef.answer || {}, beforeEdit: "", spill: cellDef.spill || null };
 
         content.addEventListener("input", () => {
           keyPoint = null;
@@ -790,6 +790,27 @@
       if (selectedRef === ref) contentPreview.textContent = text;
 
       updateArgHint(ref, text, offset);
+      updateSpill(ref, text);
+    }
+
+    // Ahmt Excels dynamische Arrays nach: liefert die Formel einer Eingabezelle ein Array
+    // (z. B. TEXTTEILEN), wird der Rest automatisch in die per `spill` angegebenen
+    // Nachbarzellen geschrieben (nur zur Anzeige, nicht editierbar).
+    function updateSpill(ref, text) {
+      const entry = inputEntries[ref];
+      if (!entry || !entry.spill || !entry.spill.length) return;
+
+      let values = null;
+      if (window.ExcelFloFormula && text.startsWith("=")) {
+        const result = window.ExcelFloFormula.evaluate(text, getCellValue);
+        if (!window.ExcelFloFormula.isFormulaError(result) && Array.isArray(result)) {
+          values = flattenDeep(result);
+        }
+      }
+
+      entry.spill.forEach((spillRef, i) => {
+        if (cellEls[spillRef]) cellEls[spillRef].textContent = values ? String(values[i + 1] !== undefined ? values[i + 1] : "") : "";
+      });
     }
 
     function updateArgHint(ref, text, caret) {
@@ -1281,6 +1302,7 @@
       Object.values(inputEntries).forEach((entry) => {
         entry.el.textContent = "";
         entry.td.classList.remove("is-correct", "is-wrong");
+        if (entry.spill) entry.spill.forEach((r) => { if (cellEls[r]) cellEls[r].textContent = ""; });
       });
       select(cols[0] + "1");
       wrap.focus({ preventScroll: true });
@@ -1319,6 +1341,16 @@
     return String(a).trim().toLowerCase() === String(b).trim().toLowerCase();
   }
 
+  // Löst verschachtelte Arrays auf (z. B. das 1xN-Array, das TEXTTEILEN liefert) in eine flache Liste auf.
+  function flattenDeep(value) {
+    const out = [];
+    (function walk(v) {
+      if (Array.isArray(v)) v.forEach(walk);
+      else out.push(v);
+    })(value);
+    return out;
+  }
+
   function checkCell(rawInput, answer, getCellValue) {
     const raw = (rawInput || "").trim();
     if (raw === "") return null; // nicht beantwortet
@@ -1355,6 +1387,9 @@
           if (Math.abs(result - answer.value) < tolerance) return true;
         } else if (typeof answer.value === "string" && (typeof result === "string" || typeof result === "boolean")) {
           if (textMatches(result, answer.value, answer.caseSensitive)) return true;
+        } else if (Array.isArray(answer.value) && Array.isArray(result)) {
+          const flat = flattenDeep(result);
+          if (flat.length === answer.value.length && flat.every((v, i) => textMatches(v, answer.value[i], answer.caseSensitive))) return true;
         }
       }
     }

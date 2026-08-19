@@ -9,9 +9,8 @@
     "steps": [
       "Trage in Zelle D2 eine TEXTVERKETTEN-Formel ein, die Vorname, Nachname und Stadt mit einem Bindestrich verbindet.",
       "Kopiere die Formel per Ausfüllkästchen bis D3.",
-      "Trage in Zelle B6 eine Formel ein, die mit TEXTTEILEN den ersten Teil aus A6 liefert.",
-      "Trage in den Zellen C6 und D6 die passenden Formeln für den zweiten und dritten Teil ein.",
-      "Kopiere alle drei Formeln per Ausfüllkästchen bis Zeile 7."
+      "Trage in Zelle B6 eine TEXTTEILEN-Formel ein, die den Text aus A6 an jedem Bindestrich aufteilt.",
+      "Kopiere die Formel per Ausfüllkästchen bis B7."
     ]
   },
   "grid": {
@@ -53,46 +52,20 @@
       "A6": { "value": "Anna-Schmidt-München" },
       "B6": {
         "type": "input",
+        "spill": ["C6", "D6"],
         "answer": {
-          "value": "Anna",
-          "acceptedFormulas": ["=INDEX(TEXTTEILEN(A6;\"-\");1;1)"]
-        }
-      },
-      "C6": {
-        "type": "input",
-        "answer": {
-          "value": "Schmidt",
-          "acceptedFormulas": ["=INDEX(TEXTTEILEN(A6;\"-\");1;2)"]
-        }
-      },
-      "D6": {
-        "type": "input",
-        "answer": {
-          "value": "München",
-          "acceptedFormulas": ["=INDEX(TEXTTEILEN(A6;\"-\");1;3)"]
+          "value": ["Anna", "Schmidt", "München"],
+          "acceptedFormulas": ["=TEXTTEILEN(A6;\"-\")"]
         }
       },
 
       "A7": { "value": "Martin-Meier-Berlin" },
       "B7": {
         "type": "input",
+        "spill": ["C7", "D7"],
         "answer": {
-          "value": "Martin",
-          "acceptedFormulas": ["=INDEX(TEXTTEILEN(A7;\"-\");1;1)"]
-        }
-      },
-      "C7": {
-        "type": "input",
-        "answer": {
-          "value": "Meier",
-          "acceptedFormulas": ["=INDEX(TEXTTEILEN(A7;\"-\");1;2)"]
-        }
-      },
-      "D7": {
-        "type": "input",
-        "answer": {
-          "value": "Berlin",
-          "acceptedFormulas": ["=INDEX(TEXTTEILEN(A7;\"-\");1;3)"]
+          "value": ["Martin", "Meier", "Berlin"],
+          "acceptedFormulas": ["=TEXTTEILEN(A7;\"-\")"]
         }
       }
     }
@@ -100,10 +73,10 @@
   "hints": [
     "TEXTVERKETTEN-Aufbau: =TEXTVERKETTEN(Trennzeichen; Ignorieren; Text1; Text2; …)",
     "Als Trennzeichen nutzt du \"-\", als zweites Argument WAHR (dann werden leere Zellen übersprungen).",
-    "TEXTTEILEN-Aufbau: =TEXTTEILEN(Text; Trennzeichen) – zerlegt einen Text an jedem Trennzeichen in mehrere Teile.",
-    "Da TEXTTEILEN mehrere Werte auf einmal liefert, holst du mit INDEX(...; 1; Spaltennummer) gezielt einen einzelnen Teil heraus, z. B. INDEX(TEXTTEILEN(A6;\"-\");1;1) für den ersten Teil.",
-    "Du kannst statt der Formeln auch direkt die fertigen Texte eintippen."
+    "TEXTTEILEN-Aufbau: =TEXTTEILEN(Text; Spaltentrennzeichen) – zerlegt einen Text an jedem Trennzeichen in mehrere Teile.",
+    "Die Formel gehört nur in die erste Zelle (B6) – TEXTTEILEN füllt die Ergebnisse automatisch in die Zellen rechts daneben (C6, D6).",
+    "Du kannst statt der TEXTVERKETTEN-Formel auch direkt den fertigen Text eintippen."
   ],
-  "explanation": "TEXTVERKETTEN(\"-\";WAHR;A2;B2;C2) reiht Vorname, Nachname und Stadt aneinander und trennt sie dabei jeweils mit einem Bindestrich. TEXTTEILEN(A6;\"-\") zerlegt den Text in A6 an jedem Bindestrich in seine Einzelteile; INDEX(...;1;1) greift daraus gezielt den ersten Teil heraus, INDEX(...;1;2) den zweiten und INDEX(...;1;3) den dritten.",
-  "solution": "=TEXTVERKETTEN(\"-\";WAHR;A2;B2;C2)   /   =INDEX(TEXTTEILEN(A6;\"-\");1;1)   (analog für die übrigen Zellen)"
+  "explanation": "TEXTVERKETTEN(\"-\";WAHR;A2;B2;C2) reiht Vorname, Nachname und Stadt aneinander und trennt sie dabei jeweils mit einem Bindestrich. TEXTTEILEN(A6;\"-\") zerlegt den Text in A6 an jedem Bindestrich in seine Einzelteile und füllt sie automatisch in die Zellen rechts daneben (B6, C6, D6) – ganz ohne INDEX oder weitere Formeln.",
+  "solution": "=TEXTVERKETTEN(\"-\";WAHR;A2;B2;C2)   /   =TEXTTEILEN(A6;\"-\")   (analog für die übrigen Zellen)"
 }
