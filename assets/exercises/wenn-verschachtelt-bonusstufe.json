@@ -1,11 +1,11 @@
 {
   "id": "wenn-verschachtelt-bonusstufe",
-  "title": "Bonusstufe mit UND und verschachtelter WENN ermitteln",
+  "title": "Bonusstufe mit verschachtelter WENN-Funktion ermitteln",
   "level": "profi",
   "category": "logikfunktionen",
-  "description": "Kombiniere UND mit einer verschachtelten WENN-Funktion, um eine Bonusstufe aus zwei Bedingungen gleichzeitig zu ermitteln.",
+  "description": "Ermittle mit einer verschachtelten WENN-Funktion eine Bonusstufe, bei der zwei Bedingungen gleichzeitig erfüllt sein müssen.",
   "task": {
-    "intro": "Ermittle die Bonusstufe: „Hoch“ bei Umsatz ab 50.000 € UND mindestens 5 Jahren, „Mittel“ bei Umsatz ab 30.000 € UND mindestens 2 Jahren, sonst „Kein“.",
+    "intro": "Ermittle die Bonusstufe: „Hoch“ bei Umsatz ab 50.000 € und mindestens 5 Jahren, „Mittel“ bei Umsatz ab 30.000 € und mindestens 2 Jahren, sonst „Kein“.",
     "steps": [
       "Trage in Zelle D2 eine WENN-Formel ein, die die Bonusstufe ermittelt.",
       "Danach kannst du die Formel per Ausfüllkästchen bis D5 herunterziehen."

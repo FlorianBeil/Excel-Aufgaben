@@ -148,17 +148,17 @@
   },
   {
     "id": "wenn-verschachtelt-bonusstufe",
-    "title": "Bonusstufe mit UND und verschachtelter WENN ermitteln",
+    "title": "Bonusstufe mit verschachtelter WENN-Funktion ermitteln",
     "level": "profi",
     "category": "logikfunktionen",
-    "description": "Kombiniere UND mit einer verschachtelten WENN-Funktion, um eine Bonusstufe aus zwei Bedingungen gleichzeitig zu ermitteln."
+    "description": "Ermittle mit einer verschachtelten WENN-Funktion eine Bonusstufe, bei der zwei Bedingungen gleichzeitig erfüllt sein müssen."
   },
   {
     "id": "wenn-verschachtelt-prioritaet",
-    "title": "Kundenpriorität mit ODER und verschachtelter WENN ermitteln",
+    "title": "Kundenpriorität mit verschachtelter WENN-Funktion ermitteln",
     "level": "profi",
     "category": "logikfunktionen",
-    "description": "Kombiniere ODER mit einer verschachtelten WENN-Funktion, um eine Priorität aus mehreren möglichen Bedingungen zu ermitteln."
+    "description": "Ermittle mit einer verschachtelten WENN-Funktion eine Priorität, bei der mindestens eine von mehreren möglichen Bedingungen erfüllt sein muss."
   },
   {
     "id": "bereich-verschieben-monatsumsatz",

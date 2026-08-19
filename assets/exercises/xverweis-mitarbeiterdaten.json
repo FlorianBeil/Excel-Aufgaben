@@ -8,7 +8,8 @@
     "intro": "XVERWEIS kann – anders als SVERWEIS – auch dann suchen, wenn die gesuchte Spalte nicht ganz links steht. In Spalte A stehen gesuchte Namen (Spalte D der Mitarbeiterliste).",
     "steps": [
       "Trage in Zelle B8 eine XVERWEIS-Formel ein, die anhand des Namens aus A8 automatisch Code, Land und Stadt liefert.",
-      "Kopiere die Formel per Ausfüllkästchen bis Zeile 10."
+      "Kopiere die Formel per Ausfüllkästchen bis Zeile 10.",
+      "Wird ein Name nicht gefunden (wie „Daniel Baum“), soll statt eines Fehlers ein Text wie „Nicht gefunden“ erscheinen."
     ]
   },
   "grid": {
