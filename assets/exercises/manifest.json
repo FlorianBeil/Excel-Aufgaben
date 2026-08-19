@@ -49,17 +49,24 @@
     "description": "Nutze SVERWEIS, um zu einem gesuchten Produkt automatisch den passenden Preis zu finden."
   },
   {
-    "id": "sverweis-preisliste",
-    "title": "Finde den passenden Preis",
-    "level": "anfaenger",
-    "category": "verweisfunktionen",
-    "description": "Nutze SVERWEIS, um für gesuchte Produkte automatisch den passenden Preis aus einer Liste zu finden."
-  },
-  {
     "id": "sverweis-rabattstaffel",
     "title": "Rabattstaffel mit SVERWEIS",
     "level": "anfaenger",
     "category": "verweisfunktionen",
     "description": "Nutze SVERWEIS mit ungefährer Übereinstimmung, um anhand einer Mengen-Staffel den passenden Rabatt zu ermitteln."
+  },
+  {
+    "id": "textfunktionen-gross-klein",
+    "title": "Groß- und Kleinschreibung anpassen",
+    "level": "anfaenger",
+    "category": "textfunktionen",
+    "description": "Nutze GROSS2, GROSS und KLEIN, um Text in die gewünschte Schreibweise zu bringen."
+  },
+  {
+    "id": "sverweis-preisliste",
+    "title": "Finde den passenden Preis",
+    "level": "fortgeschritten",
+    "category": "verweisfunktionen",
+    "description": "Nutze SVERWEIS, um für gesuchte Produkte automatisch den passenden Preis aus einer Liste zu finden."
   }
 ]

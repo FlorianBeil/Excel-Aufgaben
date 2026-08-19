@@ -1,0 +1,66 @@
+{
+  "id": "textfunktionen-gross-klein",
+  "title": "Groß- und Kleinschreibung anpassen",
+  "level": "anfaenger",
+  "category": "textfunktionen",
+  "description": "Nutze GROSS2, GROSS und KLEIN, um Text in die gewünschte Schreibweise zu bringen.",
+  "task": {
+    "intro": "In Spalte B steht jeweils ein Text. Ermittle in Spalte C das Ergebnis passend zur Aufgabe in Spalte A.",
+    "steps": [
+      "Trage in Zelle C3 eine Formel ein, die den Text aus B3 so umwandelt, dass jedes Wort mit einem Großbuchstaben beginnt.",
+      "Trage in Zelle C5 eine Formel ein, die den Text aus B5 komplett in Großbuchstaben umwandelt.",
+      "Trage in Zelle C7 eine Formel ein, die den Text aus B7 komplett in Kleinbuchstaben umwandelt."
+    ]
+  },
+  "grid": {
+    "cols": ["A", "B", "C"],
+    "rowCount": 7,
+    "cells": {
+      "A1": { "value": "Aufgabe", "type": "header" },
+      "B1": { "value": "Text", "type": "header" },
+      "C1": { "value": "Ergebnis", "type": "header" },
+
+      "A3": { "value": "Erster Buchstabe groß" },
+      "B3": { "value": "excel flo" },
+      "C3": {
+        "type": "input",
+        "answer": {
+          "value": "Excel Flo",
+          "caseSensitive": true,
+          "acceptedFormulas": ["=GROSS2(B3)"]
+        }
+      },
+
+      "A5": { "value": "Alle Buchstaben groß" },
+      "B5": { "value": "excel flo" },
+      "C5": {
+        "type": "input",
+        "answer": {
+          "value": "EXCEL FLO",
+          "caseSensitive": true,
+          "acceptedFormulas": ["=GROSS(B5)"]
+        }
+      },
+
+      "A7": { "value": "Alle Buchstaben klein" },
+      "B7": { "value": "EXCEL FLO" },
+      "C7": {
+        "type": "input",
+        "answer": {
+          "value": "excel flo",
+          "caseSensitive": true,
+          "acceptedFormulas": ["=KLEIN(B7)"]
+        }
+      }
+    }
+  },
+  "hints": [
+    "GROSS2-Aufbau: =GROSS2(Text) – wandelt jeweils den ersten Buchstaben jedes Wortes in einen Großbuchstaben um, der Rest wird klein geschrieben.",
+    "GROSS-Aufbau: =GROSS(Text) – wandelt den gesamten Text in Großbuchstaben um.",
+    "KLEIN-Aufbau: =KLEIN(Text) – wandelt den gesamten Text in Kleinbuchstaben um.",
+    "Das Argument ist jeweils die Zelle mit dem Ausgangstext, z. B. B3.",
+    "Du kannst statt der Formel auch direkt das fertige Ergebnis eintippen – achte dabei genau auf Groß- und Kleinschreibung."
+  ],
+  "explanation": "GROSS2 schreibt den ersten Buchstaben jedes Wortes groß und den Rest klein (aus \"excel flo\" wird \"Excel Flo\"). GROSS wandelt den kompletten Text in Großbuchstaben um (\"EXCEL FLO\"). KLEIN wandelt den kompletten Text in Kleinbuchstaben um (\"excel flo\"). Alle drei erhalten als Argument die Zelle mit dem Ausgangstext.",
+  "solution": "=GROSS2(B3)   /   =GROSS(B5)   /   =KLEIN(B7)"
+}

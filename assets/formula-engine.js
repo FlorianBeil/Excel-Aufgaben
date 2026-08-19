@@ -256,6 +256,11 @@
     return out;
   }
 
+  function toText(v) {
+    if (v === undefined || v === null) return "";
+    return String(v);
+  }
+
   function toNumber(v) {
     if (typeof v === "number") return v;
     if (typeof v === "boolean") return v ? 1 : 0;
@@ -436,6 +441,18 @@
       let count = 0;
       args.forEach((a) => (a.kind === "matrix" ? flatten(a.value) : [a.value]).forEach((v) => typeof v === "number" && count++));
       return count;
+    },
+
+    GROSS(args) {
+      return toText(args[0].value).toUpperCase();
+    },
+
+    KLEIN(args) {
+      return toText(args[0].value).toLowerCase();
+    },
+
+    GROSS2(args) {
+      return toText(args[0].value).replace(/\p{L}+/gu, (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
     },
   };
 

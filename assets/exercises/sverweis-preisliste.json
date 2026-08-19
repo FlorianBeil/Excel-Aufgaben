@@ -1,7 +1,7 @@
 {
   "id": "sverweis-preisliste",
   "title": "Finde den passenden Preis",
-  "level": "anfaenger",
+  "level": "fortgeschritten",
   "category": "verweisfunktionen",
   "description": "Nutze SVERWEIS, um für gesuchte Produkte automatisch den passenden Preis aus einer Liste zu finden.",
   "task": {

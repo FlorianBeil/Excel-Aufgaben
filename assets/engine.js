@@ -31,6 +31,9 @@
     MAX: ["Zahl1", "[Zahl2]"],
     MITTELWERT: ["Zahl1", "[Zahl2]"],
     ANZAHL: ["Wert1", "[Wert2]"],
+    GROSS: ["Text"],
+    KLEIN: ["Text"],
+    GROSS2: ["Text"],
   };
 
   function el(tag, attrs, children) {
@@ -1294,7 +1297,8 @@
   // normalisiert – $, ;/,, WAHR/FALSCH vs. 1/0 sind dabei egal)  3) Regex-Patterns (Altlast/
   // Spezialfälle)  4) echte Auswertung der eingegebenen Formel gegen die Zelldaten – fängt
   // Formulierungen ab, an die vorher niemand gedacht hat.
-  function textMatches(a, b) {
+  function textMatches(a, b, caseSensitive) {
+    if (caseSensitive) return String(a).trim() === String(b).trim();
     return String(a).trim().toLowerCase() === String(b).trim().toLowerCase();
   }
 
@@ -1307,7 +1311,7 @@
       const tolerance = answer.tolerance !== undefined ? answer.tolerance : 0.01;
       if (num !== null && Math.abs(num - answer.value) < tolerance) return true;
     } else if (typeof answer.value === "string" && !raw.startsWith("=")) {
-      if (textMatches(raw, answer.value)) return true;
+      if (textMatches(raw, answer.value, answer.caseSensitive)) return true;
     }
 
     if (window.ExcelFloFormula && answer.acceptedFormulas && answer.acceptedFormulas.length) {
@@ -1333,7 +1337,7 @@
           const tolerance = answer.tolerance !== undefined ? answer.tolerance : 0.01;
           if (Math.abs(result - answer.value) < tolerance) return true;
         } else if (typeof answer.value === "string" && (typeof result === "string" || typeof result === "boolean")) {
-          if (textMatches(result, answer.value)) return true;
+          if (textMatches(result, answer.value, answer.caseSensitive)) return true;
         }
       }
     }
