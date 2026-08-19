@@ -1,0 +1,109 @@
+{
+  "id": "textverketten-textteilen",
+  "title": "Texte verketten und wieder aufteilen",
+  "level": "fortgeschritten",
+  "category": "textfunktionen",
+  "description": "Nutze TEXTVERKETTEN, um mehrere Texte zu verbinden, und TEXTTEILEN, um einen Text wieder in seine Bestandteile zu zerlegen.",
+  "task": {
+    "intro": "Oben verkettest du Vorname, Nachname und Stadt zu einem gemeinsamen Text. Unten teilst du einen zusammengesetzten Text wieder in seine Bestandteile auf.",
+    "steps": [
+      "Trage in Zelle D2 eine TEXTVERKETTEN-Formel ein, die Vorname, Nachname und Stadt mit einem Bindestrich verbindet.",
+      "Kopiere die Formel per Ausfüllkästchen bis D3.",
+      "Trage in Zelle B6 eine Formel ein, die mit TEXTTEILEN den ersten Teil aus A6 liefert.",
+      "Trage in den Zellen C6 und D6 die passenden Formeln für den zweiten und dritten Teil ein.",
+      "Kopiere alle drei Formeln per Ausfüllkästchen bis Zeile 7."
+    ]
+  },
+  "grid": {
+    "cols": ["A", "B", "C", "D"],
+    "rowCount": 7,
+    "cells": {
+      "A1": { "value": "Vorname", "type": "header" },
+      "B1": { "value": "Nachname", "type": "header" },
+      "C1": { "value": "Stadt", "type": "header" },
+      "D1": { "value": "Name und Stadt", "type": "header" },
+
+      "A2": { "value": "Anna" },
+      "B2": { "value": "Schmidt" },
+      "C2": { "value": "München" },
+      "D2": {
+        "type": "input",
+        "answer": {
+          "value": "Anna-Schmidt-München",
+          "acceptedFormulas": ["=TEXTVERKETTEN(\"-\";WAHR;A2;B2;C2)"]
+        }
+      },
+
+      "A3": { "value": "Martin" },
+      "B3": { "value": "Meier" },
+      "C3": { "value": "Berlin" },
+      "D3": {
+        "type": "input",
+        "answer": {
+          "value": "Martin-Meier-Berlin",
+          "acceptedFormulas": ["=TEXTVERKETTEN(\"-\";WAHR;A3;B3;C3)"]
+        }
+      },
+
+      "A5": { "value": "Name und Stadt", "type": "header" },
+      "B5": { "value": "Vorname", "type": "header" },
+      "C5": { "value": "Nachname", "type": "header" },
+      "D5": { "value": "Stadt", "type": "header" },
+
+      "A6": { "value": "Anna-Schmidt-München" },
+      "B6": {
+        "type": "input",
+        "answer": {
+          "value": "Anna",
+          "acceptedFormulas": ["=INDEX(TEXTTEILEN(A6;\"-\");1;1)"]
+        }
+      },
+      "C6": {
+        "type": "input",
+        "answer": {
+          "value": "Schmidt",
+          "acceptedFormulas": ["=INDEX(TEXTTEILEN(A6;\"-\");1;2)"]
+        }
+      },
+      "D6": {
+        "type": "input",
+        "answer": {
+          "value": "München",
+          "acceptedFormulas": ["=INDEX(TEXTTEILEN(A6;\"-\");1;3)"]
+        }
+      },
+
+      "A7": { "value": "Martin-Meier-Berlin" },
+      "B7": {
+        "type": "input",
+        "answer": {
+          "value": "Martin",
+          "acceptedFormulas": ["=INDEX(TEXTTEILEN(A7;\"-\");1;1)"]
+        }
+      },
+      "C7": {
+        "type": "input",
+        "answer": {
+          "value": "Meier",
+          "acceptedFormulas": ["=INDEX(TEXTTEILEN(A7;\"-\");1;2)"]
+        }
+      },
+      "D7": {
+        "type": "input",
+        "answer": {
+          "value": "Berlin",
+          "acceptedFormulas": ["=INDEX(TEXTTEILEN(A7;\"-\");1;3)"]
+        }
+      }
+    }
+  },
+  "hints": [
+    "TEXTVERKETTEN-Aufbau: =TEXTVERKETTEN(Trennzeichen; Ignorieren; Text1; Text2; …)",
+    "Als Trennzeichen nutzt du \"-\", als zweites Argument WAHR (dann werden leere Zellen übersprungen).",
+    "TEXTTEILEN-Aufbau: =TEXTTEILEN(Text; Trennzeichen) – zerlegt einen Text an jedem Trennzeichen in mehrere Teile.",
+    "Da TEXTTEILEN mehrere Werte auf einmal liefert, holst du mit INDEX(...; 1; Spaltennummer) gezielt einen einzelnen Teil heraus, z. B. INDEX(TEXTTEILEN(A6;\"-\");1;1) für den ersten Teil.",
+    "Du kannst statt der Formeln auch direkt die fertigen Texte eintippen."
+  ],
+  "explanation": "TEXTVERKETTEN(\"-\";WAHR;A2;B2;C2) reiht Vorname, Nachname und Stadt aneinander und trennt sie dabei jeweils mit einem Bindestrich. TEXTTEILEN(A6;\"-\") zerlegt den Text in A6 an jedem Bindestrich in seine Einzelteile; INDEX(...;1;1) greift daraus gezielt den ersten Teil heraus, INDEX(...;1;2) den zweiten und INDEX(...;1;3) den dritten.",
+  "solution": "=TEXTVERKETTEN(\"-\";WAHR;A2;B2;C2)   /   =INDEX(TEXTTEILEN(A6;\"-\");1;1)   (analog für die übrigen Zellen)"
+}

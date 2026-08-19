@@ -319,6 +319,17 @@
     }
   }
 
+  // Datumswerte werden wie in Excel als fortlaufende Seriennummer (Tage seit 1899-12-30) gespeichert.
+  const MS_PER_DAY = 86400000;
+  const EXCEL_EPOCH_UTC = Date.UTC(1899, 11, 30);
+
+  function serialToDate(serial) {
+    return new Date(EXCEL_EPOCH_UTC + serial * MS_PER_DAY);
+  }
+  function dateToSerial(y, m, d) {
+    return Math.round((Date.UTC(y, m - 1, d) - EXCEL_EPOCH_UTC) / MS_PER_DAY);
+  }
+
   function roundHalfUp(num, digits) {
     const factor = Math.pow(10, digits);
     const sign = num < 0 ? -1 : 1;
@@ -476,6 +487,104 @@
     GROSS2(args) {
       return toText(args[0].value).replace(/\p{L}+/gu, (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
     },
+
+    "LÄNGE": function (args) {
+      return toText(args[0].value).length;
+    },
+
+    LINKS(args) {
+      const text = toText(args[0].value);
+      const n = args[1] !== undefined ? Math.round(toNumber(args[1].value)) : 1;
+      return text.slice(0, Math.max(0, n));
+    },
+
+    RECHTS(args) {
+      const text = toText(args[0].value);
+      const n = args[1] !== undefined ? Math.round(toNumber(args[1].value)) : 1;
+      return n <= 0 ? "" : text.slice(-n);
+    },
+
+    "FINDEN": function (args) {
+      const search = toText(args[0].value);
+      const text = toText(args[1].value);
+      const start = args[2] !== undefined ? Math.round(toNumber(args[2].value)) : 1;
+      const idx = text.indexOf(search, Math.max(0, start - 1));
+      if (idx === -1) throw new FormulaError("FINDEN: #WERT! (Text nicht gefunden)");
+      return idx + 1;
+    },
+
+    TEXTVOR(args) {
+      const text = toText(args[0].value);
+      const delim = toText(args[1].value);
+      const idx = text.indexOf(delim);
+      if (idx === -1) throw new FormulaError("TEXTVOR: #N/A (Trennzeichen nicht gefunden)");
+      return text.slice(0, idx);
+    },
+
+    TEXTNACH(args) {
+      const text = toText(args[0].value);
+      const delim = toText(args[1].value);
+      const idx = text.indexOf(delim);
+      if (idx === -1) throw new FormulaError("TEXTNACH: #N/A (Trennzeichen nicht gefunden)");
+      return text.slice(idx + delim.length);
+    },
+
+    TEXTVERKETTEN(args) {
+      const delim = toText(args[0].value);
+      const ignoreEmpty = isTruthy(args[1].value);
+      const parts = [];
+      for (let i = 2; i < args.length; i++) {
+        const a = args[i];
+        const values = a.kind === "matrix" ? flatten(a.value) : [a.value];
+        values.forEach((v) => {
+          const t = toText(v);
+          if (!(ignoreEmpty && t === "")) parts.push(t);
+        });
+      }
+      return parts.join(delim);
+    },
+
+    TEXTTEILEN(args) {
+      const text = toText(args[0].value);
+      const delim = toText(args[1].value);
+      const parts = delim === "" ? [text] : text.split(delim);
+      return [parts];
+    },
+
+    "DATEDIF": function (args) {
+      const start = serialToDate(toNumber(args[0].value));
+      const end = serialToDate(toNumber(args[1].value));
+      const unit = toText(args[2].value).trim().toUpperCase();
+
+      if (unit === "D") return Math.round(toNumber(args[1].value)) - Math.round(toNumber(args[0].value));
+
+      if (unit === "Y") {
+        let years = end.getUTCFullYear() - start.getUTCFullYear();
+        if (end.getUTCMonth() < start.getUTCMonth() || (end.getUTCMonth() === start.getUTCMonth() && end.getUTCDate() < start.getUTCDate())) years--;
+        return years;
+      }
+      if (unit === "M") {
+        let months = (end.getUTCFullYear() - start.getUTCFullYear()) * 12 + (end.getUTCMonth() - start.getUTCMonth());
+        if (end.getUTCDate() < start.getUTCDate()) months--;
+        return months;
+      }
+      throw new FormulaError("DATEDIF: unbekannte Einheit (nutze \"Y\", \"M\" oder \"D\")");
+    },
+
+    "EDATUM": function (args) {
+      const start = serialToDate(toNumber(args[0].value));
+      const monthsDelta = Math.round(toNumber(args[1].value));
+      const y = start.getUTCFullYear();
+      const m = start.getUTCMonth();
+      const day = start.getUTCDate();
+
+      const totalMonths = m + monthsDelta;
+      const newYear = y + Math.floor(totalMonths / 12);
+      const newMonth = ((totalMonths % 12) + 12) % 12;
+      const lastDayOfNewMonth = new Date(Date.UTC(newYear, newMonth + 1, 0)).getUTCDate();
+      const newDay = Math.min(day, lastDayOfNewMonth);
+      return dateToSerial(newYear, newMonth + 1, newDay);
+    },
   };
 
   function evalNode(node, getCellValue) {
@@ -525,7 +634,8 @@
         if (!fn) throw new FormulaError("Unbekannte Funktion: " + node.name);
         const evaluatedArgs = node.args.map((argNode) => {
           const value = evalNode(argNode, getCellValue);
-          return { kind: argNode.type === "range" ? "matrix" : "scalar", value, node: argNode, getCellValue };
+          const isMatrix = argNode.type === "range" || Array.isArray(value);
+          return { kind: isMatrix ? "matrix" : "scalar", value, node: argNode, getCellValue };
         });
         const rawArgs = node.args.map((argNode) => ({ node: argNode, getCellValue }));
         return fn(evaluatedArgs, rawArgs);

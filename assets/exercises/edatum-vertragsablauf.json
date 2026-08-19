@@ -1,0 +1,69 @@
+{
+  "id": "edatum-vertragsablauf",
+  "title": "Vertragsablauf berechnen",
+  "level": "fortgeschritten",
+  "category": "datumsfunktionen",
+  "description": "Nutze EDATUM, um ausgehend vom Vertragsbeginn das Ablaufdatum zu berechnen.",
+  "task": {
+    "intro": "Alle Verträge laufen genau 12 Monate. Berechne mit EDATUM das jeweilige Ablaufdatum.",
+    "steps": [
+      "Trage in Zelle B2 eine EDATUM-Formel ein, die 12 Monate zum Vertragsbeginn addiert.",
+      "Danach kannst du die Formel per Ausfüllkästchen bis B5 herunterziehen."
+    ]
+  },
+  "grid": {
+    "cols": ["A", "B"],
+    "rowCount": 5,
+    "cells": {
+      "A1": { "value": "Vertragsbeginn", "type": "header" },
+      "B1": { "value": "Ablaufdatum", "type": "header" },
+
+      "A2": { "value": 46296, "format": "date" },
+      "B2": {
+        "type": "input",
+        "answer": {
+          "value": 46661,
+          "tolerance": 0.5,
+          "acceptedFormulas": ["=EDATUM(A2;12)"]
+        }
+      },
+
+      "A3": { "value": 46096, "format": "date" },
+      "B3": {
+        "type": "input",
+        "answer": {
+          "value": 46461,
+          "tolerance": 0.5,
+          "acceptedFormulas": ["=EDATUM(A3;12)"]
+        }
+      },
+
+      "A4": { "value": 46266, "format": "date" },
+      "B4": {
+        "type": "input",
+        "answer": {
+          "value": 46631,
+          "tolerance": 0.5,
+          "acceptedFormulas": ["=EDATUM(A4;12)"]
+        }
+      },
+
+      "A5": { "value": 46388, "format": "date" },
+      "B5": {
+        "type": "input",
+        "answer": {
+          "value": 46753,
+          "tolerance": 0.5,
+          "acceptedFormulas": ["=EDATUM(A5;12)"]
+        }
+      }
+    }
+  },
+  "hints": [
+    "EDATUM-Aufbau: =EDATUM(Ausgangsdatum; Monate)",
+    "Ausgangsdatum ist der Vertragsbeginn, Monate gibst du als Zahl an, z. B. 12 für ein Jahr.",
+    "Das Ergebnis von EDATUM ist selbst wieder ein Datum."
+  ],
+  "explanation": "EDATUM(A2;12) addiert 12 Monate zum Ausgangsdatum in A2 und gibt das daraus resultierende Datum zurück – hier also das Ablaufdatum ein Jahr nach Vertragsbeginn.",
+  "solution": "=EDATUM(A2;12)   (analog für B3 bis B5)"
+}

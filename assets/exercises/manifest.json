@@ -103,5 +103,33 @@
     "level": "fortgeschritten",
     "category": "bedingungsfunktionen",
     "description": "Nutze ZÄHLENWENNS, um Datensätze zu zählen, die gleichzeitig zwei Bedingungen erfüllen."
+  },
+  {
+    "id": "datedif-alter",
+    "title": "Alter zum Stichtag berechnen",
+    "level": "fortgeschritten",
+    "category": "datumsfunktionen",
+    "description": "Nutze DATEDIF, um aus Geburtsdatum und Stichtag das Alter in vollen Jahren zu berechnen."
+  },
+  {
+    "id": "edatum-vertragsablauf",
+    "title": "Vertragsablauf berechnen",
+    "level": "fortgeschritten",
+    "category": "datumsfunktionen",
+    "description": "Nutze EDATUM, um ausgehend vom Vertragsbeginn das Ablaufdatum zu berechnen."
+  },
+  {
+    "id": "textverketten-textteilen",
+    "title": "Texte verketten und wieder aufteilen",
+    "level": "fortgeschritten",
+    "category": "textfunktionen",
+    "description": "Nutze TEXTVERKETTEN, um mehrere Texte zu verbinden, und TEXTTEILEN, um einen Text wieder in seine Bestandteile zu zerlegen."
+  },
+  {
+    "id": "textvor-textnach-email",
+    "title": "E-Mail-Adresse zerlegen",
+    "level": "fortgeschritten",
+    "category": "textfunktionen",
+    "description": "Nutze TEXTVOR und TEXTNACH, um eine E-Mail-Adresse am @-Zeichen zu zerlegen."
   }
 ]

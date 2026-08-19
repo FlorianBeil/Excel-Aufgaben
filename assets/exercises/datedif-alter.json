@@ -1,0 +1,75 @@
+{
+  "id": "datedif-alter",
+  "title": "Alter zum Stichtag berechnen",
+  "level": "fortgeschritten",
+  "category": "datumsfunktionen",
+  "description": "Nutze DATEDIF, um aus Geburtsdatum und Stichtag das Alter in vollen Jahren zu berechnen.",
+  "task": {
+    "intro": "Berechne mit DATEDIF das Alter in vollen Jahren zum jeweiligen Stichtag.",
+    "steps": [
+      "Trage in Zelle C2 eine DATEDIF-Formel ein.",
+      "Danach kannst du die Formel per Ausfüllkästchen bis C5 herunterziehen."
+    ]
+  },
+  "grid": {
+    "cols": ["A", "B", "C"],
+    "rowCount": 5,
+    "cells": {
+      "A1": { "value": "Geburtsdatum", "type": "header" },
+      "B1": { "value": "Stichtag", "type": "header" },
+      "C1": { "value": "Alter (Jahre)", "type": "header" },
+
+      "A2": { "value": 32947, "format": "date" },
+      "B2": { "value": 46023, "format": "date" },
+      "C2": {
+        "type": "input",
+        "answer": {
+          "value": 35,
+          "tolerance": 0.001,
+          "acceptedFormulas": ["=DATEDIF(A2;B2;\"Y\")"]
+        }
+      },
+
+      "A3": { "value": 35084, "format": "date" },
+      "B3": { "value": 46023, "format": "date" },
+      "C3": {
+        "type": "input",
+        "answer": {
+          "value": 29,
+          "tolerance": 0.001,
+          "acceptedFormulas": ["=DATEDIF(A3;B3;\"Y\")"]
+        }
+      },
+
+      "A4": { "value": 36745, "format": "date" },
+      "B4": { "value": 46023, "format": "date" },
+      "C4": {
+        "type": "input",
+        "answer": {
+          "value": 25,
+          "tolerance": 0.001,
+          "acceptedFormulas": ["=DATEDIF(A4;B4;\"Y\")"]
+        }
+      },
+
+      "A5": { "value": 38637, "format": "date" },
+      "B5": { "value": 46023, "format": "date" },
+      "C5": {
+        "type": "input",
+        "answer": {
+          "value": 20,
+          "tolerance": 0.001,
+          "acceptedFormulas": ["=DATEDIF(A5;B5;\"Y\")"]
+        }
+      }
+    }
+  },
+  "hints": [
+    "DATEDIF-Aufbau: =DATEDIF(Ausgangsdatum; Enddatum; Einheit)",
+    "Ausgangsdatum ist das Geburtsdatum, Enddatum der Stichtag.",
+    "Für die Einheit „ganze Jahre“ verwendest du \"Y\" (in Anführungszeichen).",
+    "Du kannst statt der Formel auch direkt die berechnete Anzahl der Jahre eintragen."
+  ],
+  "explanation": "DATEDIF(A2;B2;\"Y\") berechnet die Anzahl vollständig abgeschlossener Jahre zwischen zwei Daten. Die Einheit \"Y\" steht für Jahre. Da der Geburtstag zum Stichtag noch nicht erreicht ist, wird nur das zuletzt vollendete Lebensjahr gezählt.",
+  "solution": "=DATEDIF(A2;B2;\"Y\")   (analog für C3 bis C5)"
+}

@@ -35,6 +35,16 @@
     GROSS: ["Text"],
     KLEIN: ["Text"],
     GROSS2: ["Text"],
+    "LÄNGE": ["Text"],
+    LINKS: ["Text", "[Anzahl_Zeichen]"],
+    RECHTS: ["Text", "[Anzahl_Zeichen]"],
+    "FINDEN": ["Suchtext", "Text", "[Erstes_Zeichen]"],
+    TEXTVOR: ["Text", "Trennzeichen"],
+    TEXTNACH: ["Text", "Trennzeichen"],
+    TEXTVERKETTEN: ["Trennzeichen", "Ignorieren", "Text1", "[Text2]"],
+    TEXTTEILEN: ["Text", "Trennzeichen"],
+    "DATEDIF": ["Ausgangsdatum", "Enddatum", "Einheit"],
+    "EDATUM": ["Ausgangsdatum", "Monate"],
   };
 
   function el(tag, attrs, children) {
@@ -365,6 +375,12 @@
     }
     if (format === "percent" && typeof value === "number") {
       return value.toLocaleString("de-DE", { style: "percent", minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    }
+    if (format === "date" && typeof value === "number") {
+      const d = new Date(Date.UTC(1899, 11, 30) + value * 86400000);
+      const dd = String(d.getUTCDate()).padStart(2, "0");
+      const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
+      return dd + "." + mm + "." + d.getUTCFullYear();
     }
     return String(value);
   }

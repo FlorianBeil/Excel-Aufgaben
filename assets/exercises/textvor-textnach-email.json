@@ -1,0 +1,53 @@
+{
+  "id": "textvor-textnach-email",
+  "title": "E-Mail-Adresse zerlegen",
+  "level": "fortgeschritten",
+  "category": "textfunktionen",
+  "description": "Nutze TEXTVOR und TEXTNACH, um eine E-Mail-Adresse am @-Zeichen zu zerlegen.",
+  "task": {
+    "intro": "In Spalte B steht jeweils eine E-Mail-Adresse. Ermittle in Spalte C das Ergebnis passend zur Aufgabe in Spalte A.",
+    "steps": [
+      "Trage in Zelle C3 eine Formel ein, die den Teil der E-Mail-Adresse vor dem @-Zeichen liefert.",
+      "Trage in Zelle C5 eine Formel ein, die den Teil der E-Mail-Adresse nach dem @-Zeichen liefert."
+    ]
+  },
+  "grid": {
+    "cols": ["A", "B", "C"],
+    "rowCount": 5,
+    "cells": {
+      "A1": { "value": "Aufgabe", "type": "header" },
+      "B1": { "value": "Text", "type": "header" },
+      "C1": { "value": "Ergebnis", "type": "header" },
+
+      "A3": { "value": "Teil vor @" },
+      "B3": { "value": "anna.schmidt@excelflo.de" },
+      "C3": {
+        "type": "input",
+        "answer": {
+          "value": "anna.schmidt",
+          "acceptedFormulas": ["=TEXTVOR(B3;\"@\")", "=LINKS(B3;FINDEN(\"@\";B3)-1)"]
+        }
+      },
+
+      "A5": { "value": "Teil nach @" },
+      "B5": { "value": "anna.schmidt@excelflo.de" },
+      "C5": {
+        "type": "input",
+        "answer": {
+          "value": "excelflo.de",
+          "acceptedFormulas": ["=TEXTNACH(B5;\"@\")", "=RECHTS(B5;LÄNGE(B5)-FINDEN(\"@\";B5))"]
+        }
+      }
+    }
+  },
+  "hints": [
+    "TEXTVOR-Aufbau: =TEXTVOR(Text; Trennzeichen) – liefert den Textteil vor dem angegebenen Trennzeichen.",
+    "TEXTNACH-Aufbau: =TEXTNACH(Text; Trennzeichen) – liefert den Textteil nach dem angegebenen Trennzeichen.",
+    "Alternativ geht es auch mit den klassischen Textfunktionen LINKS, RECHTS, FINDEN und LÄNGE. FINDEN(\"@\";B3) liefert z. B. die Position des @-Zeichens.",
+    "Klassischer Lösungsweg für den Teil vor dem @: =LINKS(B3;FINDEN(\"@\";B3)-1)",
+    "Klassischer Lösungsweg für den Teil nach dem @: =RECHTS(B5;LÄNGE(B5)-FINDEN(\"@\";B5))",
+    "Das Trennzeichen bzw. der Suchtext gehört wie jeder Text in Anführungszeichen, z. B. \"@\"."
+  ],
+  "explanation": "TEXTVOR(B3;\"@\") liefert den Text vor dem ersten @-Zeichen, TEXTNACH(B5;\"@\") den Text danach. Alternativ lässt sich das auch klassisch lösen: FINDEN(\"@\";B3) ermittelt die Position des @-Zeichens, LINKS(B3;FINDEN(\"@\";B3)-1) schneidet alles davor ab, und RECHTS(B5;LÄNGE(B5)-FINDEN(\"@\";B5)) schneidet alles danach heraus.",
+  "solution": "=TEXTVOR(B3;\"@\")  bzw.  =LINKS(B3;FINDEN(\"@\";B3)-1)     /     =TEXTNACH(B5;\"@\")  bzw.  =RECHTS(B5;LÄNGE(B5)-FINDEN(\"@\";B5))"
+}
