@@ -7,8 +7,7 @@
   "task": {
     "intro": "In der Tabelle steht, ab welcher Menge welcher Rabatt gilt. Ermittle mit SVERWEIS den Rabatt für die gesuchte Menge.",
     "steps": [
-      "Trage in Zelle B8 eine SVERWEIS-Formel ein, die den passenden Rabatt für die gesuchte Menge ermittelt.",
-      "Wichtig: Nutze diesmal WAHR (oder 1) als 4. Argument, da hier ungefähr statt exakt gesucht werden muss."
+      "Trage in Zelle B8 eine SVERWEIS-Formel ein, die den passenden Rabatt für die gesuchte Menge ermittelt."
     ]
   },
   "grid": {
