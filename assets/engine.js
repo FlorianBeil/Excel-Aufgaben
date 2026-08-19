@@ -545,6 +545,8 @@
     const rowHeadEls = {};
 
     let selectedRef = null;
+    let selectionAnchor = null; // Startzelle einer Mehrfachauswahl (Shift+Pfeiltaste/Klick); === selectedRef bei Einzelauswahl
+    let rangeSelectedRefs = []; // aktuell hervorgehobene Zellen einer Mehrfachauswahl (ohne die aktive Zelle)
     let editingRef = null;
     let highlightedRefs = [];
     let keyPoint = null; // { before, after, anchor, current } – Pfeiltasten-Referenzierung beim Formel-Schreiben
@@ -660,9 +662,35 @@
       return undefined;
     }
 
+    function clearRangeHighlight() {
+      rangeSelectedRefs.forEach((r) => {
+        if (cellEls[r]) cellEls[r].classList.remove("is-range-selected");
+      });
+      rangeSelectedRefs = [];
+    }
+
+    function cellsInRange(r1, r2) {
+      const a = refRowCol(r1);
+      const b = refRowCol(r2);
+      const c1 = cols.indexOf(a.col);
+      const c2 = cols.indexOf(b.col);
+      const colLo = Math.min(c1, c2);
+      const colHi = Math.max(c1, c2);
+      const rowLo = Math.min(a.row, b.row);
+      const rowHi = Math.max(a.row, b.row);
+      const refs = [];
+      for (let ci = colLo; ci <= colHi; ci++) {
+        for (let ri = rowLo; ri <= rowHi; ri++) {
+          if (cols[ci]) refs.push(cols[ci] + ri);
+        }
+      }
+      return refs;
+    }
+
     function select(ref) {
       if (!cellEls[ref]) return;
       if (editingRef && editingRef !== ref) commitEdit();
+      clearRangeHighlight();
 
       if (selectedRef && cellEls[selectedRef]) cellEls[selectedRef].classList.remove("is-selected");
       const prev = selectedRef ? refRowCol(selectedRef) : null;
@@ -673,6 +701,7 @@
       }
 
       selectedRef = ref;
+      selectionAnchor = ref;
       cellEls[ref].classList.add("is-selected");
       const { col, row } = refRowCol(ref);
       const colIdx = cols.indexOf(col);
@@ -683,12 +712,42 @@
       contentPreview.textContent = cellText(ref);
     }
 
+    // Erweitert die Auswahl von selectionAnchor bis newRef (Shift+Pfeiltaste/Klick) – wie in Excel.
+    function extendSelectionTo(newRef) {
+      if (!cellEls[newRef] || !selectionAnchor) return;
+      if (cellEls[selectedRef]) cellEls[selectedRef].classList.remove("is-selected");
+      clearRangeHighlight();
+
+      selectedRef = newRef;
+      const rangeRefs = cellsInRange(selectionAnchor, newRef);
+      rangeRefs.forEach((r) => {
+        if (r === newRef || !cellEls[r]) return;
+        cellEls[r].classList.add("is-range-selected");
+        rangeSelectedRefs.push(r);
+      });
+      cellEls[newRef].classList.add("is-selected");
+
+      nameBox.textContent = rangeRefs.length > 1 ? selectionAnchor + ":" + newRef : newRef;
+      contentPreview.textContent = cellText(newRef);
+    }
+
     function moveSelection(dRow, dCol) {
       const base = selectedRef || cols[0] + "1";
       const { col, row } = refRowCol(base);
       const colIdx = Math.min(Math.max(cols.indexOf(col) + dCol, 0), cols.length - 1);
       const newRow = Math.min(Math.max(row + dRow, 1), rowCount);
       select(cols[colIdx] + newRow);
+      wrap.focus({ preventScroll: true });
+    }
+
+    // Shift+Pfeiltaste: Auswahl wie in Excel zu einem Zellbereich erweitern statt zu verschieben.
+    function extendSelection(dRow, dCol) {
+      const base = selectedRef || cols[0] + "1";
+      const { col, row } = refRowCol(base);
+      const colIdx = Math.min(Math.max(cols.indexOf(col) + dCol, 0), cols.length - 1);
+      const newRow = Math.min(Math.max(row + dRow, 1), rowCount);
+      if (!selectionAnchor) selectionAnchor = base;
+      extendSelectionTo(cols[colIdx] + newRow);
       wrap.focus({ preventScroll: true });
     }
 
@@ -924,21 +983,30 @@
     }
 
     function applyPaste(text, fromRef) {
-      let finalText = text;
-      if (fromRef) {
-        const src = refRowCol(fromRef);
-        const dst = refRowCol(selectedRef);
-        const rowDelta = dst.row - src.row;
-        const colDelta = cols.indexOf(dst.col) - cols.indexOf(src.col);
-        finalText = shiftFormula(text, rowDelta, colDelta);
-      }
-      inputEntries[selectedRef].el.textContent = finalText;
-      handleContentChanged(selectedRef);
+      // Bei Mehrfachauswahl (Shift+Pfeiltaste/Klick) wird in jede Zelle des markierten
+      // Bereichs eingefügt, jeweils mit angepassten relativen Bezügen – wie in Excel.
+      const destRefs =
+        selectionAnchor && selectionAnchor !== selectedRef ? cellsInRange(selectionAnchor, selectedRef) : [selectedRef];
+
+      destRefs.forEach((destRef) => {
+        const entry = inputEntries[destRef];
+        if (!entry) return;
+        let finalText = text;
+        if (fromRef) {
+          const src = refRowCol(fromRef);
+          const dst = refRowCol(destRef);
+          const rowDelta = dst.row - src.row;
+          const colDelta = cols.indexOf(dst.col) - cols.indexOf(src.col);
+          finalText = shiftFormula(text, rowDelta, colDelta);
+        }
+        entry.el.textContent = finalText;
+        handleContentChanged(destRef);
+      });
       clearCopiedVisual();
     }
 
     function pasteIntoSelected() {
-      if (!selectedRef || !inputEntries[selectedRef]) return;
+      if (!selectedRef) return;
 
       if (navigator.clipboard && navigator.clipboard.readText) {
         navigator.clipboard
@@ -964,16 +1032,16 @@
 
       if (e.key === "ArrowUp") {
         e.preventDefault();
-        moveSelection(-1, 0);
+        e.shiftKey ? extendSelection(-1, 0) : moveSelection(-1, 0);
       } else if (e.key === "ArrowDown") {
         e.preventDefault();
-        moveSelection(1, 0);
+        e.shiftKey ? extendSelection(1, 0) : moveSelection(1, 0);
       } else if (e.key === "ArrowLeft") {
         e.preventDefault();
-        moveSelection(0, -1);
+        e.shiftKey ? extendSelection(0, -1) : moveSelection(0, -1);
       } else if (e.key === "ArrowRight") {
         e.preventDefault();
-        moveSelection(0, 1);
+        e.shiftKey ? extendSelection(0, 1) : moveSelection(0, 1);
       } else if (e.key === "Tab") {
         e.preventDefault();
         moveSelection(0, e.shiftKey ? -1 : 1);
@@ -1096,7 +1164,11 @@
       }
       const td = e.target.closest("td[data-ref]");
       if (!td) return;
-      select(td.dataset.ref);
+      if (e.shiftKey && selectionAnchor && !editingRef) {
+        extendSelectionTo(td.dataset.ref);
+      } else {
+        select(td.dataset.ref);
+      }
       if (document.activeElement !== (inputEntries[td.dataset.ref] || {}).el) wrap.focus({ preventScroll: true });
     });
 

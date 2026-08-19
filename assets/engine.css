@@ -451,6 +451,13 @@ td.is-selected {
   z-index: 2;
 }
 
+td.is-range-selected {
+  background: rgba(16, 124, 65, 0.12);
+  outline: 1px solid rgba(16, 124, 65, 0.35);
+  outline-offset: -1px;
+  z-index: 1;
+}
+
 td.is-fill-preview {
   outline: 2px dashed var(--excel-green);
   outline-offset: -2px;
