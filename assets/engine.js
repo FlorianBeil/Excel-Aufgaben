@@ -816,8 +816,15 @@
       let matrix = null;
       if (window.ExcelFloFormula && text.startsWith("=")) {
         const result = window.ExcelFloFormula.evaluate(text, getCellValue);
-        if (!window.ExcelFloFormula.isFormulaError(result) && Array.isArray(result)) {
-          matrix = Array.isArray(result[0]) ? result : [result];
+        if (!window.ExcelFloFormula.isFormulaError(result)) {
+          if (Array.isArray(result)) {
+            matrix = Array.isArray(result[0]) ? result : [result];
+          } else {
+            // Skalares Ergebnis (z. B. XVERWEIS-Ersatzwert ohne Treffer): auf die komplette
+            // Spill-Fläche übertragen, genau wie Excel einen Ersatzwert über den erwarteten
+            // Rückgabebereich verteilt.
+            matrix = entry.spill.map((rowRefs) => rowRefs.map(() => result));
+          }
         }
       }
 

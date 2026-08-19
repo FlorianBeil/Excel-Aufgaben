@@ -439,13 +439,17 @@
     "XVERWEIS": function (args) {
       const [search, searchRangeArg, returnRangeArg, notFoundArg] = args;
       const searchList = flatten(searchRangeArg.value);
-      const returnList = flatten(returnRangeArg.value);
       const idx = searchList.findIndex((v) => looseEquals(v, search.value));
       if (idx === -1) {
         if (notFoundArg !== undefined) return notFoundArg.value;
         throw new FormulaError("XVERWEIS: #NV (kein Treffer)");
       }
-      return returnList[idx];
+      // Rückgabematrix zeilenweise indizieren (nicht flach!), sonst verschiebt sich bei mehr
+      // als einer Rückgabespalte alles um den Faktor Spaltenanzahl. Eine einzelne Spalte
+      // liefert einen Skalar, mehrere Spalten liefern die ganze Zeile (für Spill geeignet).
+      const returnMatrix = returnRangeArg.value;
+      const row = returnMatrix[idx];
+      return row.length === 1 ? row[0] : row;
     },
 
     "WENNFEHLER": function (args) {

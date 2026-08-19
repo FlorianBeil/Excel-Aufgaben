@@ -7,7 +7,7 @@
   "task": {
     "intro": "Ermittle die Priorität: „A“, wenn Stammkunde „Ja“ ODER Bestellwert ab 500 €; „B“, wenn Bestellwert ab 100 € ODER Kunde „Neu“; sonst „C“.",
     "steps": [
-      "Trage in Zelle D2 eine WENN-Formel ein, die ODER mit einer verschachtelten WENN-Funktion kombiniert.",
+      "Trage in Zelle D2 eine WENN-Formel ein, die die Priorität ermittelt.",
       "Danach kannst du die Formel per Ausfüllkästchen bis D5 herunterziehen."
     ]
   },

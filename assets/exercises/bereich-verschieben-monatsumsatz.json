@@ -7,7 +7,7 @@
   "task": {
     "intro": "In Spalte B stehen bisher nur die Umsätze der Monate, die schon vorbei sind – die Liste wächst monatlich weiter. Berechne mit BEREICH.VERSCHIEBEN die Summe der letzten 3 gefüllten Monate, unabhängig davon, wie viele Monate bereits eingetragen sind.",
     "steps": [
-      "Trage in Zelle E2 eine Formel ein, die BEREICH.VERSCHIEBEN mit ANZAHL kombiniert, um die Summe der letzten 3 gefüllten Monate zu berechnen."
+      "Trage in Zelle E2 eine Formel ein, die die Summe der letzten 3 gefüllten Monate berechnet."
     ]
   },
   "grid": {

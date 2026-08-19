@@ -7,7 +7,7 @@
   "task": {
     "intro": "Ermittle die Bonusstufe: „Hoch“ bei Umsatz ab 50.000 € UND mindestens 5 Jahren, „Mittel“ bei Umsatz ab 30.000 € UND mindestens 2 Jahren, sonst „Kein“.",
     "steps": [
-      "Trage in Zelle D2 eine WENN-Formel ein, die UND mit einer verschachtelten WENN-Funktion kombiniert.",
+      "Trage in Zelle D2 eine WENN-Formel ein, die die Bonusstufe ermittelt.",
       "Danach kannst du die Formel per Ausfüllkästchen bis D5 herunterziehen."
     ]
   },

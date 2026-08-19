@@ -7,8 +7,8 @@
   "task": {
     "intro": "Oben berechnest du mit SUMMENPRODUKT den Gesamtwert aus Menge und Einzelpreis. Unten ermittelst du mit SUMMENPRODUKT den Gesamtwert nur für eine bestimmte Kategorie.",
     "steps": [
-      "Trage in Zelle B6 eine SUMMENPRODUKT-Formel ein, die Menge und Einzelpreis multipliziert und aufsummiert.",
-      "Trage in Zelle C15 eine SUMMENPRODUKT-Formel ein, die nur die Artikel der Kategorie aus B15 berücksichtigt."
+      "Trage in Zelle B6 eine SUMMENPRODUKT-Formel ein, die den Gesamtwert ermittelt.",
+      "Trage in Zelle C15 eine SUMMENPRODUKT-Formel ein, die den Gesamtwert nur für die Kategorie aus B15 ermittelt."
     ]
   },
   "grid": {

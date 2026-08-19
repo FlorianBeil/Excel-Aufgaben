@@ -5,12 +5,10 @@
   "category": "verweisfunktionen",
   "description": "Nutze XVERWEIS, um anhand des Namens die zugehörigen Daten zu finden – auch wenn die Suchspalte nicht ganz links steht.",
   "task": {
-    "intro": "XVERWEIS kann – anders als SVERWEIS – auch dann suchen, wenn die gesuchte Spalte nicht ganz links steht. In Spalte A stehen gesuchte Namen (Spalte D der Mitarbeiterliste). Ermittle daraus Code, Land und Stadt.",
+    "intro": "XVERWEIS kann – anders als SVERWEIS – auch dann suchen, wenn die gesuchte Spalte nicht ganz links steht. In Spalte A stehen gesuchte Namen (Spalte D der Mitarbeiterliste).",
     "steps": [
-      "Trage in Zelle B8 eine XVERWEIS-Formel ein, die anhand des Namens aus A8 den passenden Code ermittelt.",
-      "Trage entsprechende XVERWEIS-Formeln für Land (C8) und Stadt (D8) ein.",
-      "Kopiere alle drei Formeln per Ausfüllkästchen bis Zeile 10.",
-      "Nutze das vierte XVERWEIS-Argument, damit für nicht gefundene Namen „Nicht gefunden“ erscheint."
+      "Trage in Zelle B8 eine XVERWEIS-Formel ein, die anhand des Namens aus A8 automatisch Code, Land und Stadt liefert.",
+      "Kopiere die Formel per Ausfüllkästchen bis Zeile 10."
     ]
   },
   "grid": {
@@ -47,43 +45,31 @@
       "A8": { "value": "Ben Fischer" },
       "B8": {
         "type": "input",
-        "answer": { "value": "E002", "acceptedFormulas": ["=XVERWEIS(A8;D2:D5;A2:A5;\"Nicht gefunden\")"] }
-      },
-      "C8": {
-        "type": "input",
-        "answer": { "value": "Österreich", "acceptedFormulas": ["=XVERWEIS(A8;D2:D5;B2:B5;\"Nicht gefunden\")"] }
-      },
-      "D8": {
-        "type": "input",
-        "answer": { "value": "Wien", "acceptedFormulas": ["=XVERWEIS(A8;D2:D5;C2:C5;\"Nicht gefunden\")"] }
+        "spill": [["B8", "C8", "D8"]],
+        "answer": {
+          "value": ["E002", "Österreich", "Wien"],
+          "acceptedFormulas": ["=XVERWEIS(A8;D2:D5;A2:C5;\"Nicht gefunden\")"]
+        }
       },
 
       "A9": { "value": "Lisa Meier" },
       "B9": {
         "type": "input",
-        "answer": { "value": "E004", "acceptedFormulas": ["=XVERWEIS(A9;D2:D5;A2:A5;\"Nicht gefunden\")"] }
-      },
-      "C9": {
-        "type": "input",
-        "answer": { "value": "Italien", "acceptedFormulas": ["=XVERWEIS(A9;D2:D5;B2:B5;\"Nicht gefunden\")"] }
-      },
-      "D9": {
-        "type": "input",
-        "answer": { "value": "Mailand", "acceptedFormulas": ["=XVERWEIS(A9;D2:D5;C2:C5;\"Nicht gefunden\")"] }
+        "spill": [["B9", "C9", "D9"]],
+        "answer": {
+          "value": ["E004", "Italien", "Mailand"],
+          "acceptedFormulas": ["=XVERWEIS(A9;D2:D5;A2:C5;\"Nicht gefunden\")"]
+        }
       },
 
       "A10": { "value": "Daniel Baum" },
       "B10": {
         "type": "input",
-        "answer": { "value": "Nicht gefunden", "acceptedFormulas": ["=XVERWEIS(A10;D2:D5;A2:A5;\"Nicht gefunden\")"] }
-      },
-      "C10": {
-        "type": "input",
-        "answer": { "value": "Nicht gefunden", "acceptedFormulas": ["=XVERWEIS(A10;D2:D5;B2:B5;\"Nicht gefunden\")"] }
-      },
-      "D10": {
-        "type": "input",
-        "answer": { "value": "Nicht gefunden", "acceptedFormulas": ["=XVERWEIS(A10;D2:D5;C2:C5;\"Nicht gefunden\")"] }
+        "spill": [["B10", "C10", "D10"]],
+        "answer": {
+          "value": "Nicht gefunden",
+          "acceptedFormulas": ["=XVERWEIS(A10;D2:D5;A2:C5;\"Nicht gefunden\")"]
+        }
       }
     }
   },
@@ -91,12 +77,12 @@
     "XVERWEIS-Aufbau: =XVERWEIS(Suchkriterium; Suchmatrix; Rückgabematrix; [Wenn_nicht_gefunden])",
     "Suchkriterium ist die Zelle mit dem gesuchten Namen, z. B. A8.",
     "Die Suchmatrix ist die Spalte, in der gesucht wird – hier die Namensspalte D2:D5.",
-    "Die Rückgabematrix ist die Spalte, aus der der Wert stammen soll, z. B. A2:A5 für den Code.",
-    "Anders als bei SVERWEIS spielt es keine Rolle, ob die Rückgabespalte links oder rechts von der Suchspalte liegt.",
-    "Das vierte Argument (Wenn_nicht_gefunden) liefert automatisch einen Ersatzwert – ganz ohne WENNFEHLER.",
-    "Du kannst statt der Formel auch direkt das erwartete Ergebnis eintragen.",
+    "Die Rückgabematrix kann auch mehrere Spalten umfassen, z. B. A2:C5 für Code, Land und Stadt gleichzeitig.",
+    "Anders als bei SVERWEIS spielt es keine Rolle, ob die Rückgabespalten links oder rechts von der Suchspalte liegen.",
+    "Ein zusätzliches Argument liefert automatisch einen Ersatzwert für nicht gefundene Namen – ganz ohne WENNFEHLER.",
+    "Die Formel gehört nur in Spalte B – XVERWEIS füllt die Ergebnisse automatisch in die Zellen rechts daneben (C, D).",
     "Willst du die Formel per Ausfüllkästchen kopieren, schreibe Such- und Rückgabematrix als absoluten Bezug (mit $-Zeichen)."
   ],
-  "explanation": "XVERWEIS(A8;D2:D5;A2:A5;\"Nicht gefunden\") sucht den Namen aus A8 in der Spalte D2:D5 und gibt den Wert aus der entsprechenden Zeile der Rückgabematrix A2:A5 zurück – hier den Code. Im Gegensatz zu SVERWEIS kann die Rückgabespalte an beliebiger Stelle relativ zur Suchspalte liegen. Das vierte Argument sorgt zusätzlich dafür, dass bei einem nicht gefundenen Namen (wie „Daniel Baum“) automatisch „Nicht gefunden“ zurückgegeben wird – ganz ohne zusätzliche WENNFEHLER-Funktion.",
-  "solution": "=XVERWEIS(A8;D2:D5;A2:A5;\"Nicht gefunden\")   (analog für die übrigen Zellen mit passender Rückgabematrix)"
+  "explanation": "XVERWEIS(A8;D2:D5;A2:C5;\"Nicht gefunden\") sucht den Namen aus A8 in der Spalte D2:D5 und gibt die passende Zeile aus der Rückgabematrix A2:C5 zurück – hier Code, Land und Stadt auf einmal. Im Gegensatz zu SVERWEIS spielt es keine Rolle, ob die Rückgabespalten links oder rechts von der Suchspalte liegen, und die Formel liefert mehrere Werte gleichzeitig, die automatisch in die Nachbarzellen „spillen“. Das letzte Argument sorgt zusätzlich dafür, dass bei einem nicht gefundenen Namen (wie „Daniel Baum“) automatisch „Nicht gefunden“ zurückgegeben wird – ganz ohne zusätzliche WENNFEHLER-Funktion.",
+  "solution": "=XVERWEIS(A8;D2:D5;A2:C5;\"Nicht gefunden\")   (analog für B9 und B10)"
 }

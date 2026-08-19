@@ -7,7 +7,7 @@
   "task": {
     "intro": "Oben entfernst du Duplikate und sortierst die Kundenliste nach Land. Unten filterst du die Liste so, dass nur Kunden aus Deutschland übrig bleiben.",
     "steps": [
-      "Trage in Zelle D3 eine Formel ein, die EINDEUTIG mit SORTIEREN kombiniert und nach Spalte 2 (Land) sortiert.",
+      "Trage in Zelle D3 eine Formel ein, die Duplikate entfernt und nach Land sortiert.",
       "Trage in Zelle D11 eine FILTER-Formel ein, die nur Kunden aus Deutschland übrig lässt."
     ]
   },
