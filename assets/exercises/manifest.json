@@ -89,5 +89,12 @@
     "level": "fortgeschritten",
     "category": "bedingungsfunktionen",
     "description": "Nutze die SUMMEWENN-Funktion, um den Umsatz einer bestimmten Region zu summieren."
+  },
+  {
+    "id": "summewenn-platzhalter-filiale",
+    "title": "SUMMEWENN mit Platzhaltern",
+    "level": "fortgeschritten",
+    "category": "bedingungsfunktionen",
+    "description": "Nutze SUMMEWENN mit dem Platzhalter * (Sternchen), um Umsätze anhand eines Textteils zu summieren."
   }
 ]

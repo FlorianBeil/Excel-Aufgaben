@@ -1,0 +1,48 @@
+{
+  "id": "summewenn-platzhalter-filiale",
+  "title": "SUMMEWENN mit Platzhaltern",
+  "level": "fortgeschritten",
+  "category": "bedingungsfunktionen",
+  "description": "Nutze SUMMEWENN mit dem Platzhalter * (Sternchen), um Umsätze anhand eines Textteils zu summieren.",
+  "task": {
+    "intro": "Ermittle mit SUMMEWENN den gesamten Umsatz aller Filialen, deren Name den Text „Nord“ enthält.",
+    "steps": [
+      "Trage in Zelle B7 eine SUMMEWENN-Formel mit einem Platzhalter ein, die den Umsatz aller Filialen mit „Nord“ im Namen summiert."
+    ]
+  },
+  "grid": {
+    "cols": ["A", "B"],
+    "rowCount": 7,
+    "cells": {
+      "A1": { "value": "Filiale", "type": "header" },
+      "B1": { "value": "Umsatz (€)", "type": "header" },
+
+      "A2": { "value": "Nord-Ost" },
+      "B2": { "value": 1100, "format": "currency0" },
+      "A3": { "value": "Süd-Zentral" },
+      "B3": { "value": 950, "format": "currency0" },
+      "A4": { "value": "Nord-West" },
+      "B4": { "value": 1300, "format": "currency0" },
+      "A5": { "value": "Ost" },
+      "B5": { "value": 600, "format": "currency0" },
+
+      "A7": { "value": "Summe *Nord*" },
+      "B7": {
+        "type": "input",
+        "answer": {
+          "value": 2400,
+          "tolerance": 0.005,
+          "acceptedFormulas": ["=SUMMEWENN(A2:A5;\"*Nord*\";B2:B5)"]
+        }
+      }
+    }
+  },
+  "hints": [
+    "SUMMEWENN-Aufbau: =SUMMEWENN(Bereich; Kriterium; Summe_Bereich)",
+    "Excel kennt den Platzhalter * für „beliebig viele Zeichen“ – *Nord* findet also jeden Text, in dem irgendwo „Nord“ vorkommt.",
+    "Das Kriterium mit Platzhalter gehört wie normaler Text in Anführungszeichen, z. B. \"*Nord*\".",
+    "Du kannst statt der Formel auch direkt die berechnete Summe eintragen."
+  ],
+  "explanation": "SUMMEWENN(A2:A5;\"*Nord*\";B2:B5) durchsucht den Bereich A2:A5 nach Texten, die irgendwo „Nord“ enthalten – der Platzhalter * steht dabei für beliebig viele Zeichen davor und danach. Das trifft auf „Nord-Ost“ (1.100 €) und „Nord-West“ (1.300 €) zu, zusammen also 2.400 €.",
+  "solution": "=SUMMEWENN(A2:A5;\"*Nord*\";B2:B5)"
+}

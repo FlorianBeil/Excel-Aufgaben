@@ -283,7 +283,13 @@
     return !!v;
   }
 
-  // Einfache Kriterien wie SUMMEWENN/ZÄHLENWENN sie nutzen: "10", ">5", "<=3", "Text", "<>0"
+  // Wandelt ein Excel-Platzhalter-Muster (* = beliebig viele Zeichen, ? = ein Zeichen) in einen RegExp um.
+  function wildcardToRegex(pattern) {
+    const escaped = pattern.replace(/[.+^${}()|[\]\\]/g, "\\$&");
+    return new RegExp("^" + escaped.replace(/\*/g, ".*").replace(/\?/g, ".") + "$", "i");
+  }
+
+  // Einfache Kriterien wie SUMMEWENN/ZÄHLENWENN sie nutzen: "10", ">5", "<=3", "Text", "*Text*", "<>0"
   function matchesCriteria(value, criteria) {
     if (typeof criteria === "number") return toNumber(value) === criteria;
     const c = String(criteria).trim();
@@ -304,9 +310,12 @@
         default: return v === numRest;
       }
     }
+    const hasWildcard = /[*?]/.test(rest);
     switch (op) {
-      case "<>": return !looseEquals(value, rest);
-      default: return looseEquals(value, rest);
+      case "<>":
+        return hasWildcard ? !wildcardToRegex(rest).test(String(value).trim()) : !looseEquals(value, rest);
+      default:
+        return hasWildcard ? wildcardToRegex(rest).test(String(value).trim()) : looseEquals(value, rest);
     }
   }
 
