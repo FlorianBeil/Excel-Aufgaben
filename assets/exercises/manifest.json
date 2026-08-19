@@ -68,5 +68,12 @@
     "level": "fortgeschritten",
     "category": "verweisfunktionen",
     "description": "Nutze SVERWEIS, um für gesuchte Produkte automatisch den passenden Preis aus einer Liste zu finden."
+  },
+  {
+    "id": "wenn-verschachtelt-notenskala",
+    "title": "Notenskala mit verschachtelter WENN-Funktion",
+    "level": "fortgeschritten",
+    "category": "logikfunktionen",
+    "description": "Nutze eine verschachtelte WENN-Funktion, um je nach Punktzahl zwischen drei möglichen Ergebnissen zu unterscheiden."
   }
 ]

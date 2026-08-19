@@ -1,0 +1,71 @@
+{
+  "id": "wenn-verschachtelt-notenskala",
+  "title": "Notenskala mit verschachtelter WENN-Funktion",
+  "level": "fortgeschritten",
+  "category": "logikfunktionen",
+  "description": "Nutze eine verschachtelte WENN-Funktion, um je nach Punktzahl zwischen drei möglichen Ergebnissen zu unterscheiden.",
+  "task": {
+    "intro": "Ermittle mit einer verschachtelten WENN-Funktion die Note: Über 90 Punkten gilt „Sehr gut“, über 60 Punkten „Bestanden“, sonst „Nicht bestanden“.",
+    "steps": [
+      "Trage in Zelle C2 eine WENN-Formel ein.",
+      "Danach kannst du die Formel per Ausfüllkästchen bis C5 herunterziehen."
+    ]
+  },
+  "grid": {
+    "cols": ["A", "B", "C"],
+    "rowCount": 5,
+    "cells": {
+      "A1": { "value": "Name", "type": "header" },
+      "B1": { "value": "Punkte", "type": "header" },
+      "C1": { "value": "Note", "type": "header" },
+
+      "A2": { "value": "Anna" },
+      "B2": { "value": 92 },
+      "C2": {
+        "type": "input",
+        "answer": {
+          "value": "Sehr gut",
+          "acceptedFormulas": ["=WENN(B2>90;\"Sehr gut\";WENN(B2>60;\"Bestanden\";\"Nicht bestanden\"))"]
+        }
+      },
+
+      "A3": { "value": "Ben" },
+      "B3": { "value": 78 },
+      "C3": {
+        "type": "input",
+        "answer": {
+          "value": "Bestanden",
+          "acceptedFormulas": ["=WENN(B3>90;\"Sehr gut\";WENN(B3>60;\"Bestanden\";\"Nicht bestanden\"))"]
+        }
+      },
+
+      "A4": { "value": "Clara" },
+      "B4": { "value": 64 },
+      "C4": {
+        "type": "input",
+        "answer": {
+          "value": "Bestanden",
+          "acceptedFormulas": ["=WENN(B4>90;\"Sehr gut\";WENN(B4>60;\"Bestanden\";\"Nicht bestanden\"))"]
+        }
+      },
+
+      "A5": { "value": "David" },
+      "B5": { "value": 51 },
+      "C5": {
+        "type": "input",
+        "answer": {
+          "value": "Nicht bestanden",
+          "acceptedFormulas": ["=WENN(B5>90;\"Sehr gut\";WENN(B5>60;\"Bestanden\";\"Nicht bestanden\"))"]
+        }
+      }
+    }
+  },
+  "hints": [
+    "WENN-Aufbau: =WENN(Prüfung; [Dann_Wert]; [Sonst_Wert])",
+    "Du kannst als Sonst_Wert einer WENN-Funktion wieder eine komplette WENN-Funktion einsetzen – das nennt man eine verschachtelte Funktion.",
+    "Prüfe zuerst die höchste Schwelle (über 90). Trifft sie nicht zu, entscheidet die zweite, innere WENN-Funktion zwischen den beiden übrigen Fällen.",
+    "Text in einer Formel muss in Anführungszeichen stehen, z. B. \"Sehr gut\"."
+  ],
+  "explanation": "WENN(B2>90;\"Sehr gut\";WENN(B2>60;\"Bestanden\";\"Nicht bestanden\")) prüft zuerst, ob die Punktzahl größer als 90 ist – wenn ja, lautet das Ergebnis „Sehr gut“. Trifft das nicht zu, wird als Sonst_Wert eine zweite WENN-Funktion ausgewertet: Ist die Punktzahl größer als 60, lautet das Ergebnis „Bestanden“, sonst „Nicht bestanden“. So lassen sich mit verschachtelten WENN-Funktionen mehr als zwei mögliche Ergebnisse abbilden.",
+  "solution": "=WENN(B2>90;\"Sehr gut\";WENN(B2>60;\"Bestanden\";\"Nicht bestanden\"))   (analog für C3 bis C5)"
+}
