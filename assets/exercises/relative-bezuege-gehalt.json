@@ -1,0 +1,75 @@
+{
+  "id": "relative-bezuege-gehalt",
+  "title": "Gehalt inklusive Bonus berechnen",
+  "level": "anfaenger",
+  "category": "zellbezüge",
+  "description": "Nutze einen relativen Zellbezug, damit sich deine Formel beim Kopieren automatisch an jede Zeile anpasst.",
+  "task": {
+    "intro": "Berechne für Anna das Gehalt inklusive 10 % Bonus. Trage die Formel in die markierte Zelle ein und kopiere sie anschließend nach unten.",
+    "steps": [
+      "Trage in Zelle C2 eine Formel ein, die das Grundgehalt inklusive 10 % Bonus berechnet.",
+      "Kopiere die Formel per Ausfüllkästchen bis C5 – ein relativer Bezug passt sich dabei automatisch an jede Zeile an."
+    ]
+  },
+  "grid": {
+    "cols": ["A", "B", "C"],
+    "rowCount": 5,
+    "cells": {
+      "A1": { "value": "Mitarbeiter:in", "type": "header" },
+      "B1": { "value": "Grundgehalt", "type": "header" },
+      "C1": { "value": "Gehalt inkl. Bonus", "type": "header" },
+
+      "A2": { "value": "Anna" },
+      "B2": { "value": 3000, "format": "currency0" },
+      "C2": {
+        "type": "input",
+        "answer": {
+          "value": 3300,
+          "tolerance": 0.5,
+          "acceptedFormulas": ["=B2*1,1"]
+        }
+      },
+
+      "A3": { "value": "Ben" },
+      "B3": { "value": 3200, "format": "currency0" },
+      "C3": {
+        "type": "input",
+        "answer": {
+          "value": 3520,
+          "tolerance": 0.5,
+          "acceptedFormulas": ["=B3*1,1"]
+        }
+      },
+
+      "A4": { "value": "Clara" },
+      "B4": { "value": 2900, "format": "currency0" },
+      "C4": {
+        "type": "input",
+        "answer": {
+          "value": 3190,
+          "tolerance": 0.5,
+          "acceptedFormulas": ["=B4*1,1"]
+        }
+      },
+
+      "A5": { "value": "David" },
+      "B5": { "value": 3100, "format": "currency0" },
+      "C5": {
+        "type": "input",
+        "answer": {
+          "value": 3410,
+          "tolerance": 0.5,
+          "acceptedFormulas": ["=B5*1,1"]
+        }
+      }
+    }
+  },
+  "hints": [
+    "10 % Bonus zusätzlich zum Grundgehalt bedeutet: Du multiplizierst das Grundgehalt mit 1,1 (100 % + 10 %).",
+    "Ein relativer Bezug (ohne $-Zeichen) passt sich automatisch an, wenn du eine Formel in andere Zeilen kopierst.",
+    "Ein absoluter Bezug (mit $-Zeichen, z. B. $B$2) bleibt beim Kopieren immer auf derselben Zeile stehen – das willst du hier nicht.",
+    "Du kannst statt der Formel auch direkt den berechneten Betrag eintragen."
+  ],
+  "explanation": "B2*1,1 erhöht das Grundgehalt um 10 %. Weil B2 ein relativer Bezug ist (kein $-Zeichen), passt er sich beim Kopieren nach unten automatisch an – aus B2 wird B3, B4 usw. Mit einem absoluten Bezug ($B$2) würde dagegen immer Annas Gehalt berechnet, egal in welche Zeile du kopierst.",
+  "solution": "=B2*1,1   (analog für C3 bis C5)"
+}

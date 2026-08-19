@@ -21,6 +21,13 @@
     "description": "Nutze die ANZAHL-Funktion, um zu zählen, wie viele Zellen eine Zahl enthalten."
   },
   {
+    "id": "relative-bezuege-gehalt",
+    "title": "Gehalt inklusive Bonus berechnen",
+    "level": "anfaenger",
+    "category": "zellbezüge",
+    "description": "Nutze einen relativen Zellbezug, damit sich deine Formel beim Kopieren automatisch an jede Zeile anpasst."
+  },
+  {
     "id": "wenn-bestanden",
     "title": "Bestanden oder nicht bestanden?",
     "level": "anfaenger",

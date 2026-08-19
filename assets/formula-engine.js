@@ -15,15 +15,34 @@
 
   /* ---------------- Normalisierung für Formel-Text-Vergleich ---------------- */
 
+  // Baut auf dem Tokenizer auf (statt eigener Regex-Heuristik), damit Dezimal-Komma
+  // (z. B. "1,1") und Komma als Argumenttrenner (z. B. "D2,A2:B7") sicher unterschieden
+  // werden – der Tokenizer erkennt Zellbezüge/Zahlen bereits strukturell korrekt.
   function normalizeForCompare(text) {
-    let t = (text || "").trim().toUpperCase().replace(/\s+/g, "");
-    if (t === "") return "";
-    if (!t.startsWith("=")) t = "=" + t;
-    t = t.replace(/\$/g, "");
-    t = t.replace(/,/g, ";");
-    t = t.replace(/\bWAHR\b/g, "1").replace(/\bTRUE\b/g, "1");
-    t = t.replace(/\bFALSCH\b/g, "0").replace(/\bFALSE\b/g, "0");
-    return t;
+    const raw = (text || "").trim();
+    if (raw === "") return "";
+    const tokens = tokenize(raw);
+    if (!tokens.length) return "";
+
+    const parts = tokens.map((tok) => {
+      switch (tok.type) {
+        case "ref":
+          return tok.value;
+        case "number":
+          return String(tok.value);
+        case "string":
+          return '"' + tok.value.replace(/"/g, '""') + '"';
+        case "ident":
+          if (tok.value === "WAHR" || tok.value === "TRUE") return "1";
+          if (tok.value === "FALSCH" || tok.value === "FALSE") return "0";
+          return tok.value;
+        case "op":
+          return tok.value === "," ? ";" : tok.value;
+        default:
+          return "";
+      }
+    });
+    return "=" + parts.join("");
   }
 
   // Vergleicht die (normalisierte) Nutzereingabe gegen eine Liste erlaubter,
@@ -37,7 +56,8 @@
 
   /* ---------------- Tokenizer ---------------- */
 
-  const TOKEN_RE = /\s*(?:(\$?[A-Za-z]{1,3}\$?\d{1,7})|(\d+(?:\.\d+)?)|("(?:[^"]|"")*")|([A-Za-z_][A-Za-z0-9_.äöüÄÖÜ]*)|(<>|<=|>=|[+\-*/^&=<>(),;:%]))/y;
+  // Zahlen akzeptieren sowohl Punkt als auch Komma als Dezimaltrennzeichen (deutsches Excel: Komma).
+  const TOKEN_RE = /\s*(?:(\$?[A-Za-z]{1,3}\$?\d{1,7})|(\d+(?:[.,]\d+)?)|("(?:[^"]|"")*")|([A-Za-z_][A-Za-z0-9_.äöüÄÖÜ]*)|(<>|<=|>=|[+\-*/^&=<>(),;:%]))/y;
 
   function tokenize(text) {
     const tokens = [];
@@ -49,7 +69,7 @@
       m = TOKEN_RE.exec(s);
       if (!m || m[0] === "") break;
       if (m[1]) tokens.push({ type: "ref", value: m[1].replace(/\$/g, "").toUpperCase() });
-      else if (m[2]) tokens.push({ type: "number", value: parseFloat(m[2]) });
+      else if (m[2]) tokens.push({ type: "number", value: parseFloat(m[2].replace(",", ".")) });
       else if (m[3]) tokens.push({ type: "string", value: m[3].slice(1, -1).replace(/""/g, '"') });
       else if (m[4]) tokens.push({ type: "ident", value: m[4].toUpperCase() });
       else if (m[5]) tokens.push({ type: "op", value: m[5] });
