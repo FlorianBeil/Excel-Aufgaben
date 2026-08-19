@@ -84,6 +84,15 @@
     return load().completedExerciseIds.slice();
   }
 
+  function resetIds(exerciseIds) {
+    const state = load();
+    const removeSet = new Set(exerciseIds);
+    state.completedExerciseIds = state.completedExerciseIds.filter((id) => !removeSet.has(id));
+    save(state);
+    syncPush();
+    return state;
+  }
+
   function setEmail(email) {
     const state = load();
     state.email = email;
@@ -192,6 +201,7 @@
     isCompleted,
     markCompleted,
     getCompletedIds,
+    resetIds,
     setEmail,
     getEmail,
   };

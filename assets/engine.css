@@ -277,6 +277,25 @@ main {
   opacity: 0.85;
 }
 
+.level-reset {
+  margin: -0.5rem 0 1.25rem;
+}
+
+.level-reset__btn {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.level-reset__btn:hover {
+  color: var(--excel-green-dark);
+}
+
 .stage-banner {
   display: none;
   margin-bottom: 1.25rem;

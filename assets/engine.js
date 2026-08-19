@@ -112,13 +112,14 @@
     const exercisePagePath = root.dataset.exercisePage || "uebung.html";
     const tabsRoot = document.getElementById("level-tabs");
     const bannerRoot = document.getElementById("stage-banner");
+    const resetRoot = document.getElementById("level-reset");
 
     fetch(manifestPath, { cache: "no-cache" })
       .then((res) => {
         if (!res.ok) throw new Error("Manifest konnte nicht geladen werden (" + res.status + ")");
         return res.json();
       })
-      .then((exercises) => setupOverview(exercises, root, tabsRoot, bannerRoot, exercisePagePath))
+      .then((exercises) => setupOverview(exercises, root, tabsRoot, bannerRoot, resetRoot, exercisePagePath))
       .catch((err) => {
         root.innerHTML = "";
         root.appendChild(
@@ -137,7 +138,7 @@
     return groups;
   }
 
-  function setupOverview(exercises, root, tabsRoot, bannerRoot, exercisePagePath) {
+  function setupOverview(exercises, root, tabsRoot, bannerRoot, resetRoot, exercisePagePath) {
     const groups = groupByLevel(exercises);
     const nonEmptyLevels = LEVELS.filter((l) => groups[l.id].length > 0);
     const levels = nonEmptyLevels.length ? nonEmptyLevels : LEVELS;
@@ -191,9 +192,39 @@
       }
     }
 
+    function renderResetButton() {
+      if (!resetRoot) return;
+      resetRoot.innerHTML = "";
+      const levelExercises = groups[activeLevel] || [];
+      const doneCount = window.ExcelFloProgress
+        ? levelExercises.filter((ex) => window.ExcelFloProgress.isCompleted(ex.id)).length
+        : 0;
+      if (!doneCount) return;
+
+      const label = LEVEL_LABELS[activeLevel] || activeLevel;
+      const btn = el("button", {
+        type: "button",
+        class: "level-reset__btn",
+        text: "↺ Fortschritt „" + label + "“ zurücksetzen",
+      });
+      btn.addEventListener("click", () => {
+        const ok = window.confirm(
+          "Fortschritt für die Stufe „" + label + "“ wirklich zurücksetzen? Das kann nicht rückgängig gemacht werden."
+        );
+        if (!ok) return;
+        if (window.ExcelFloProgress && window.ExcelFloProgress.resetIds) {
+          window.ExcelFloProgress.resetIds(levelExercises.map((ex) => ex.id));
+        }
+        renderTabs();
+        renderList();
+      });
+      resetRoot.appendChild(btn);
+    }
+
     function renderList() {
       renderOverview(root, groups[activeLevel] || [], exercisePagePath);
       renderBanner();
+      renderResetButton();
     }
 
     window.addEventListener("hashchange", () => {
