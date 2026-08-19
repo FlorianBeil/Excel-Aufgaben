@@ -67,7 +67,7 @@
     "title": "Finde den passenden Preis",
     "level": "fortgeschritten",
     "category": "verweisfunktionen",
-    "description": "Nutze SVERWEIS, um für gesuchte Produkte automatisch den passenden Preis aus einer Liste zu finden."
+    "description": "Kombiniere SVERWEIS mit WENNFEHLER, um für gesuchte Produkte den passenden Preis zu finden – auch wenn ein Produkt nicht in der Liste steht."
   },
   {
     "id": "wenn-verschachtelt-notenskala",

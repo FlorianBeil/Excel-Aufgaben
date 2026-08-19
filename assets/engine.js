@@ -21,6 +21,7 @@
     SVERWEIS: ["Suchkriterium", "Matrix", "Spaltenindex", "[Bereich_Verweis]"],
     WVERWEIS: ["Suchkriterium", "Matrix", "Zeilenindex", "[Bereich_Verweis]"],
     WENN: ["Prüfung", "[Dann_Wert]", "[Sonst_Wert]"],
+    "WENNFEHLER": ["Wert", "Wert_falls_Fehler"],
     SUMME: ["Zahl1", "[Zahl2]"],
     SUMMEWENN: ["Bereich", "Kriterium", "[Summe_Bereich]"],
     ZÄHLENWENN: ["Bereich", "Kriterium"],

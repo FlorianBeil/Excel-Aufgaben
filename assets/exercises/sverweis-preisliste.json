@@ -3,14 +3,12 @@
   "title": "Finde den passenden Preis",
   "level": "fortgeschritten",
   "category": "verweisfunktionen",
-  "description": "Nutze SVERWEIS, um für gesuchte Produkte automatisch den passenden Preis aus einer Liste zu finden.",
+  "description": "Kombiniere SVERWEIS mit WENNFEHLER, um für gesuchte Produkte den passenden Preis zu finden – auch wenn ein Produkt nicht in der Liste steht.",
   "task": {
-    "intro": "In Spalte D stehen drei gesuchte Produkte. Trage in Spalte E jeweils eine SVERWEIS-Formel ein, die den passenden Preis dafür ermittelt.",
+    "intro": "In Spalte D stehen vier gesuchte Produkte – nicht alle davon gibt es in der Preisliste. Trage in Spalte E jeweils eine Formel ein, die den passenden Preis ermittelt und für nicht gefundene Produkte einen Alternativtext anzeigt.",
     "steps": [
-      "Trage in Zelle E2 eine SVERWEIS-Formel für das Produkt aus D2 ein.",
-      "Wichtig: Nutze als 4. Argument FALSCH (0), damit exakt und nicht ungefähr gesucht wird.",
-      "Danach kannst du am kleinen grünen Quadrat unten rechts in E2 klicken und nach unten bis E4 ziehen, um die Formel zu kopieren.",
-      "Tipp: Schreibe die Matrix als absoluten Bezug (mit $-Zeichen), damit sie beim Herunterkopieren nicht mitrutscht."
+      "Trage in Zelle E2 eine Formel ein, die SVERWEIS mit WENNFEHLER kombiniert.",
+      "Danach kannst du am kleinen grünen Quadrat unten rechts in E2 klicken und nach unten bis E5 ziehen, um die Formel zu kopieren."
     ]
   },
   "grid": {
@@ -41,7 +39,7 @@
         "answer": {
           "value": 12.99,
           "tolerance": 0.005,
-          "acceptedFormulas": ["=SVERWEIS(D2;A2:B7;2;FALSCH)"]
+          "acceptedFormulas": ["=WENNFEHLER(SVERWEIS(D2;A2:B7;2;FALSCH);\"Nicht gefunden\")"]
         }
       },
 
@@ -51,7 +49,7 @@
         "answer": {
           "value": 3.2,
           "tolerance": 0.005,
-          "acceptedFormulas": ["=SVERWEIS(D3;A2:B7;2;FALSCH)"]
+          "acceptedFormulas": ["=WENNFEHLER(SVERWEIS(D3;A2:B7;2;FALSCH);\"Nicht gefunden\")"]
         }
       },
 
@@ -61,20 +59,28 @@
         "answer": {
           "value": 0.08,
           "tolerance": 0.005,
-          "acceptedFormulas": ["=SVERWEIS(D4;A2:B7;2;FALSCH)"]
+          "acceptedFormulas": ["=WENNFEHLER(SVERWEIS(D4;A2:B7;2;FALSCH);\"Nicht gefunden\")"]
+        }
+      },
+
+      "D5": { "value": "Akkuschrauber" },
+      "E5": {
+        "type": "input",
+        "answer": {
+          "value": "Nicht gefunden",
+          "acceptedFormulas": ["=WENNFEHLER(SVERWEIS(D5;A2:B7;2;FALSCH);\"Nicht gefunden\")"]
         }
       }
     }
   },
   "hints": [
     "SVERWEIS-Aufbau: =SVERWEIS(Suchkriterium; Matrix; Spaltenindex; [Bereich_Verweis])",
-    "Suchkriterium ist die Zelle mit dem gesuchten Produktnamen, z. B. D2.",
-    "Die Matrix ist der Bereich der gesamten Preisliste.",
-    "Der Preis steht in der 2. Spalte der Matrix, also Spaltenindex 2.",
-    "FALSCH (oder 0) als letztes Argument sorgt für eine exakte statt ungefähre Suche.",
-    "Du kannst statt der Formel auch direkt den berechneten Preis eintragen, z. B. 12,99.",
+    "WENNFEHLER-Aufbau: =WENNFEHLER(Wert; Wert_falls_Fehler) – liefert einen Ersatzwert, falls die Formel im ersten Argument einen Fehler ergibt, z. B. #NV bei SVERWEIS ohne Treffer.",
+    "Kombiniere beide Funktionen so: =WENNFEHLER(SVERWEIS(...);\"Nicht gefunden\")",
+    "FALSCH (oder 0) als letztes SVERWEIS-Argument sorgt für eine exakte statt ungefähre Suche.",
+    "Du kannst statt der Formel auch direkt das erwartete Ergebnis eintragen, z. B. 12,99 oder \"Nicht gefunden\".",
     "Willst du die Formel per Ausfüllkästchen nach unten kopieren, schreibe die Matrix als absoluten Bezug (mit $-Zeichen) – sonst rutscht sie beim Kopieren mit."
   ],
-  "explanation": "SVERWEIS sucht einen Wert (hier: den Produktnamen aus Spalte D) in der ersten Spalte eines Bereichs (A2:B7) und gibt den Wert aus einer angegebenen Spalte derselben Zeile zurück (hier: Spalte 2 = Preis). FALSCH als letztes Argument erzwingt eine exakte Übereinstimmung – ohne diese Angabe sucht Excel nur ungefähr und kann falsche Treffer liefern.",
-  "solution": "=SVERWEIS(D2;A2:B7;2;FALSCH)   (analog für D3 und D4)"
+  "explanation": "SVERWEIS sucht einen Wert (hier: den Produktnamen aus Spalte D) in der ersten Spalte eines Bereichs (A2:B7) und gibt den Wert aus einer angegebenen Spalte derselben Zeile zurück. Findet SVERWEIS keine Übereinstimmung, liefert es normalerweise den Fehler #NV – wie bei „Akkuschrauber“, das nicht in der Liste steht. WENNFEHLER fängt genau diesen Fehler ab und gibt stattdessen den zweiten Wert zurück, hier den Text „Nicht gefunden“. So stürzt die Formel nicht mit einem Fehler ab, sondern zeigt eine verständliche Meldung an.",
+  "solution": "=WENNFEHLER(SVERWEIS(D2;A2:B7;2;FALSCH);\"Nicht gefunden\")   (analog für D3 bis D5)"
 }

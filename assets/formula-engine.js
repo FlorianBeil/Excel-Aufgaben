@@ -371,6 +371,10 @@
       throw new FormulaError("WVERWEIS: #NV (kein Treffer)");
     },
 
+    "WENNFEHLER": function (args) {
+      return args[0].error ? args[1].value : args[0].value;
+    },
+
     WENN(args, rawArgs) {
       const cond = isTruthy(args[0].value);
       const branch = cond ? rawArgs[1] : rawArgs[2];
@@ -632,10 +636,20 @@
       case "call": {
         const fn = FUNCTIONS[node.name];
         if (!fn) throw new FormulaError("Unbekannte Funktion: " + node.name);
+        // WENNFEHLER muss Fehler aus seinen Argumenten selbst abfangen können, statt dass sie
+        // sofort durchschlagen – nur für sie werden Auswertungsfehler pro Argument eingefangen
+        // statt weitergeworfen. Für alle anderen Funktionen bleibt das Verhalten unverändert.
+        const isErrorAware = node.name === "WENNFEHLER";
         const evaluatedArgs = node.args.map((argNode) => {
-          const value = evalNode(argNode, getCellValue);
+          let value, error = null;
+          try {
+            value = evalNode(argNode, getCellValue);
+          } catch (e) {
+            error = e && e.isFormulaError ? e : new FormulaError(e.message || "Formelfehler");
+            if (!isErrorAware) throw error;
+          }
           const isMatrix = argNode.type === "range" || Array.isArray(value);
-          return { kind: isMatrix ? "matrix" : "scalar", value, node: argNode, getCellValue };
+          return { kind: isMatrix ? "matrix" : "scalar", value, error, node: argNode, getCellValue };
         });
         const rawArgs = node.args.map((argNode) => ({ node: argNode, getCellValue }));
         return fn(evaluatedArgs, rawArgs);
