@@ -1,0 +1,72 @@
+{
+  "id": "sortieren-eindeutig-filter-kunden",
+  "title": "Kundenliste sortieren, bereinigen und filtern",
+  "level": "profi",
+  "category": "matrixfunktionen",
+  "description": "Nutze EINDEUTIG, SORTIEREN und FILTER, um eine Kundenliste zu bereinigen, zu sortieren und gezielt zu filtern.",
+  "task": {
+    "intro": "Oben entfernst du Duplikate und sortierst die Kundenliste nach Land. Unten filterst du die Liste so, dass nur Kunden aus Deutschland übrig bleiben.",
+    "steps": [
+      "Trage in Zelle D3 eine Formel ein, die EINDEUTIG mit SORTIEREN kombiniert und nach Spalte 2 (Land) sortiert.",
+      "Trage in Zelle D11 eine FILTER-Formel ein, die nur Kunden aus Deutschland übrig lässt."
+    ]
+  },
+  "grid": {
+    "cols": ["A", "B", "C", "D", "E"],
+    "rowCount": 13,
+    "cells": {
+      "A1": { "value": "Kunde", "type": "header" },
+      "B1": { "value": "Land", "type": "header" },
+
+      "A2": { "value": "Meier" },
+      "B2": { "value": "Deutschland" },
+      "A3": { "value": "Schulz" },
+      "B3": { "value": "Österreich" },
+      "A4": { "value": "Meier" },
+      "B4": { "value": "Deutschland" },
+      "A5": { "value": "Voss" },
+      "B5": { "value": "Schweiz" },
+      "A6": { "value": "Krause" },
+      "B6": { "value": "Deutschland" },
+      "A7": { "value": "Schulz" },
+      "B7": { "value": "Österreich" },
+      "A8": { "value": "Voss" },
+      "B8": { "value": "Schweiz" },
+      "A9": { "value": "Müller" },
+      "B9": { "value": "Österreich" },
+
+      "D1": { "value": "Sortiert nach Land und ohne Duplikate", "type": "header" },
+      "D2": { "value": "Kunde", "type": "header" },
+      "E2": { "value": "Land", "type": "header" },
+      "D3": {
+        "type": "input",
+        "spill": [["D3", "E3"], ["D4", "E4"], ["D5", "E5"], ["D6", "E6"], ["D7", "E7"]],
+        "answer": {
+          "value": [["Meier", "Deutschland"], ["Krause", "Deutschland"], ["Schulz", "Österreich"], ["Müller", "Österreich"], ["Voss", "Schweiz"]],
+          "acceptedFormulas": ["=SORTIEREN(EINDEUTIG(A2:B9);2)"]
+        }
+      },
+
+      "D9": { "value": "Nur deutsche Kunden", "type": "header" },
+      "D10": { "value": "Kunde", "type": "header" },
+      "E10": { "value": "Land", "type": "header" },
+      "D11": {
+        "type": "input",
+        "spill": [["D11", "E11"], ["D12", "E12"], ["D13", "E13"]],
+        "answer": {
+          "value": [["Meier", "Deutschland"], ["Meier", "Deutschland"], ["Krause", "Deutschland"]],
+          "acceptedFormulas": ["=FILTER(A2:B9;B2:B9=\"Deutschland\")"]
+        }
+      }
+    }
+  },
+  "hints": [
+    "EINDEUTIG-Aufbau: =EINDEUTIG(Matrix) – entfernt doppelte Zeilen aus einem Bereich.",
+    "SORTIEREN-Aufbau: =SORTIEREN(Matrix; [Sortierindex]; [Sortierreihenfolge]) – Sortierindex 2 sortiert nach der zweiten Spalte.",
+    "Verschachtle beide Funktionen: =SORTIEREN(EINDEUTIG(A2:B9);2)",
+    "FILTER-Aufbau: =FILTER(Matrix; Einbeziehen) – Einbeziehen ist eine Bedingung, die für jede Zeile WAHR oder FALSCH ergibt, z. B. B2:B9=\"Deutschland\".",
+    "Die Formel gehört jeweils nur in die erste Zelle (D3 bzw. D11) – das Ergebnis füllt automatisch die Zellen darunter und daneben."
+  ],
+  "explanation": "EINDEUTIG(A2:B9) entfernt doppelte Kunden-Land-Kombinationen, SORTIEREN(...;2) sortiert das Ergebnis anschließend nach der zweiten Spalte (Land). FILTER(A2:B9;B2:B9=\"Deutschland\") behält nur die Zeilen, in denen die Bedingung B2:B9=\"Deutschland\" zutrifft – hier alle Kunden aus Deutschland (Duplikate bleiben dabei erhalten, anders als bei EINDEUTIG). Beide Formeln liefern mehrere Werte auf einmal, die automatisch in die Zellen darunter und daneben „spillen“.",
+  "solution": "=SORTIEREN(EINDEUTIG(A2:B9);2)   /   =FILTER(A2:B9;B2:B9=\"Deutschland\")"
+}

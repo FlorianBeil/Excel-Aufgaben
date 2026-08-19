@@ -131,5 +131,47 @@
     "level": "fortgeschritten",
     "category": "verweisfunktionen",
     "description": "Kombiniere SVERWEIS mit WENNFEHLER, um für gesuchte Produkte den passenden Preis zu finden – auch wenn ein Produkt nicht in der Liste steht."
+  },
+  {
+    "id": "xverweis-mitarbeiterdaten",
+    "title": "Mitarbeiterdaten mit XVERWEIS nachschlagen",
+    "level": "profi",
+    "category": "verweisfunktionen",
+    "description": "Nutze XVERWEIS, um anhand des Namens die zugehörigen Daten zu finden – auch wenn die Suchspalte nicht ganz links steht."
+  },
+  {
+    "id": "summenprodukt-gesamtwert",
+    "title": "Gesamtwert mit SUMMENPRODUKT berechnen",
+    "level": "profi",
+    "category": "matrixfunktionen",
+    "description": "Nutze SUMMENPRODUKT, um Menge und Preis zeilenweise zu multiplizieren und aufzusummieren – mit und ohne Bedingung."
+  },
+  {
+    "id": "wenn-verschachtelt-bonusstufe",
+    "title": "Bonusstufe mit UND und verschachtelter WENN ermitteln",
+    "level": "profi",
+    "category": "logikfunktionen",
+    "description": "Kombiniere UND mit einer verschachtelten WENN-Funktion, um eine Bonusstufe aus zwei Bedingungen gleichzeitig zu ermitteln."
+  },
+  {
+    "id": "wenn-verschachtelt-prioritaet",
+    "title": "Kundenpriorität mit ODER und verschachtelter WENN ermitteln",
+    "level": "profi",
+    "category": "logikfunktionen",
+    "description": "Kombiniere ODER mit einer verschachtelten WENN-Funktion, um eine Priorität aus mehreren möglichen Bedingungen zu ermitteln."
+  },
+  {
+    "id": "bereich-verschieben-monatsumsatz",
+    "title": "Summe der letzten Monate mit BEREICH.VERSCHIEBEN",
+    "level": "profi",
+    "category": "matrixfunktionen",
+    "description": "Kombiniere BEREICH.VERSCHIEBEN mit ANZAHL, um die Summe der letzten gefüllten Monate zu berechnen – auch wenn die Liste weiterwächst."
+  },
+  {
+    "id": "sortieren-eindeutig-filter-kunden",
+    "title": "Kundenliste sortieren, bereinigen und filtern",
+    "level": "profi",
+    "category": "matrixfunktionen",
+    "description": "Nutze EINDEUTIG, SORTIEREN und FILTER, um eine Kundenliste zu bereinigen, zu sortieren und gezielt zu filtern."
   }
 ]

@@ -21,6 +21,8 @@
     SVERWEIS: ["Suchkriterium", "Matrix", "Spaltenindex", "[Bereich_Verweis]"],
     WVERWEIS: ["Suchkriterium", "Matrix", "Zeilenindex", "[Bereich_Verweis]"],
     WENN: ["Prüfung", "[Dann_Wert]", "[Sonst_Wert]"],
+    UND: ["Wahrheitswert1", "[Wahrheitswert2]"],
+    ODER: ["Wahrheitswert1", "[Wahrheitswert2]"],
     "WENNFEHLER": ["Wert", "Wert_falls_Fehler"],
     SUMME: ["Zahl1", "[Zahl2]"],
     SUMMEWENN: ["Bereich", "Kriterium", "[Summe_Bereich]"],
@@ -46,6 +48,12 @@
     TEXTTEILEN: ["Text", "Trennzeichen"],
     "DATEDIF": ["Ausgangsdatum", "Enddatum", "Einheit"],
     "EDATUM": ["Ausgangsdatum", "Monate"],
+    "XVERWEIS": ["Suchkriterium", "Suchmatrix", "Rückgabematrix", "[Wenn_nicht_gefunden]"],
+    "SUMMENPRODUKT": ["Matrix1", "[Matrix2]"],
+    "BEREICH.VERSCHIEBEN": ["Bezug", "Zeilen", "Spalten", "[Höhe]", "[Breite]"],
+    "EINDEUTIG": ["Matrix"],
+    "SORTIEREN": ["Matrix", "[Sortierindex]", "[Sortierreihenfolge]"],
+    "FILTER": ["Matrix", "Einbeziehen"],
   };
 
   function el(tag, attrs, children) {
@@ -492,7 +500,7 @@
     let name = "";
     for (let i = 0; i < caret; i++) {
       const ch = text[i];
-      if (/[A-Za-zÄÖÜäöü]/.test(ch)) {
+      if (/[A-Za-zÄÖÜäöü.]/.test(ch)) {
         name += ch;
         continue;
       }
@@ -797,20 +805,28 @@
     // Ahmt Excels dynamische Arrays nach: liefert die Formel einer Eingabezelle ein Array
     // (z. B. TEXTTEILEN), wird der Rest automatisch in die per `spill` angegebenen
     // Nachbarzellen geschrieben (nur zur Anzeige, nicht editierbar).
+    // `spill` ist ein 2D-Raster von Zellbezügen (Zeilen x Spalten), das die Form des erwarteten
+    // Formel-Ergebnisses widerspiegelt; Position [0][0] ist die Ankerzelle selbst (bleibt
+    // unverändert, zeigt weiter den Formeltext). Liefert die Formel ein Array, werden alle
+    // anderen Positionen automatisch mit den passenden Werten befüllt (wie Excels Spill).
     function updateSpill(ref, text) {
       const entry = inputEntries[ref];
       if (!entry || !entry.spill || !entry.spill.length) return;
 
-      let values = null;
+      let matrix = null;
       if (window.ExcelFloFormula && text.startsWith("=")) {
         const result = window.ExcelFloFormula.evaluate(text, getCellValue);
         if (!window.ExcelFloFormula.isFormulaError(result) && Array.isArray(result)) {
-          values = flattenDeep(result);
+          matrix = Array.isArray(result[0]) ? result : [result];
         }
       }
 
-      entry.spill.forEach((spillRef, i) => {
-        if (cellEls[spillRef]) cellEls[spillRef].textContent = values ? String(values[i + 1] !== undefined ? values[i + 1] : "") : "";
+      entry.spill.forEach((rowRefs, r) => {
+        rowRefs.forEach((spillRef, c) => {
+          if (spillRef === ref || !cellEls[spillRef]) return;
+          const v = matrix && matrix[r] && matrix[r][c] !== undefined ? matrix[r][c] : "";
+          cellEls[spillRef].textContent = String(v);
+        });
       });
     }
 
@@ -1303,7 +1319,10 @@
       Object.values(inputEntries).forEach((entry) => {
         entry.el.textContent = "";
         entry.td.classList.remove("is-correct", "is-wrong");
-        if (entry.spill) entry.spill.forEach((r) => { if (cellEls[r]) cellEls[r].textContent = ""; });
+        if (entry.spill) {
+          const anchorRef = entry.el.dataset.ref;
+          entry.spill.forEach((rowRefs) => rowRefs.forEach((r) => { if (r !== anchorRef && cellEls[r]) cellEls[r].textContent = ""; }));
+        }
       });
       select(cols[0] + "1");
       wrap.focus({ preventScroll: true });
@@ -1390,7 +1409,8 @@
           if (textMatches(result, answer.value, answer.caseSensitive)) return true;
         } else if (Array.isArray(answer.value) && Array.isArray(result)) {
           const flat = flattenDeep(result);
-          if (flat.length === answer.value.length && flat.every((v, i) => textMatches(v, answer.value[i], answer.caseSensitive))) return true;
+          const flatExpected = flattenDeep(answer.value);
+          if (flat.length === flatExpected.length && flat.every((v, i) => textMatches(v, flatExpected[i], answer.caseSensitive))) return true;
         }
       }
     }

@@ -1,0 +1,77 @@
+{
+  "id": "summenprodukt-gesamtwert",
+  "title": "Gesamtwert mit SUMMENPRODUKT berechnen",
+  "level": "profi",
+  "category": "matrixfunktionen",
+  "description": "Nutze SUMMENPRODUKT, um Menge und Preis zeilenweise zu multiplizieren und aufzusummieren – mit und ohne Bedingung.",
+  "task": {
+    "intro": "Oben berechnest du mit SUMMENPRODUKT den Gesamtwert aus Menge und Einzelpreis. Unten ermittelst du mit SUMMENPRODUKT den Gesamtwert nur für eine bestimmte Kategorie.",
+    "steps": [
+      "Trage in Zelle B6 eine SUMMENPRODUKT-Formel ein, die Menge und Einzelpreis multipliziert und aufsummiert.",
+      "Trage in Zelle C15 eine SUMMENPRODUKT-Formel ein, die nur die Artikel der Kategorie aus B15 berücksichtigt."
+    ]
+  },
+  "grid": {
+    "cols": ["A", "B", "C", "D"],
+    "rowCount": 15,
+    "cells": {
+      "A1": { "value": "Artikel", "type": "header" },
+      "B1": { "value": "Menge", "type": "header" },
+      "C1": { "value": "Einzelpreis (€)", "type": "header" },
+
+      "A2": { "value": "Schraube" },
+      "B2": { "value": 500 },
+      "C2": { "value": 0.05, "format": "currency" },
+      "A3": { "value": "Mutter" },
+      "B3": { "value": 300 },
+      "C3": { "value": 0.03, "format": "currency" },
+      "A4": { "value": "Unterlegscheibe" },
+      "B4": { "value": 400 },
+      "C4": { "value": 0.02, "format": "currency" },
+
+      "A6": { "value": "Gesamtwert" },
+      "B6": {
+        "type": "input",
+        "answer": { "value": 42, "tolerance": 0.005, "acceptedFormulas": ["=SUMMENPRODUKT(B2:B4;C2:C4)"] }
+      },
+
+      "A9": { "value": "Artikel", "type": "header" },
+      "B9": { "value": "Kategorie", "type": "header" },
+      "C9": { "value": "Menge", "type": "header" },
+      "D9": { "value": "Einzelpreis (€)", "type": "header" },
+
+      "A10": { "value": "Schraube" },
+      "B10": { "value": "Metall" },
+      "C10": { "value": 500 },
+      "D10": { "value": 0.05, "format": "currency" },
+      "A11": { "value": "Mutter" },
+      "B11": { "value": "Metall" },
+      "C11": { "value": 300 },
+      "D11": { "value": 0.03, "format": "currency" },
+      "A12": { "value": "Dichtung" },
+      "B12": { "value": "Kunststoff" },
+      "C12": { "value": 400 },
+      "D12": { "value": 0.02, "format": "currency" },
+      "A13": { "value": "Kabelbinder" },
+      "B13": { "value": "Kunststoff" },
+      "C13": { "value": 600 },
+      "D13": { "value": 0.01, "format": "currency" },
+
+      "A15": { "value": "Gesamtwert Kategorie" },
+      "B15": { "value": "Metall" },
+      "C15": {
+        "type": "input",
+        "answer": { "value": 34, "tolerance": 0.005, "acceptedFormulas": ["=SUMMENPRODUKT((B10:B13=B15)*C10:C13*D10:D13)"] }
+      }
+    }
+  },
+  "hints": [
+    "SUMMENPRODUKT-Aufbau: =SUMMENPRODUKT(Matrix1; Matrix2; …) – multipliziert die Werte mehrerer Bereiche zeilenweise und addiert die Ergebnisse.",
+    "Für die einfache Variante genügen zwei Bereiche: =SUMMENPRODUKT(B2:B4;C2:C4)",
+    "Für die Variante mit Bedingung kannst du einen Vergleich direkt in die Formel einbauen: (B10:B13=B15) ergibt für jede Zeile 1 (Treffer) oder 0 (kein Treffer).",
+    "Multipliziere den Vergleich mit den restlichen Bereichen, alles als EIN Argument: =SUMMENPRODUKT((B10:B13=B15)*C10:C13*D10:D13)",
+    "Du kannst statt der Formel auch direkt das berechnete Ergebnis eintragen."
+  ],
+  "explanation": "SUMMENPRODUKT(B2:B4;C2:C4) multipliziert Menge und Einzelpreis Zeile für Zeile und summiert die Ergebnisse – ideal für einen Gesamtwert ohne Hilfsspalte. In der zweiten Formel wirkt (B10:B13=B15) wie ein Filter: Für jede Zeile ergibt der Vergleich 1 (Kategorie stimmt) oder 0 (stimmt nicht). Multipliziert mit Menge und Einzelpreis werden dadurch automatisch nur die passenden Zeilen mitgezählt – alle anderen ergeben 0.",
+  "solution": "=SUMMENPRODUKT(B2:B4;C2:C4)   /   =SUMMENPRODUKT((B10:B13=B15)*C10:C13*D10:D13)"
+}

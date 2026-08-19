@@ -52,7 +52,7 @@
       "A6": { "value": "Anna-Schmidt-München" },
       "B6": {
         "type": "input",
-        "spill": ["C6", "D6"],
+        "spill": [["B6", "C6", "D6"]],
         "answer": {
           "value": ["Anna", "Schmidt", "München"],
           "acceptedFormulas": ["=TEXTTEILEN(A6;\"-\")"]
@@ -62,7 +62,7 @@
       "A7": { "value": "Martin-Meier-Berlin" },
       "B7": {
         "type": "input",
-        "spill": ["C7", "D7"],
+        "spill": [["B7", "C7", "D7"]],
         "answer": {
           "value": ["Martin", "Meier", "Berlin"],
           "acceptedFormulas": ["=TEXTTEILEN(A7;\"-\")"]

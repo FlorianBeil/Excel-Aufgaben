@@ -1,0 +1,76 @@
+{
+  "id": "wenn-verschachtelt-bonusstufe",
+  "title": "Bonusstufe mit UND und verschachtelter WENN ermitteln",
+  "level": "profi",
+  "category": "logikfunktionen",
+  "description": "Kombiniere UND mit einer verschachtelten WENN-Funktion, um eine Bonusstufe aus zwei Bedingungen gleichzeitig zu ermitteln.",
+  "task": {
+    "intro": "Ermittle die Bonusstufe: „Hoch“ bei Umsatz ab 50.000 € UND mindestens 5 Jahren, „Mittel“ bei Umsatz ab 30.000 € UND mindestens 2 Jahren, sonst „Kein“.",
+    "steps": [
+      "Trage in Zelle D2 eine WENN-Formel ein, die UND mit einer verschachtelten WENN-Funktion kombiniert.",
+      "Danach kannst du die Formel per Ausfüllkästchen bis D5 herunterziehen."
+    ]
+  },
+  "grid": {
+    "cols": ["A", "B", "C", "D"],
+    "rowCount": 5,
+    "cells": {
+      "A1": { "value": "Mitarbeiter", "type": "header" },
+      "B1": { "value": "Umsatz (€)", "type": "header" },
+      "C1": { "value": "Jahre", "type": "header" },
+      "D1": { "value": "Bonusstufe", "type": "header" },
+
+      "A2": { "value": "Meier" },
+      "B2": { "value": 62000, "format": "currency0" },
+      "C2": { "value": 6 },
+      "D2": {
+        "type": "input",
+        "answer": {
+          "value": "Hoch",
+          "acceptedFormulas": ["=WENN(UND(B2>=50000;C2>=5);\"Hoch\";WENN(UND(B2>=30000;C2>=2);\"Mittel\";\"Kein\"))"]
+        }
+      },
+
+      "A3": { "value": "Schmidt" },
+      "B3": { "value": 41000, "format": "currency0" },
+      "C3": { "value": 3 },
+      "D3": {
+        "type": "input",
+        "answer": {
+          "value": "Mittel",
+          "acceptedFormulas": ["=WENN(UND(B3>=50000;C3>=5);\"Hoch\";WENN(UND(B3>=30000;C3>=2);\"Mittel\";\"Kein\"))"]
+        }
+      },
+
+      "A4": { "value": "Koch" },
+      "B4": { "value": 28000, "format": "currency0" },
+      "C4": { "value": 1 },
+      "D4": {
+        "type": "input",
+        "answer": {
+          "value": "Kein",
+          "acceptedFormulas": ["=WENN(UND(B4>=50000;C4>=5);\"Hoch\";WENN(UND(B4>=30000;C4>=2);\"Mittel\";\"Kein\"))"]
+        }
+      },
+
+      "A5": { "value": "Weber" },
+      "B5": { "value": 55000, "format": "currency0" },
+      "C5": { "value": 2 },
+      "D5": {
+        "type": "input",
+        "answer": {
+          "value": "Mittel",
+          "acceptedFormulas": ["=WENN(UND(B5>=50000;C5>=5);\"Hoch\";WENN(UND(B5>=30000;C5>=2);\"Mittel\";\"Kein\"))"]
+        }
+      }
+    }
+  },
+  "hints": [
+    "UND-Aufbau: =UND(Wahrheitswert1; Wahrheitswert2; …) – ergibt WAHR, wenn ALLE Bedingungen gleichzeitig erfüllt sind.",
+    "WENN-Aufbau: =WENN(Prüfung; [Dann_Wert]; [Sonst_Wert])",
+    "Prüfe zuerst die Bedingungen für die höchste Stufe (Hoch). Trifft die UND-Bedingung nicht zu, entscheidet eine zweite, innere WENN-Funktion.",
+    "Text in einer Formel muss in Anführungszeichen stehen, z. B. \"Hoch\"."
+  ],
+  "explanation": "UND(B2>=50000;C2>=5) prüft, ob BEIDE Bedingungen gleichzeitig erfüllt sind. WENN(UND(...);\"Hoch\";WENN(UND(...);\"Mittel\";\"Kein\")) prüft zuerst die Bedingungen für „Hoch“; sind diese nicht beide erfüllt, entscheidet eine zweite, innere WENN-Funktion zwischen „Mittel“ und „Kein“.",
+  "solution": "=WENN(UND(B2>=50000;C2>=5);\"Hoch\";WENN(UND(B2>=30000;C2>=2);\"Mittel\";\"Kein\"))   (analog für D3 bis D5)"
+}

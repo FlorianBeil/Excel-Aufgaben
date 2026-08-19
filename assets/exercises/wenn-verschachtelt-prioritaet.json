@@ -1,0 +1,76 @@
+{
+  "id": "wenn-verschachtelt-prioritaet",
+  "title": "Kundenpriorität mit ODER und verschachtelter WENN ermitteln",
+  "level": "profi",
+  "category": "logikfunktionen",
+  "description": "Kombiniere ODER mit einer verschachtelten WENN-Funktion, um eine Priorität aus mehreren möglichen Bedingungen zu ermitteln.",
+  "task": {
+    "intro": "Ermittle die Priorität: „A“, wenn Stammkunde „Ja“ ODER Bestellwert ab 500 €; „B“, wenn Bestellwert ab 100 € ODER Kunde „Neu“; sonst „C“.",
+    "steps": [
+      "Trage in Zelle D2 eine WENN-Formel ein, die ODER mit einer verschachtelten WENN-Funktion kombiniert.",
+      "Danach kannst du die Formel per Ausfüllkästchen bis D5 herunterziehen."
+    ]
+  },
+  "grid": {
+    "cols": ["A", "B", "C", "D"],
+    "rowCount": 5,
+    "cells": {
+      "A1": { "value": "Kunde", "type": "header" },
+      "B1": { "value": "Stammkunde", "type": "header" },
+      "C1": { "value": "Bestellwert", "type": "header" },
+      "D1": { "value": "Priorität", "type": "header" },
+
+      "A2": { "value": "Huber" },
+      "B2": { "value": "Ja" },
+      "C2": { "value": 80, "format": "currency0" },
+      "D2": {
+        "type": "input",
+        "answer": {
+          "value": "A",
+          "acceptedFormulas": ["=WENN(ODER(B2=\"Ja\";C2>=500);\"A\";WENN(ODER(C2>=100;B2=\"Neu\");\"B\";\"C\"))"]
+        }
+      },
+
+      "A3": { "value": "Lang" },
+      "B3": { "value": "Nein" },
+      "C3": { "value": 650, "format": "currency0" },
+      "D3": {
+        "type": "input",
+        "answer": {
+          "value": "A",
+          "acceptedFormulas": ["=WENN(ODER(B3=\"Ja\";C3>=500);\"A\";WENN(ODER(C3>=100;B3=\"Neu\");\"B\";\"C\"))"]
+        }
+      },
+
+      "A4": { "value": "Berg" },
+      "B4": { "value": "Neu" },
+      "C4": { "value": 90, "format": "currency0" },
+      "D4": {
+        "type": "input",
+        "answer": {
+          "value": "B",
+          "acceptedFormulas": ["=WENN(ODER(B4=\"Ja\";C4>=500);\"A\";WENN(ODER(C4>=100;B4=\"Neu\");\"B\";\"C\"))"]
+        }
+      },
+
+      "A5": { "value": "Sommer" },
+      "B5": { "value": "Nein" },
+      "C5": { "value": 40, "format": "currency0" },
+      "D5": {
+        "type": "input",
+        "answer": {
+          "value": "C",
+          "acceptedFormulas": ["=WENN(ODER(B5=\"Ja\";C5>=500);\"A\";WENN(ODER(C5>=100;B5=\"Neu\");\"B\";\"C\"))"]
+        }
+      }
+    }
+  },
+  "hints": [
+    "ODER-Aufbau: =ODER(Wahrheitswert1; Wahrheitswert2; …) – ergibt WAHR, wenn MINDESTENS EINE der Bedingungen erfüllt ist.",
+    "WENN-Aufbau: =WENN(Prüfung; [Dann_Wert]; [Sonst_Wert])",
+    "Prüfe zuerst die Bedingungen für Priorität „A“. Treffen sie nicht zu, entscheidet eine zweite, innere WENN-Funktion zwischen „B“ und „C“.",
+    "Text in einer Formel (auch beim Vergleich mit \"Ja\") muss in Anführungszeichen stehen."
+  ],
+  "explanation": "ODER(B2=\"Ja\";C2>=500) prüft, ob MINDESTENS EINE der beiden Bedingungen erfüllt ist. WENN(ODER(...);\"A\";WENN(ODER(...);\"B\";\"C\")) prüft zuerst die Bedingungen für Priorität „A“; ist keine davon erfüllt, entscheidet eine zweite, innere WENN-Funktion zwischen „B“ und „C“.",
+  "solution": "=WENN(ODER(B2=\"Ja\";C2>=500);\"A\";WENN(ODER(C2>=100;B2=\"Neu\");\"B\";\"C\"))   (analog für D3 bis D5)"
+}

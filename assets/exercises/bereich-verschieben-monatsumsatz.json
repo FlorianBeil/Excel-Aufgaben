@@ -1,0 +1,58 @@
+{
+  "id": "bereich-verschieben-monatsumsatz",
+  "title": "Summe der letzten Monate mit BEREICH.VERSCHIEBEN",
+  "level": "profi",
+  "category": "matrixfunktionen",
+  "description": "Kombiniere BEREICH.VERSCHIEBEN mit ANZAHL, um die Summe der letzten gefüllten Monate zu berechnen – auch wenn die Liste weiterwächst.",
+  "task": {
+    "intro": "In Spalte B stehen bisher nur die Umsätze der Monate, die schon vorbei sind – die Liste wächst monatlich weiter. Berechne mit BEREICH.VERSCHIEBEN die Summe der letzten 3 gefüllten Monate, unabhängig davon, wie viele Monate bereits eingetragen sind.",
+    "steps": [
+      "Trage in Zelle E2 eine Formel ein, die BEREICH.VERSCHIEBEN mit ANZAHL kombiniert, um die Summe der letzten 3 gefüllten Monate zu berechnen."
+    ]
+  },
+  "grid": {
+    "cols": ["A", "B", "C", "D", "E"],
+    "rowCount": 13,
+    "cells": {
+      "A1": { "value": "Monat", "type": "header" },
+      "B1": { "value": "Umsatz", "type": "header" },
+      "D1": { "value": "Ergebnis", "type": "header" },
+      "E1": { "value": "Umsatz", "type": "header" },
+
+      "A2": { "value": "Januar" },
+      "B2": { "value": 12000, "format": "currency0" },
+      "D2": { "value": "Summe der letzten 3 Monate" },
+      "E2": {
+        "type": "input",
+        "answer": { "value": 43200, "tolerance": 0.5, "acceptedFormulas": ["=SUMME(BEREICH.VERSCHIEBEN(B2;ANZAHL(B2:B13)-3;0;3;1))"] }
+      },
+
+      "A3": { "value": "Februar" },
+      "B3": { "value": 13500, "format": "currency0" },
+      "A4": { "value": "März" },
+      "B4": { "value": 11800, "format": "currency0" },
+      "A5": { "value": "April" },
+      "B5": { "value": 14200, "format": "currency0" },
+      "A6": { "value": "Mai" },
+      "B6": { "value": 15100, "format": "currency0" },
+      "A7": { "value": "Juni" },
+      "B7": { "value": 13900, "format": "currency0" },
+      "A8": { "value": "Juli" },
+      "A9": { "value": "August" },
+      "A10": { "value": "September" },
+      "A11": { "value": "Oktober" },
+      "A12": { "value": "November" },
+      "A13": { "value": "Dezember" }
+    }
+  },
+  "hints": [
+    "BEREICH.VERSCHIEBEN-Aufbau: =BEREICH.VERSCHIEBEN(Bezug; Zeilen; Spalten; [Höhe]; [Breite])",
+    "ANZAHL(B2:B13) zählt, wie viele Monate bereits einen Umsatz haben.",
+    "Bezug ist die erste Umsatzzelle (B2). Zeilen gibt an, wie viele Zeilen ab dort nach unten verschoben wird.",
+    "Kombiniere ANZAHL mit einer Subtraktion, damit sich der Bezug automatisch an die Anzahl der bereits gefüllten Monate anpasst: ANZAHL(B2:B13)-3",
+    "Höhe (3) und Breite (1) legen fest, wie groß der zurückgegebene Bereich ist – hier 3 Zeilen, 1 Spalte.",
+    "Das Ergebnis von BEREICH.VERSCHIEBEN ist ein Bereich – summiere ihn mit SUMME."
+  ],
+  "explanation": "ANZAHL(B2:B13) zählt die bereits gefüllten Umsatzzellen – aktuell 6 (Januar bis Juni). BEREICH.VERSCHIEBEN(B2;ANZAHL(B2:B13)-3;0;3;1) verschiebt den Bezug B2 um (6-3=) 3 Zeilen nach unten und liefert von dort einen Bereich von 3 Zeilen Höhe – also B5:B7 (April, Mai, Juni). SUMME davon ergibt 43.200 €. Sobald Juli einen Wert erhält, verschiebt sich der Bereich automatisch mit, ohne dass die Formel geändert werden muss.",
+  "solution": "=SUMME(BEREICH.VERSCHIEBEN(B2;ANZAHL(B2:B13)-3;0;3;1))"
+}

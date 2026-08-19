@@ -319,6 +319,71 @@
     }
   }
 
+  // Array-bewusste Mini-Auswertung nur für SUMMENPRODUKT/FILTER: Bereiche werden zu flachen
+  // Arrays, +-*/ und Vergleiche werden elementweise (broadcast) statt skalar ausgewertet. Der
+  // normale evalNode bleibt davon unberührt – nur diese beiden Funktionen nutzen das hier.
+  function broadcastNumeric(l, r, fn) {
+    const la = Array.isArray(l), ra = Array.isArray(r);
+    if (la && ra) return l.map((v, i) => fn(toNumber(v), toNumber(r[i])));
+    if (la) return l.map((v) => fn(toNumber(v), toNumber(r)));
+    if (ra) return r.map((v) => fn(toNumber(l), toNumber(v)));
+    return fn(toNumber(l), toNumber(r));
+  }
+
+  function broadcastCompare(l, r, op) {
+    const cmp = (a, b) => {
+      switch (op) {
+        case "=": return looseEquals(a, b) ? 1 : 0;
+        case "<>": return looseEquals(a, b) ? 0 : 1;
+        case "<": return toNumber(a) < toNumber(b) ? 1 : 0;
+        case ">": return toNumber(a) > toNumber(b) ? 1 : 0;
+        case "<=": return toNumber(a) <= toNumber(b) ? 1 : 0;
+        case ">=": return toNumber(a) >= toNumber(b) ? 1 : 0;
+      }
+    };
+    const la = Array.isArray(l), ra = Array.isArray(r);
+    if (la && ra) return l.map((v, i) => cmp(v, r[i]));
+    if (la) return l.map((v) => cmp(v, r));
+    if (ra) return r.map((v) => cmp(l, v));
+    return cmp(l, r);
+  }
+
+  function evalArrayAware(node, getCellValue) {
+    switch (node.type) {
+      case "range":
+        return flatten(rangeToMatrix(node, getCellValue));
+      case "ref":
+        return getCellValue(node.value);
+      case "number":
+      case "string":
+      case "bool":
+        return node.value;
+      case "neg": {
+        const v = evalArrayAware(node.value, getCellValue);
+        return Array.isArray(v) ? v.map((x) => -toNumber(x)) : -toNumber(v);
+      }
+      case "binop": {
+        const l = evalArrayAware(node.left, getCellValue);
+        const r = evalArrayAware(node.right, getCellValue);
+        return broadcastNumeric(l, r, (a, b) => {
+          switch (node.op) {
+            case "+": return a + b;
+            case "-": return a - b;
+            case "*": return a * b;
+            case "/": return b === 0 ? NaN : a / b;
+          }
+        });
+      }
+      case "compare": {
+        const l = evalArrayAware(node.left, getCellValue);
+        const r = evalArrayAware(node.right, getCellValue);
+        return broadcastCompare(l, r, node.op);
+      }
+      default:
+        return evalNode(node, getCellValue);
+    }
+  }
+
   // Datumswerte werden wie in Excel als fortlaufende Seriennummer (Tage seit 1899-12-30) gespeichert.
   const MS_PER_DAY = 86400000;
   const EXCEL_EPOCH_UTC = Date.UTC(1899, 11, 30);
@@ -371,8 +436,100 @@
       throw new FormulaError("WVERWEIS: #NV (kein Treffer)");
     },
 
+    "XVERWEIS": function (args) {
+      const [search, searchRangeArg, returnRangeArg, notFoundArg] = args;
+      const searchList = flatten(searchRangeArg.value);
+      const returnList = flatten(returnRangeArg.value);
+      const idx = searchList.findIndex((v) => looseEquals(v, search.value));
+      if (idx === -1) {
+        if (notFoundArg !== undefined) return notFoundArg.value;
+        throw new FormulaError("XVERWEIS: #NV (kein Treffer)");
+      }
+      return returnList[idx];
+    },
+
     "WENNFEHLER": function (args) {
       return args[0].error ? args[1].value : args[0].value;
+    },
+
+    "SUMMENPRODUKT": function (args, rawArgs) {
+      const arrays = rawArgs.map((a) => {
+        const v = evalArrayAware(a.node, a.getCellValue);
+        return Array.isArray(v) ? v.map(toNumber) : [toNumber(v)];
+      });
+      const len = Math.max(...arrays.map((a) => a.length));
+      let sum = 0;
+      for (let i = 0; i < len; i++) {
+        let product = 1;
+        arrays.forEach((arr) => { product *= arr.length === 1 ? arr[0] : arr[i]; });
+        sum += product;
+      }
+      return sum;
+    },
+
+    "BEREICH.VERSCHIEBEN": function (args, rawArgs) {
+      const baseNode = rawArgs[0].node;
+      const getCellValue = rawArgs[0].getCellValue;
+      const baseRef = baseNode.type === "range" ? baseNode.start : baseNode.type === "ref" ? baseNode.value : null;
+      if (!baseRef) throw new FormulaError("BEREICH.VERSCHIEBEN: Bezug erwartet");
+
+      const base = refParts(baseRef);
+      const rowOffset = Math.round(toNumber(args[1].value));
+      const colOffset = Math.round(toNumber(args[2].value));
+      const height = args[3] !== undefined ? Math.round(toNumber(args[3].value)) : 1;
+      const width = args[4] !== undefined ? Math.round(toNumber(args[4].value)) : 1;
+
+      const startCol = colIndexFromLetters(base.col) + colOffset;
+      const startRow = base.row + rowOffset;
+
+      const matrix = [];
+      for (let r = 0; r < height; r++) {
+        const row = [];
+        for (let c = 0; c < width; c++) {
+          row.push(getCellValue(colLettersFromIndex(startCol + c) + (startRow + r)));
+        }
+        matrix.push(row);
+      }
+      return matrix;
+    },
+
+    "EINDEUTIG": function (args) {
+      const matrix = args[0].value;
+      if (!Array.isArray(matrix) || !Array.isArray(matrix[0])) throw new FormulaError("EINDEUTIG: Bereich erwartet");
+      const seen = new Set();
+      const out = [];
+      matrix.forEach((row) => {
+        const key = row.map((v) => String(v).trim().toLowerCase()).join("");
+        if (!seen.has(key)) {
+          seen.add(key);
+          out.push(row);
+        }
+      });
+      return out;
+    },
+
+    "SORTIEREN": function (args) {
+      const matrix = args[0].value;
+      if (!Array.isArray(matrix) || !Array.isArray(matrix[0])) throw new FormulaError("SORTIEREN: Bereich erwartet");
+      const colIdx = args[1] !== undefined ? Math.round(toNumber(args[1].value)) - 1 : 0;
+      const order = args[2] !== undefined ? Math.round(toNumber(args[2].value)) : 1;
+      const copy = matrix.slice();
+      copy.sort((a, b) => {
+        const av = a[colIdx], bv = b[colIdx];
+        const cmp = typeof av === "number" && typeof bv === "number" ? av - bv : String(av).localeCompare(String(bv), "de");
+        return order < 0 ? -cmp : cmp;
+      });
+      return copy;
+    },
+
+    "FILTER": function (args, rawArgs) {
+      const matrix = args[0].value;
+      if (!Array.isArray(matrix) || !Array.isArray(matrix[0])) throw new FormulaError("FILTER: Bereich erwartet");
+      const condRaw = evalArrayAware(rawArgs[1].node, rawArgs[1].getCellValue);
+      const cond = Array.isArray(condRaw) ? condRaw : matrix.map(() => condRaw);
+      const out = matrix.filter((row, i) => isTruthy(cond[i]));
+      if (!out.length) throw new FormulaError("FILTER: #CALC! (keine Treffer)");
+      return out;
     },
 
     WENN(args, rawArgs) {
@@ -380,6 +537,14 @@
       const branch = cond ? rawArgs[1] : rawArgs[2];
       if (branch === undefined) return cond;
       return evalNode(branch.node, branch.getCellValue);
+    },
+
+    UND(args) {
+      return args.every((a) => isTruthy(a.value));
+    },
+
+    ODER(args) {
+      return args.some((a) => isTruthy(a.value));
     },
 
     SUMME(args) {

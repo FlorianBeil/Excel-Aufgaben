@@ -1,0 +1,102 @@
+{
+  "id": "xverweis-mitarbeiterdaten",
+  "title": "Mitarbeiterdaten mit XVERWEIS nachschlagen",
+  "level": "profi",
+  "category": "verweisfunktionen",
+  "description": "Nutze XVERWEIS, um anhand des Namens die zugehörigen Daten zu finden – auch wenn die Suchspalte nicht ganz links steht.",
+  "task": {
+    "intro": "XVERWEIS kann – anders als SVERWEIS – auch dann suchen, wenn die gesuchte Spalte nicht ganz links steht. In Spalte A stehen gesuchte Namen (Spalte D der Mitarbeiterliste). Ermittle daraus Code, Land und Stadt.",
+    "steps": [
+      "Trage in Zelle B8 eine XVERWEIS-Formel ein, die anhand des Namens aus A8 den passenden Code ermittelt.",
+      "Trage entsprechende XVERWEIS-Formeln für Land (C8) und Stadt (D8) ein.",
+      "Kopiere alle drei Formeln per Ausfüllkästchen bis Zeile 10.",
+      "Nutze das vierte XVERWEIS-Argument, damit für nicht gefundene Namen „Nicht gefunden“ erscheint."
+    ]
+  },
+  "grid": {
+    "cols": ["A", "B", "C", "D"],
+    "rowCount": 10,
+    "cells": {
+      "A1": { "value": "Code", "type": "header" },
+      "B1": { "value": "Land", "type": "header" },
+      "C1": { "value": "Stadt", "type": "header" },
+      "D1": { "value": "Name", "type": "header" },
+
+      "A2": { "value": "E001" },
+      "B2": { "value": "Deutschland" },
+      "C2": { "value": "München" },
+      "D2": { "value": "Anna Berg" },
+      "A3": { "value": "E002" },
+      "B3": { "value": "Österreich" },
+      "C3": { "value": "Wien" },
+      "D3": { "value": "Ben Fischer" },
+      "A4": { "value": "E003" },
+      "B4": { "value": "Schweiz" },
+      "C4": { "value": "Bern" },
+      "D4": { "value": "Clara Voss" },
+      "A5": { "value": "E004" },
+      "B5": { "value": "Italien" },
+      "C5": { "value": "Mailand" },
+      "D5": { "value": "Lisa Meier" },
+
+      "A7": { "value": "Name", "type": "header" },
+      "B7": { "value": "Code", "type": "header" },
+      "C7": { "value": "Land", "type": "header" },
+      "D7": { "value": "Stadt", "type": "header" },
+
+      "A8": { "value": "Ben Fischer" },
+      "B8": {
+        "type": "input",
+        "answer": { "value": "E002", "acceptedFormulas": ["=XVERWEIS(A8;D2:D5;A2:A5;\"Nicht gefunden\")"] }
+      },
+      "C8": {
+        "type": "input",
+        "answer": { "value": "Österreich", "acceptedFormulas": ["=XVERWEIS(A8;D2:D5;B2:B5;\"Nicht gefunden\")"] }
+      },
+      "D8": {
+        "type": "input",
+        "answer": { "value": "Wien", "acceptedFormulas": ["=XVERWEIS(A8;D2:D5;C2:C5;\"Nicht gefunden\")"] }
+      },
+
+      "A9": { "value": "Lisa Meier" },
+      "B9": {
+        "type": "input",
+        "answer": { "value": "E004", "acceptedFormulas": ["=XVERWEIS(A9;D2:D5;A2:A5;\"Nicht gefunden\")"] }
+      },
+      "C9": {
+        "type": "input",
+        "answer": { "value": "Italien", "acceptedFormulas": ["=XVERWEIS(A9;D2:D5;B2:B5;\"Nicht gefunden\")"] }
+      },
+      "D9": {
+        "type": "input",
+        "answer": { "value": "Mailand", "acceptedFormulas": ["=XVERWEIS(A9;D2:D5;C2:C5;\"Nicht gefunden\")"] }
+      },
+
+      "A10": { "value": "Daniel Baum" },
+      "B10": {
+        "type": "input",
+        "answer": { "value": "Nicht gefunden", "acceptedFormulas": ["=XVERWEIS(A10;D2:D5;A2:A5;\"Nicht gefunden\")"] }
+      },
+      "C10": {
+        "type": "input",
+        "answer": { "value": "Nicht gefunden", "acceptedFormulas": ["=XVERWEIS(A10;D2:D5;B2:B5;\"Nicht gefunden\")"] }
+      },
+      "D10": {
+        "type": "input",
+        "answer": { "value": "Nicht gefunden", "acceptedFormulas": ["=XVERWEIS(A10;D2:D5;C2:C5;\"Nicht gefunden\")"] }
+      }
+    }
+  },
+  "hints": [
+    "XVERWEIS-Aufbau: =XVERWEIS(Suchkriterium; Suchmatrix; Rückgabematrix; [Wenn_nicht_gefunden])",
+    "Suchkriterium ist die Zelle mit dem gesuchten Namen, z. B. A8.",
+    "Die Suchmatrix ist die Spalte, in der gesucht wird – hier die Namensspalte D2:D5.",
+    "Die Rückgabematrix ist die Spalte, aus der der Wert stammen soll, z. B. A2:A5 für den Code.",
+    "Anders als bei SVERWEIS spielt es keine Rolle, ob die Rückgabespalte links oder rechts von der Suchspalte liegt.",
+    "Das vierte Argument (Wenn_nicht_gefunden) liefert automatisch einen Ersatzwert – ganz ohne WENNFEHLER.",
+    "Du kannst statt der Formel auch direkt das erwartete Ergebnis eintragen.",
+    "Willst du die Formel per Ausfüllkästchen kopieren, schreibe Such- und Rückgabematrix als absoluten Bezug (mit $-Zeichen)."
+  ],
+  "explanation": "XVERWEIS(A8;D2:D5;A2:A5;\"Nicht gefunden\") sucht den Namen aus A8 in der Spalte D2:D5 und gibt den Wert aus der entsprechenden Zeile der Rückgabematrix A2:A5 zurück – hier den Code. Im Gegensatz zu SVERWEIS kann die Rückgabespalte an beliebiger Stelle relativ zur Suchspalte liegen. Das vierte Argument sorgt zusätzlich dafür, dass bei einem nicht gefundenen Namen (wie „Daniel Baum“) automatisch „Nicht gefunden“ zurückgegeben wird – ganz ohne zusätzliche WENNFEHLER-Funktion.",
+  "solution": "=XVERWEIS(A8;D2:D5;A2:A5;\"Nicht gefunden\")   (analog für die übrigen Zellen mit passender Rückgabematrix)"
+}
