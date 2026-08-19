@@ -3,40 +3,38 @@
   "title": "Anzahl der Teilnehmer mit Punkten",
   "level": "anfaenger",
   "category": "grundfunktionen",
-  "difficulty": "Leicht",
   "description": "Nutze die ANZAHL-Funktion, um zu zählen, wie viele Zellen eine Zahl enthalten.",
   "task": {
     "intro": "Berechne die Anzahl der Teilnehmer mit Punkten.",
     "steps": [
-      "Trage in Zelle B10 eine Formel ein, die zählt, wie viele Teilnehmer eine Punktzahl eingetragen haben."
+      "Trage in Zelle B8 eine Formel ein, die zählt, wie viele Teilnehmer eine Punktzahl eingetragen haben."
     ]
   },
   "grid": {
     "cols": ["A", "B"],
-    "rowCount": 10,
+    "rowCount": 8,
     "cells": {
-      "A2": { "value": "Ausgangsdaten", "type": "header" },
-      "A3": { "value": "Teilnehmer", "type": "header" },
-      "B3": { "value": "Punkte", "type": "header" },
+      "A1": { "value": "Teilnehmer", "type": "header" },
+      "B1": { "value": "Punkte", "type": "header" },
 
-      "A4": { "value": "Tom" },
-      "B4": { "value": 85 },
-      "A5": { "value": "Lea" },
-      "A6": { "value": "Nico" },
-      "B6": { "value": 92 },
-      "A7": { "value": "Mia" },
-      "A8": { "value": "Paul" },
-      "B8": { "value": 78 },
-      "A9": { "value": "Sara" },
-      "B9": { "value": 64 },
+      "A2": { "value": "Tom" },
+      "B2": { "value": 85 },
+      "A3": { "value": "Lea" },
+      "A4": { "value": "Nico" },
+      "B4": { "value": 92 },
+      "A5": { "value": "Mia" },
+      "A6": { "value": "Paul" },
+      "B6": { "value": 78 },
+      "A7": { "value": "Sara" },
+      "B7": { "value": 64 },
 
-      "A10": { "value": "Anzahl mit Punktzahl" },
-      "B10": {
+      "A8": { "value": "Anzahl mit Punktzahl" },
+      "B8": {
         "type": "input",
         "answer": {
           "value": 4,
           "tolerance": 0.005,
-          "acceptedFormulas": ["=ANZAHL(B4:B9)"]
+          "acceptedFormulas": ["=ANZAHL(B2:B7)"]
         }
       }
     }
@@ -47,6 +45,6 @@
     "Nicht jeder Teilnehmer hat eine Punktzahl eingetragen – schau genau hin, welche Zellen wirklich eine Zahl enthalten.",
     "Du kannst statt der Formel auch direkt die berechnete Anzahl eintragen."
   ],
-  "explanation": "ANZAHL(B4:B9) zählt, wie viele der Zellen im Bereich eine Zahl enthalten – hier 4 von 6 Teilnehmern, da Lea und Mia keine Punktzahl eingetragen haben. Leere Zellen und Text werden von ANZAHL nicht mitgezählt.",
-  "solution": "=ANZAHL(B4:B9)"
+  "explanation": "ANZAHL(B2:B7) zählt, wie viele der Zellen im Bereich eine Zahl enthalten – hier 4 von 6 Teilnehmern, da Lea und Mia keine Punktzahl eingetragen haben. Leere Zellen und Text werden von ANZAHL nicht mitgezählt.",
+  "solution": "=ANZAHL(B2:B7)"
 }

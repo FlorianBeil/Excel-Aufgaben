@@ -4,7 +4,6 @@
     "title": "Summe der Umsätze berechnen",
     "level": "anfaenger",
     "category": "grundfunktionen",
-    "difficulty": "Leicht",
     "description": "Nutze die SUMME-Funktion, um mehrere Werte auf einmal zu addieren."
   },
   {
@@ -12,7 +11,6 @@
     "title": "Notendurchschnitt berechnen",
     "level": "anfaenger",
     "category": "grundfunktionen",
-    "difficulty": "Leicht",
     "description": "Nutze die MITTELWERT-Funktion, um den Durchschnitt mehrerer Werte zu berechnen."
   },
   {
@@ -20,7 +18,6 @@
     "title": "Anzahl der Teilnehmer mit Punkten",
     "level": "anfaenger",
     "category": "grundfunktionen",
-    "difficulty": "Leicht",
     "description": "Nutze die ANZAHL-Funktion, um zu zählen, wie viele Zellen eine Zahl enthalten."
   },
   {
@@ -28,7 +25,6 @@
     "title": "Finde den passenden Preis",
     "level": "anfaenger",
     "category": "verweisfunktionen",
-    "difficulty": "Mittel",
     "description": "Nutze SVERWEIS, um für gesuchte Produkte automatisch den passenden Preis aus einer Liste zu finden."
   }
 ]

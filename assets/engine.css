@@ -198,21 +198,6 @@ main {
   color: var(--excel-green-dark);
 }
 
-.badge--difficulty-leicht {
-  background: #E9F6EE;
-  color: var(--success-green);
-}
-
-.badge--difficulty-mittel {
-  background: #FEF3E2;
-  color: #B45309;
-}
-
-.badge--difficulty-schwer {
-  background: #FDE8E8;
-  color: var(--error-red);
-}
-
 .exercise-card h3 {
   font-size: 1.05rem;
 }

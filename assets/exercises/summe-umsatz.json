@@ -3,46 +3,44 @@
   "title": "Summe der Umsätze berechnen",
   "level": "anfaenger",
   "category": "grundfunktionen",
-  "difficulty": "Leicht",
   "description": "Nutze die SUMME-Funktion, um mehrere Werte auf einmal zu addieren.",
   "task": {
     "intro": "Berechne die Summe der Umsätze von Januar bis März.",
     "steps": [
-      "Trage in Zelle B7 eine Formel ein, die die Umsätze aus B4:B6 addiert."
+      "Trage in Zelle B5 eine Formel ein, die die Umsätze addiert."
     ]
   },
   "grid": {
     "cols": ["A", "B"],
-    "rowCount": 7,
+    "rowCount": 5,
     "cells": {
-      "A2": { "value": "Ausgangsdaten", "type": "header" },
-      "A3": { "value": "Monat", "type": "header" },
-      "B3": { "value": "Umsatz", "type": "header" },
+      "A1": { "value": "Monat", "type": "header" },
+      "B1": { "value": "Umsatz", "type": "header" },
 
-      "A4": { "value": "Jan" },
-      "B4": { "value": 4200, "format": "currency0" },
-      "A5": { "value": "Feb" },
-      "B5": { "value": 3800, "format": "currency0" },
-      "A6": { "value": "Mär" },
-      "B6": { "value": 5100, "format": "currency0" },
+      "A2": { "value": "Jan" },
+      "B2": { "value": 4200, "format": "currency0" },
+      "A3": { "value": "Feb" },
+      "B3": { "value": 3800, "format": "currency0" },
+      "A4": { "value": "Mär" },
+      "B4": { "value": 5100, "format": "currency0" },
 
-      "A7": { "value": "Gesamtsumme" },
-      "B7": {
+      "A5": { "value": "Gesamtsumme" },
+      "B5": {
         "type": "input",
         "answer": {
           "value": 13100,
           "tolerance": 0.5,
-          "acceptedFormulas": ["=SUMME(B4:B6)", "=B4+B5+B6"]
+          "acceptedFormulas": ["=SUMME(B2:B4)"]
         }
       }
     }
   },
   "hints": [
     "SUMME-Aufbau: =SUMME(Zahl1; [Zahl2]; …) – addiert alle angegebenen Zahlen oder Zellbereiche.",
-    "Statt einzelner Zellen kannst du einen ganzen Bereich angeben, z. B. B4:B6, um alle Werte darin auf einmal zu addieren.",
-    "Alternativ geht auch die einzelne Addition mit +, also =B4+B5+B6 – bei wenigen Zellen funktioniert beides, bei größeren Bereichen ist SUMME() aber deutlich schneller geschrieben.",
+    "Du kannst der Funktion einen ganzen Zellbereich übergeben, um alle Werte darin auf einmal zu addieren, statt jede Zelle einzeln aufzuzählen.",
+    "Alternativ kannst du die passenden Zellen auch einzeln mit + addieren – bei wenigen Zellen funktioniert beides, bei größeren Bereichen ist SUMME() aber deutlich schneller geschrieben.",
     "Du kannst statt der Formel auch direkt das berechnete Ergebnis eintragen, z. B. 13100."
   ],
-  "explanation": "SUMME(B4:B6) addiert alle Werte im Bereich B4 bis B6 – hier die Umsätze für Januar, Februar und März. Das ist besonders praktisch bei größeren Bereichen: Statt jede Zelle einzeln mit + zu verknüpfen, gibst du einfach den gesamten Bereich an.",
-  "solution": "=SUMME(B4:B6)"
+  "explanation": "SUMME(B2:B4) addiert alle Werte im Bereich – hier die Umsätze für Januar, Februar und März. Das ist besonders praktisch bei größeren Bereichen: Statt jede Zelle einzeln mit + zu verknüpfen, gibst du einfach den gesamten Bereich an.",
+  "solution": "=SUMME(B2:B4)"
 }

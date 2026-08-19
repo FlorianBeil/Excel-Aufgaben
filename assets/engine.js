@@ -5,12 +5,6 @@
 (function () {
   "use strict";
 
-  const DIFFICULTY_CLASS = {
-    "Leicht": "badge--difficulty-leicht",
-    "Mittel": "badge--difficulty-mittel",
-    "Schwer": "badge--difficulty-schwer",
-  };
-
   const LEVELS = [
     { id: "anfaenger", label: "Anfänger" },
     { id: "fortgeschritten", label: "Fortgeschritten" },
@@ -96,7 +90,7 @@
     const tabsRoot = document.getElementById("level-tabs");
     const bannerRoot = document.getElementById("stage-banner");
 
-    fetch(manifestPath)
+    fetch(manifestPath, { cache: "no-cache" })
       .then((res) => {
         if (!res.ok) throw new Error("Manifest konnte nicht geladen werden (" + res.status + ")");
         return res.json();
@@ -208,7 +202,6 @@
     }
 
     exercises.forEach((ex) => {
-      const diffClass = DIFFICULTY_CLASS[ex.difficulty] || "badge--difficulty-mittel";
       const done = window.ExcelFloProgress && window.ExcelFloProgress.isCompleted(ex.id);
 
       const card = el(
@@ -217,7 +210,6 @@
         [
           el("div", { class: "exercise-card__badges" }, [
             el("span", { class: "badge badge--category", text: formatCategoryLabel(ex.category) }),
-            el("span", { class: "badge " + diffClass, text: ex.difficulty }),
             done ? el("span", { class: "badge badge--done", text: "✓ erledigt" }) : null,
           ]),
           el("h3", { text: ex.title }),
@@ -246,11 +238,11 @@
     const exercisePagePath = root.dataset.exercisePage || "uebung.html";
 
     Promise.all([
-      fetch(exercisesDir + id + ".json").then((res) => {
+      fetch(exercisesDir + id + ".json", { cache: "no-cache" }).then((res) => {
         if (!res.ok) throw new Error("Übung „" + id + "“ konnte nicht geladen werden (" + res.status + ")");
         return res.json();
       }),
-      fetch(exercisesDir + "manifest.json")
+      fetch(exercisesDir + "manifest.json", { cache: "no-cache" })
         .then((res) => (res.ok ? res.json() : []))
         .catch(() => []),
     ])
@@ -289,14 +281,11 @@
 
     root.innerHTML = "";
 
-    const diffClass = DIFFICULTY_CLASS[data.difficulty] || "badge--difficulty-mittel";
-
     root.appendChild(
       el("div", { class: "exercise-header" }, [
         el("div", { class: "exercise-header__badges" }, [
           data.level ? el("span", { class: "badge badge--level", text: LEVEL_LABELS[data.level] || data.level }) : null,
           el("span", { class: "badge badge--category", text: formatCategoryLabel(data.category) }),
-          el("span", { class: "badge " + diffClass, text: data.difficulty }),
         ]),
         el("h1", { text: data.title }),
       ])

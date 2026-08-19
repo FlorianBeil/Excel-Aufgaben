@@ -3,15 +3,14 @@
   "title": "Finde den passenden Preis",
   "level": "anfaenger",
   "category": "verweisfunktionen",
-  "difficulty": "Mittel",
   "description": "Nutze SVERWEIS, um für gesuchte Produkte automatisch den passenden Preis aus einer Liste zu finden.",
   "task": {
-    "intro": "In Spalte A/B siehst du eine Preisliste. In Spalte D stehen drei gesuchte Produkte. Trage in Spalte E jeweils eine SVERWEIS-Formel ein, die den passenden Preis aus der Liste holt.",
+    "intro": "In Spalte D stehen drei gesuchte Produkte. Trage in Spalte E jeweils eine SVERWEIS-Formel ein, die den passenden Preis dafür ermittelt.",
     "steps": [
-      "Klicke in Zelle E2 und schreibe eine SVERWEIS-Formel, die den Preis für das Produkt aus D2 in A2:B7 sucht.",
+      "Trage in Zelle E2 eine SVERWEIS-Formel für das Produkt aus D2 ein.",
       "Wichtig: Nutze als 4. Argument FALSCH (0), damit exakt und nicht ungefähr gesucht wird.",
       "Danach kannst du am kleinen grünen Quadrat unten rechts in E2 klicken und nach unten bis E4 ziehen, um die Formel zu kopieren.",
-      "Tipp: Schreibe die Matrix als $A$2:$B$7, damit sie beim Herunterkopieren nicht mitrutscht."
+      "Tipp: Schreibe die Matrix als absoluten Bezug (mit $-Zeichen), damit sie beim Herunterkopieren nicht mitrutscht."
     ]
   },
   "grid": {
@@ -70,11 +69,11 @@
   "hints": [
     "SVERWEIS-Aufbau: =SVERWEIS(Suchkriterium; Matrix; Spaltenindex; [Bereich_Verweis])",
     "Suchkriterium ist die Zelle mit dem gesuchten Produktnamen, z. B. D2.",
-    "Die Matrix ist der Bereich der gesamten Preisliste: A2:B7.",
+    "Die Matrix ist der Bereich der gesamten Preisliste.",
     "Der Preis steht in der 2. Spalte der Matrix, also Spaltenindex 2.",
     "FALSCH (oder 0) als letztes Argument sorgt für eine exakte statt ungefähre Suche.",
     "Du kannst statt der Formel auch direkt den berechneten Preis eintragen, z. B. 12,99.",
-    "Willst du die Formel per Ausfüllkästchen nach unten kopieren, schreibe die Matrix als $A$2:$B$7 (absoluter Bezug) – sonst rutscht sie beim Kopieren mit."
+    "Willst du die Formel per Ausfüllkästchen nach unten kopieren, schreibe die Matrix als absoluten Bezug (mit $-Zeichen) – sonst rutscht sie beim Kopieren mit."
   ],
   "explanation": "SVERWEIS sucht einen Wert (hier: den Produktnamen aus Spalte D) in der ersten Spalte eines Bereichs (A2:B7) und gibt den Wert aus einer angegebenen Spalte derselben Zeile zurück (hier: Spalte 2 = Preis). FALSCH als letztes Argument erzwingt eine exakte Übereinstimmung – ohne diese Angabe sucht Excel nur ungefähr und kann falsche Treffer liefern.",
   "solution": "=SVERWEIS(D2;A2:B7;2;FALSCH)   (analog für D3 und D4)"

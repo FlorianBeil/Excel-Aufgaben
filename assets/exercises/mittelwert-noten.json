@@ -3,40 +3,38 @@
   "title": "Notendurchschnitt berechnen",
   "level": "anfaenger",
   "category": "grundfunktionen",
-  "difficulty": "Leicht",
   "description": "Nutze die MITTELWERT-Funktion, um den Durchschnitt mehrerer Werte zu berechnen.",
   "task": {
     "intro": "Berechne den Notendurchschnitt mithilfe der MITTELWERT-Funktion.",
     "steps": [
-      "Trage in Zelle B9 eine Formel ein, die den Durchschnitt der Noten aus der Tabelle berechnet."
+      "Trage in Zelle B7 eine Formel ein, die den Durchschnitt der Noten berechnet."
     ]
   },
   "grid": {
     "cols": ["A", "B"],
-    "rowCount": 9,
+    "rowCount": 7,
     "cells": {
-      "A2": { "value": "Ausgangsdaten", "type": "header" },
-      "A3": { "value": "Schüler", "type": "header" },
-      "B3": { "value": "Note", "type": "header" },
+      "A1": { "value": "Schüler", "type": "header" },
+      "B1": { "value": "Note", "type": "header" },
 
-      "A4": { "value": "Anna" },
-      "B4": { "value": 2 },
-      "A5": { "value": "Ben" },
-      "B5": { "value": 3 },
-      "A6": { "value": "Clara" },
-      "B6": { "value": 1 },
-      "A7": { "value": "David" },
-      "B7": { "value": 4 },
-      "A8": { "value": "Emma" },
-      "B8": { "value": 2 },
+      "A2": { "value": "Anna" },
+      "B2": { "value": 2 },
+      "A3": { "value": "Ben" },
+      "B3": { "value": 3 },
+      "A4": { "value": "Clara" },
+      "B4": { "value": 1 },
+      "A5": { "value": "David" },
+      "B5": { "value": 4 },
+      "A6": { "value": "Emma" },
+      "B6": { "value": 2 },
 
-      "A9": { "value": "Durchschnitt" },
-      "B9": {
+      "A7": { "value": "Durchschnitt" },
+      "B7": {
         "type": "input",
         "answer": {
           "value": 2.4,
           "tolerance": 0.005,
-          "acceptedFormulas": ["=MITTELWERT(B4:B8)"]
+          "acceptedFormulas": ["=MITTELWERT(B2:B6)"]
         }
       }
     }
@@ -47,6 +45,6 @@
     "Der Durchschnitt entspricht der Summe aller Werte geteilt durch ihre Anzahl – MITTELWERT() erledigt das automatisch in einem Schritt.",
     "Achte darauf, dass du wirklich alle Noten in der Formel erfasst – fehlt eine Zelle, stimmt das Ergebnis nicht."
   ],
-  "explanation": "MITTELWERT(B4:B8) addiert alle Werte im Bereich und teilt die Summe automatisch durch die Anzahl der Zellen – hier 5 Noten. Das Ergebnis ist der Notendurchschnitt (2,4), ohne dass du SUMME und ANZAHL manuell kombinieren musst.",
-  "solution": "=MITTELWERT(B4:B8)"
+  "explanation": "MITTELWERT(B2:B6) addiert alle Werte im Bereich und teilt die Summe automatisch durch die Anzahl der Zellen – hier 5 Noten. Das Ergebnis ist der Notendurchschnitt (2,4), ohne dass du SUMME und ANZAHL manuell kombinieren musst.",
+  "solution": "=MITTELWERT(B2:B6)"
 }
