@@ -61,7 +61,7 @@
     }
   },
   "hints": [
-    "EINDEUTIG-Aufbau: =EINDEUTIG(Matrix) – entfernt doppelte Zeilen aus einem Bereich.",
+    "EINDEUTIG-Aufbau: =EINDEUTIG(Matrix; [nach_Spalte]; [genau_einmal]) – entfernt doppelte Zeilen aus einem Bereich (die optionalen Argumente brauchst du hier nicht).",
     "SORTIEREN-Aufbau: =SORTIEREN(Matrix; [Sortierindex]; [Sortierreihenfolge]) – Sortierindex 2 sortiert nach der zweiten Spalte.",
     "Verschachtle beide Funktionen: =SORTIEREN(EINDEUTIG(A2:B9);2)",
     "FILTER-Aufbau: =FILTER(Matrix; Einbeziehen) – Einbeziehen ist eine Bedingung, die für jede Zeile WAHR oder FALSCH ergibt, z. B. B2:B9=\"Deutschland\".",

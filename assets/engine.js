@@ -51,7 +51,7 @@
     "XVERWEIS": ["Suchkriterium", "Suchmatrix", "Rückgabematrix", "[Wenn_nicht_gefunden]"],
     "SUMMENPRODUKT": ["Matrix1", "[Matrix2]"],
     "BEREICH.VERSCHIEBEN": ["Bezug", "Zeilen", "Spalten", "[Höhe]", "[Breite]"],
-    "EINDEUTIG": ["Matrix"],
+    "EINDEUTIG": ["Matrix", "[nach_Spalte]", "[genau_einmal]"],
     "SORTIEREN": ["Matrix", "[Sortierindex]", "[Sortierreihenfolge]"],
     "FILTER": ["Matrix", "Einbeziehen"],
   };

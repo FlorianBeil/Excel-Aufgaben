@@ -256,6 +256,10 @@
     return out;
   }
 
+  function transpose(matrix) {
+    return matrix[0].map((_, c) => matrix.map((row) => row[c]));
+  }
+
   function toText(v) {
     if (v === undefined || v === null) return "";
     return String(v);
@@ -500,16 +504,20 @@
     "EINDEUTIG": function (args) {
       const matrix = args[0].value;
       if (!Array.isArray(matrix) || !Array.isArray(matrix[0])) throw new FormulaError("EINDEUTIG: Bereich erwartet");
-      const seen = new Set();
-      const out = [];
-      matrix.forEach((row) => {
+      const byCol = args[1] !== undefined && isTruthy(args[1].value);
+      const exactlyOnce = args[2] !== undefined && isTruthy(args[2].value);
+      const source = byCol ? transpose(matrix) : matrix;
+      const groups = new Map();
+      source.forEach((row) => {
         const key = row.map((v) => String(v).trim().toLowerCase()).join("");
-        if (!seen.has(key)) {
-          seen.add(key);
-          out.push(row);
-        }
+        if (!groups.has(key)) groups.set(key, { row: row, count: 0 });
+        groups.get(key).count++;
       });
-      return out;
+      const out = [];
+      groups.forEach(function (g) {
+        if (!exactlyOnce || g.count === 1) out.push(g.row);
+      });
+      return byCol ? transpose(out) : out;
     },
 
     "SORTIEREN": function (args) {
