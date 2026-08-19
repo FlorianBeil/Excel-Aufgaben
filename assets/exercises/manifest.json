@@ -96,5 +96,12 @@
     "level": "fortgeschritten",
     "category": "bedingungsfunktionen",
     "description": "Nutze SUMMEWENN mit dem Platzhalter * (Sternchen), um Umsätze anhand eines Textteils zu summieren."
+  },
+  {
+    "id": "zaehlenwenns-region-umsatz",
+    "title": "ZÄHLENWENNS mit zwei Kriterien",
+    "level": "fortgeschritten",
+    "category": "bedingungsfunktionen",
+    "description": "Nutze ZÄHLENWENNS, um Datensätze zu zählen, die gleichzeitig zwei Bedingungen erfüllen."
   }
 ]

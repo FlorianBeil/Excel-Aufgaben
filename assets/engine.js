@@ -24,6 +24,7 @@
     SUMME: ["Zahl1", "[Zahl2]"],
     SUMMEWENN: ["Bereich", "Kriterium", "[Summe_Bereich]"],
     ZÄHLENWENN: ["Bereich", "Kriterium"],
+    "ZÄHLENWENNS": ["Kriterienbereich1", "Kriterium1", "[Kriterienbereich2]", "[Kriterium2]"],
     RUNDEN: ["Zahl", "Anzahl_Stellen"],
     VERGLEICH: ["Suchkriterium", "Suchmatrix", "[Vergleichstyp]"],
     INDEX: ["Matrix", "Zeile", "[Spalte]"],

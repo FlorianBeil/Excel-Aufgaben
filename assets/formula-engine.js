@@ -395,6 +395,19 @@
       return range.filter((v) => matchesCriteria(v, criteriaArg.value)).length;
     },
 
+    "ZÄHLENWENNS": function (args) {
+      if (args.length < 2 || args.length % 2 !== 0) throw new FormulaError("ZÄHLENWENNS: Kriterienbereich/Kriterium-Paare erwartet");
+      const pairs = [];
+      for (let i = 0; i < args.length; i += 2) {
+        pairs.push({ range: flatten(args[i].value), criteria: args[i + 1].value });
+      }
+      let count = 0;
+      for (let r = 0; r < pairs[0].range.length; r++) {
+        if (pairs.every((p) => matchesCriteria(p.range[r], p.criteria))) count++;
+      }
+      return count;
+    },
+
     RUNDEN(args) {
       return roundHalfUp(toNumber(args[0].value), Math.round(toNumber(args[1].value)));
     },

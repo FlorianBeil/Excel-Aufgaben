@@ -1,0 +1,52 @@
+{
+  "id": "zaehlenwenns-region-umsatz",
+  "title": "ZÄHLENWENNS mit zwei Kriterien",
+  "level": "fortgeschritten",
+  "category": "bedingungsfunktionen",
+  "description": "Nutze ZÄHLENWENNS, um Datensätze zu zählen, die gleichzeitig zwei Bedingungen erfüllen.",
+  "task": {
+    "intro": "Ermittle mit ZÄHLENWENNS, wie viele Umsätze der Region „Nord“ über 1.000 € liegen.",
+    "steps": [
+      "Trage in Zelle B9 eine ZÄHLENWENNS-Formel ein, die beide Bedingungen gleichzeitig prüft."
+    ]
+  },
+  "grid": {
+    "cols": ["A", "B"],
+    "rowCount": 9,
+    "cells": {
+      "A1": { "value": "Region", "type": "header" },
+      "B1": { "value": "Umsatz (€)", "type": "header" },
+
+      "A2": { "value": "Nord" },
+      "B2": { "value": 1200, "format": "currency0" },
+      "A3": { "value": "Süd" },
+      "B3": { "value": 900, "format": "currency0" },
+      "A4": { "value": "Nord" },
+      "B4": { "value": 1500, "format": "currency0" },
+      "A5": { "value": "West" },
+      "B5": { "value": 700, "format": "currency0" },
+      "A6": { "value": "Nord" },
+      "B6": { "value": 800, "format": "currency0" },
+      "A7": { "value": "Nord" },
+      "B7": { "value": 1100, "format": "currency0" },
+
+      "A9": { "value": "Anzahl Nord > 1.000 €" },
+      "B9": {
+        "type": "input",
+        "answer": {
+          "value": 3,
+          "tolerance": 0.001,
+          "acceptedFormulas": ["=ZÄHLENWENNS(A2:A7;\"Nord\";B2:B7;\">1000\")"]
+        }
+      }
+    }
+  },
+  "hints": [
+    "ZÄHLENWENNS-Aufbau: =ZÄHLENWENNS(Kriterienbereich1; Kriterium1; Kriterienbereich2; Kriterium2; …) – zählt nur Zeilen, die ALLE Kriterien gleichzeitig erfüllen.",
+    "Der erste Kriterienbereich ist die Spalte mit den Regionen, das erste Kriterium \"Nord\".",
+    "Der zweite Kriterienbereich ist die Spalte mit den Umsätzen, das zweite Kriterium \">1000\".",
+    "Du kannst statt der Formel auch direkt die berechnete Anzahl eintragen."
+  ],
+  "explanation": "ZÄHLENWENNS(A2:A7;\"Nord\";B2:B7;\">1000\") zählt nur die Zeilen, in denen BEIDE Bedingungen gleichzeitig zutreffen: Region gleich „Nord“ UND Umsatz größer als 1.000 €. Von den vier Nord-Einträgen (1.200 €, 1.500 €, 800 € und 1.100 €) erfüllen drei beide Bedingungen – 800 € liegt nicht über 1.000 €.",
+  "solution": "=ZÄHLENWENNS(A2:A7;\"Nord\";B2:B7;\">1000\")"
+}
