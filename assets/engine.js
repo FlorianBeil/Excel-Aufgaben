@@ -187,7 +187,11 @@
         bannerRoot.classList.add("is-visible");
       } else if (allDone(groups[activeLevel])) {
         const label = LEVEL_LABELS[activeLevel] || activeLevel;
-        bannerRoot.appendChild(el("p", { text: "✅ Stufe „" + label + "“ abgeschlossen! Wechsle oben zu einer weiteren Stufe." }));
+        const isLastLevel = levels.length > 0 && levels[levels.length - 1].id === activeLevel;
+        const text = isLastLevel
+          ? "🏆 Stark! Du hast die höchste Stufe „" + label + "“ komplett gemeistert."
+          : "✅ Stufe „" + label + "“ abgeschlossen! Wechsle oben zu einer weiteren Stufe.";
+        bannerRoot.appendChild(el("p", { text: text }));
         bannerRoot.classList.add("is-visible");
       }
     }
