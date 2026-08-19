@@ -1,0 +1,54 @@
+{
+  "id": "zaehlenwenn-verkaeufe",
+  "title": "Verkäufe über einem Schwellenwert zählen",
+  "level": "fortgeschritten",
+  "category": "bedingungsfunktionen",
+  "description": "Nutze die ZÄHLENWENN-Funktion, um zu zählen, wie viele Verkäufe einen bestimmten Betrag übersteigen.",
+  "task": {
+    "intro": "Ermittle mit ZÄHLENWENN, wie viele Verkäufe einen Betrag von mehr als 500 € haben.",
+    "steps": [
+      "Trage in Zelle B9 eine ZÄHLENWENN-Formel ein, die die Anzahl ermittelt."
+    ]
+  },
+  "grid": {
+    "cols": ["A", "B"],
+    "rowCount": 9,
+    "cells": {
+      "A1": { "value": "Verkauf", "type": "header" },
+      "B1": { "value": "Betrag (€)", "type": "header" },
+
+      "A2": { "value": 1 },
+      "B2": { "value": 320, "format": "currency0" },
+      "A3": { "value": 2 },
+      "B3": { "value": 610, "format": "currency0" },
+      "A4": { "value": 3 },
+      "B4": { "value": 480, "format": "currency0" },
+      "A5": { "value": 4 },
+      "B5": { "value": 750, "format": "currency0" },
+      "A6": { "value": 5 },
+      "B6": { "value": 290, "format": "currency0" },
+      "A7": { "value": 6 },
+      "B7": { "value": 505, "format": "currency0" },
+      "A8": { "value": 7 },
+      "B8": { "value": 640, "format": "currency0" },
+
+      "A9": { "value": "Anzahl > 500 €" },
+      "B9": {
+        "type": "input",
+        "answer": {
+          "value": 4,
+          "tolerance": 0.001,
+          "acceptedFormulas": ["=ZÄHLENWENN(B2:B8;\">500\")"]
+        }
+      }
+    }
+  },
+  "hints": [
+    "ZÄHLENWENN-Aufbau: =ZÄHLENWENN(Bereich; Kriterium)",
+    "Bereich ist der Zellbereich mit den Beträgen.",
+    "Das Kriterium gibst du als Text in Anführungszeichen an, z. B. \">500\".",
+    "Du kannst statt der Formel auch direkt die berechnete Anzahl eintragen."
+  ],
+  "explanation": "ZÄHLENWENN(B2:B8;\">500\") zählt, wie viele Zellen im Bereich B2:B8 einen Wert größer als 500 haben. Von den 7 Verkäufen liegen 4 über 500 € (610 €, 750 €, 505 € und 640 €).",
+  "solution": "=ZÄHLENWENN(B2:B8;\">500\")"
+}

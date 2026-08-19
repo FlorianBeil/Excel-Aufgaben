@@ -75,5 +75,12 @@
     "level": "fortgeschritten",
     "category": "logikfunktionen",
     "description": "Nutze eine verschachtelte WENN-Funktion, um je nach Punktzahl zwischen drei möglichen Ergebnissen zu unterscheiden."
+  },
+  {
+    "id": "zaehlenwenn-verkaeufe",
+    "title": "Verkäufe über einem Schwellenwert zählen",
+    "level": "fortgeschritten",
+    "category": "bedingungsfunktionen",
+    "description": "Nutze die ZÄHLENWENN-Funktion, um zu zählen, wie viele Verkäufe einen bestimmten Betrag übersteigen."
   }
 ]
