@@ -5,7 +5,7 @@
   "category": "logikfunktionen",
   "description": "Ermittle mit einer verschachtelten WENN-Funktion eine Bonusstufe, bei der zwei Bedingungen gleichzeitig erfüllt sein müssen.",
   "task": {
-    "intro": "Ermittle die Bonusstufe: „Hoch“ bei Umsatz ab 50.000 € und mindestens 5 Jahren, „Mittel“ bei Umsatz ab 30.000 € und mindestens 2 Jahren, sonst „Kein“.",
+    "intro": "Ermittle die Bonusstufe: „Hoch“ bei Umsatz ab 50.000 € und mindestens 5 Jahren, „Mittel“ bei Umsatz ab 30.000 € und mindestens 2 Jahren, sonst „Kein Bonus“.",
     "steps": [
       "Trage in Zelle D2 eine WENN-Formel ein, die die Bonusstufe ermittelt.",
       "Danach kannst du die Formel per Ausfüllkästchen bis D5 herunterziehen."
@@ -27,7 +27,7 @@
         "type": "input",
         "answer": {
           "value": "Hoch",
-          "acceptedFormulas": ["=WENN(UND(B2>=50000;C2>=5);\"Hoch\";WENN(UND(B2>=30000;C2>=2);\"Mittel\";\"Kein\"))"]
+          "acceptedFormulas": ["=WENN(UND(B2>=50000;C2>=5);\"Hoch\";WENN(UND(B2>=30000;C2>=2);\"Mittel\";\"Kein Bonus\"))"]
         }
       },
 
@@ -38,7 +38,7 @@
         "type": "input",
         "answer": {
           "value": "Mittel",
-          "acceptedFormulas": ["=WENN(UND(B3>=50000;C3>=5);\"Hoch\";WENN(UND(B3>=30000;C3>=2);\"Mittel\";\"Kein\"))"]
+          "acceptedFormulas": ["=WENN(UND(B3>=50000;C3>=5);\"Hoch\";WENN(UND(B3>=30000;C3>=2);\"Mittel\";\"Kein Bonus\"))"]
         }
       },
 
@@ -48,8 +48,8 @@
       "D4": {
         "type": "input",
         "answer": {
-          "value": "Kein",
-          "acceptedFormulas": ["=WENN(UND(B4>=50000;C4>=5);\"Hoch\";WENN(UND(B4>=30000;C4>=2);\"Mittel\";\"Kein\"))"]
+          "value": "Kein Bonus",
+          "acceptedFormulas": ["=WENN(UND(B4>=50000;C4>=5);\"Hoch\";WENN(UND(B4>=30000;C4>=2);\"Mittel\";\"Kein Bonus\"))"]
         }
       },
 
@@ -60,7 +60,7 @@
         "type": "input",
         "answer": {
           "value": "Mittel",
-          "acceptedFormulas": ["=WENN(UND(B5>=50000;C5>=5);\"Hoch\";WENN(UND(B5>=30000;C5>=2);\"Mittel\";\"Kein\"))"]
+          "acceptedFormulas": ["=WENN(UND(B5>=50000;C5>=5);\"Hoch\";WENN(UND(B5>=30000;C5>=2);\"Mittel\";\"Kein Bonus\"))"]
         }
       }
     }
@@ -71,6 +71,6 @@
     "Prüfe zuerst die Bedingungen für die höchste Stufe (Hoch). Trifft die UND-Bedingung nicht zu, entscheidet eine zweite, innere WENN-Funktion.",
     "Text in einer Formel muss in Anführungszeichen stehen, z. B. \"Hoch\"."
   ],
-  "explanation": "UND(B2>=50000;C2>=5) prüft, ob BEIDE Bedingungen gleichzeitig erfüllt sind. WENN(UND(...);\"Hoch\";WENN(UND(...);\"Mittel\";\"Kein\")) prüft zuerst die Bedingungen für „Hoch“; sind diese nicht beide erfüllt, entscheidet eine zweite, innere WENN-Funktion zwischen „Mittel“ und „Kein“.",
-  "solution": "=WENN(UND(B2>=50000;C2>=5);\"Hoch\";WENN(UND(B2>=30000;C2>=2);\"Mittel\";\"Kein\"))   (analog für D3 bis D5)"
+  "explanation": "UND(B2>=50000;C2>=5) prüft, ob BEIDE Bedingungen gleichzeitig erfüllt sind. WENN(UND(...);\"Hoch\";WENN(UND(...);\"Mittel\";\"Kein Bonus\")) prüft zuerst die Bedingungen für „Hoch“; sind diese nicht beide erfüllt, entscheidet eine zweite, innere WENN-Funktion zwischen „Mittel“ und „Kein Bonus“.",
+  "solution": "=WENN(UND(B2>=50000;C2>=5);\"Hoch\";WENN(UND(B2>=30000;C2>=2);\"Mittel\";\"Kein Bonus\"))   (analog für D3 bis D5)"
 }
