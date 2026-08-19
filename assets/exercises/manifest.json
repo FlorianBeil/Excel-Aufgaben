@@ -21,6 +21,13 @@
     "description": "Nutze die ANZAHL-Funktion, um zu zählen, wie viele Zellen eine Zahl enthalten."
   },
   {
+    "id": "wenn-bestanden",
+    "title": "Bestanden oder nicht bestanden?",
+    "level": "anfaenger",
+    "category": "logikfunktionen",
+    "description": "Nutze die WENN-Funktion, um je nach Bedingung einen von zwei Texten anzuzeigen."
+  },
+  {
     "id": "sverweis-preisliste",
     "title": "Finde den passenden Preis",
     "level": "anfaenger",

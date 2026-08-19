@@ -1219,6 +1219,10 @@
   // normalisiert – $, ;/,, WAHR/FALSCH vs. 1/0 sind dabei egal)  3) Regex-Patterns (Altlast/
   // Spezialfälle)  4) echte Auswertung der eingegebenen Formel gegen die Zelldaten – fängt
   // Formulierungen ab, an die vorher niemand gedacht hat.
+  function textMatches(a, b) {
+    return String(a).trim().toLowerCase() === String(b).trim().toLowerCase();
+  }
+
   function checkCell(rawInput, answer, getCellValue) {
     const raw = (rawInput || "").trim();
     if (raw === "") return null; // nicht beantwortet
@@ -1227,6 +1231,8 @@
       const num = parseGermanNumber(raw);
       const tolerance = answer.tolerance !== undefined ? answer.tolerance : 0.01;
       if (num !== null && Math.abs(num - answer.value) < tolerance) return true;
+    } else if (typeof answer.value === "string" && !raw.startsWith("=")) {
+      if (textMatches(raw, answer.value)) return true;
     }
 
     if (window.ExcelFloFormula && answer.acceptedFormulas && answer.acceptedFormulas.length) {
@@ -1245,16 +1251,15 @@
       }
     }
 
-    if (
-      window.ExcelFloFormula &&
-      getCellValue &&
-      typeof answer.value === "number" &&
-      raw.startsWith("=")
-    ) {
+    if (window.ExcelFloFormula && getCellValue && raw.startsWith("=") && answer.value !== undefined) {
       const result = window.ExcelFloFormula.evaluate(raw, getCellValue);
-      if (!window.ExcelFloFormula.isFormulaError(result) && typeof result === "number") {
-        const tolerance = answer.tolerance !== undefined ? answer.tolerance : 0.01;
-        if (Math.abs(result - answer.value) < tolerance) return true;
+      if (!window.ExcelFloFormula.isFormulaError(result)) {
+        if (typeof answer.value === "number" && typeof result === "number") {
+          const tolerance = answer.tolerance !== undefined ? answer.tolerance : 0.01;
+          if (Math.abs(result - answer.value) < tolerance) return true;
+        } else if (typeof answer.value === "string" && (typeof result === "string" || typeof result === "boolean")) {
+          if (textMatches(result, answer.value)) return true;
+        }
       }
     }
 

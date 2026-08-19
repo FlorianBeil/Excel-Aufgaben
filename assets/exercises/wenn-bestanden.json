@@ -1,0 +1,71 @@
+{
+  "id": "wenn-bestanden",
+  "title": "Bestanden oder nicht bestanden?",
+  "level": "anfaenger",
+  "category": "logikfunktionen",
+  "description": "Nutze die WENN-Funktion, um je nach Bedingung einen von zwei Texten anzuzeigen.",
+  "task": {
+    "intro": "Prüfe mit der WENN-Funktion, ob ein Teilnehmer mit mindestens 50 Punkten bestanden hat. Ist die Punktzahl kleiner als 50, soll „Nicht bestanden“ erscheinen, sonst „Bestanden“.",
+    "steps": [
+      "Trage in Zelle C2 eine WENN-Formel ein.",
+      "Danach kannst du die Formel per Ausfüllkästchen bis C5 herunterziehen."
+    ]
+  },
+  "grid": {
+    "cols": ["A", "B", "C"],
+    "rowCount": 5,
+    "cells": {
+      "A1": { "value": "Teilnehmer", "type": "header" },
+      "B1": { "value": "Punkte", "type": "header" },
+      "C1": { "value": "Status", "type": "header" },
+
+      "A2": { "value": "Tom" },
+      "B2": { "value": 42 },
+      "C2": {
+        "type": "input",
+        "answer": {
+          "value": "Nicht bestanden",
+          "acceptedFormulas": ["=WENN(B2<50;\"Nicht bestanden\";\"Bestanden\")"]
+        }
+      },
+
+      "A3": { "value": "Lisa" },
+      "B3": { "value": 72 },
+      "C3": {
+        "type": "input",
+        "answer": {
+          "value": "Bestanden",
+          "acceptedFormulas": ["=WENN(B3<50;\"Nicht bestanden\";\"Bestanden\")"]
+        }
+      },
+
+      "A4": { "value": "Markus" },
+      "B4": { "value": 65 },
+      "C4": {
+        "type": "input",
+        "answer": {
+          "value": "Bestanden",
+          "acceptedFormulas": ["=WENN(B4<50;\"Nicht bestanden\";\"Bestanden\")"]
+        }
+      },
+
+      "A5": { "value": "Susanne" },
+      "B5": { "value": 49 },
+      "C5": {
+        "type": "input",
+        "answer": {
+          "value": "Nicht bestanden",
+          "acceptedFormulas": ["=WENN(B5<50;\"Nicht bestanden\";\"Bestanden\")"]
+        }
+      }
+    }
+  },
+  "hints": [
+    "WENN-Aufbau: =WENN(Prüfung; [Dann_Wert]; [Sonst_Wert]) – prüft eine Bedingung und gibt je nach Ergebnis einen von zwei Werten zurück.",
+    "Als Bedingung kannst du Vergleichsoperatoren wie <, >, <= oder >= verwenden, um eine Zelle mit einer Zahl zu vergleichen.",
+    "Text in einer Formel muss in Anführungszeichen stehen, z. B. \"Bestanden\".",
+    "Prüfe genau, welcher der beiden Texte bei welcher Bedingung erscheinen soll – vertausche Dann- und Sonst-Wert nicht."
+  ],
+  "explanation": "WENN(B2<50;\"Nicht bestanden\";\"Bestanden\") prüft, ob die Punktzahl in B2 kleiner als 50 ist. Trifft das zu, gibt die Formel „Nicht bestanden“ zurück, sonst „Bestanden“. So lässt sich mit einer einzigen Formel automatisch eine Fallunterscheidung treffen.",
+  "solution": "=WENN(B2<50;\"Nicht bestanden\";\"Bestanden\")   (analog für C3 bis C5)"
+}
