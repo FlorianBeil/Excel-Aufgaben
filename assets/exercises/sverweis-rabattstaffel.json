@@ -1,0 +1,53 @@
+{
+  "id": "sverweis-rabattstaffel",
+  "title": "Rabattstaffel mit SVERWEIS",
+  "level": "anfaenger",
+  "category": "verweisfunktionen",
+  "description": "Nutze SVERWEIS mit ungefährer Übereinstimmung, um anhand einer Mengen-Staffel den passenden Rabatt zu ermitteln.",
+  "task": {
+    "intro": "In der Tabelle steht, ab welcher Menge welcher Rabatt gilt. Ermittle mit SVERWEIS den Rabatt für die gesuchte Menge.",
+    "steps": [
+      "Trage in Zelle B8 eine SVERWEIS-Formel ein, die den passenden Rabatt für die gesuchte Menge ermittelt.",
+      "Wichtig: Nutze diesmal WAHR (oder 1) als 4. Argument, da hier ungefähr statt exakt gesucht werden muss."
+    ]
+  },
+  "grid": {
+    "cols": ["A", "B"],
+    "rowCount": 8,
+    "cells": {
+      "A1": { "value": "Menge ab", "type": "header" },
+      "B1": { "value": "Rabatt", "type": "header" },
+
+      "A2": { "value": 0 },
+      "B2": { "value": 0, "format": "percent" },
+      "A3": { "value": 20 },
+      "B3": { "value": 0.05, "format": "percent" },
+      "A4": { "value": 50 },
+      "B4": { "value": 0.1, "format": "percent" },
+      "A5": { "value": 100 },
+      "B5": { "value": 0.15, "format": "percent" },
+
+      "A7": { "value": "Suchwert:" },
+      "B7": { "value": 75 },
+
+      "A8": { "value": "Rabatt:" },
+      "B8": {
+        "type": "input",
+        "answer": {
+          "value": 0.1,
+          "tolerance": 0.001,
+          "acceptedFormulas": ["=SVERWEIS(B7;A2:B5;2;WAHR)"]
+        }
+      }
+    }
+  },
+  "hints": [
+    "SVERWEIS-Aufbau: =SVERWEIS(Suchkriterium; Matrix; Spaltenindex; [Bereich_Verweis])",
+    "Suchkriterium ist die Zelle mit der gesuchten Menge.",
+    "WAHR (oder 1) als letztes Argument sorgt für eine ungefähre statt exakte Suche: Excel findet den größten Tabellenwert, der noch kleiner oder gleich dem Suchwert ist.",
+    "Damit das funktioniert, muss die erste Spalte der Matrix aufsteigend sortiert sein – hier ist sie das bereits.",
+    "Du kannst statt der Formel auch direkt den berechneten Rabatt eintragen, z. B. 10% oder 0,1."
+  ],
+  "explanation": "SVERWEIS(B7;A2:B5;2;WAHR) sucht den Suchwert aus B7 in der ersten Spalte des Bereichs A2:B5. Bei WAHR (ungefähre Übereinstimmung) wählt Excel dabei nicht den exakten Treffer, sondern den größten Wert, der noch kleiner oder gleich dem Suchwert ist – hier 50, da 75 zwischen 50 und 100 liegt. Zurückgegeben wird der Wert aus der 2. Spalte derselben Zeile, also 10%.",
+  "solution": "=SVERWEIS(B7;A2:B5;2;WAHR)"
+}

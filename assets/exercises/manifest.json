@@ -54,5 +54,12 @@
     "level": "anfaenger",
     "category": "verweisfunktionen",
     "description": "Nutze SVERWEIS, um für gesuchte Produkte automatisch den passenden Preis aus einer Liste zu finden."
+  },
+  {
+    "id": "sverweis-rabattstaffel",
+    "title": "Rabattstaffel mit SVERWEIS",
+    "level": "anfaenger",
+    "category": "verweisfunktionen",
+    "description": "Nutze SVERWEIS mit ungefährer Übereinstimmung, um anhand einer Mengen-Staffel den passenden Rabatt zu ermitteln."
   }
 ]
