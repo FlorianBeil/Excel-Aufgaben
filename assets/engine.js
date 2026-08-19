@@ -36,6 +36,7 @@
     MIN: ["Zahl1", "[Zahl2]"],
     MAX: ["Zahl1", "[Zahl2]"],
     MITTELWERT: ["Zahl1", "[Zahl2]"],
+    ANZAHL: ["Wert1", "[Wert2]"],
   };
 
   function el(tag, attrs, children) {

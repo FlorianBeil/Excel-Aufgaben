@@ -411,6 +411,12 @@
       if (!nums.length) throw new FormulaError("MITTELWERT: #DIV/0!");
       return nums.reduce((s, v) => s + v, 0) / nums.length;
     },
+
+    ANZAHL(args) {
+      let count = 0;
+      args.forEach((a) => (a.kind === "matrix" ? flatten(a.value) : [a.value]).forEach((v) => typeof v === "number" && count++));
+      return count;
+    },
   };
 
   function evalNode(node, getCellValue) {

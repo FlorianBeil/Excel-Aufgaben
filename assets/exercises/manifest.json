@@ -16,6 +16,14 @@
     "description": "Nutze die MITTELWERT-Funktion, um den Durchschnitt mehrerer Werte zu berechnen."
   },
   {
+    "id": "anzahl-teilnehmer",
+    "title": "Anzahl der Teilnehmer mit Punkten",
+    "level": "anfaenger",
+    "category": "grundfunktionen",
+    "difficulty": "Leicht",
+    "description": "Nutze die ANZAHL-Funktion, um zu zählen, wie viele Zellen eine Zahl enthalten."
+  },
+  {
     "id": "sverweis-preisliste",
     "title": "Finde den passenden Preis",
     "level": "anfaenger",
