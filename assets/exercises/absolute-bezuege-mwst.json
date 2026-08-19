@@ -1,0 +1,79 @@
+{
+  "id": "absolute-bezuege-mwst",
+  "title": "Bruttopreis mit MwSt. berechnen",
+  "level": "anfaenger",
+  "category": "zellbezüge",
+  "description": "Nutze einen absoluten Zellbezug, damit eine feste Zelle beim Kopieren nicht verrutscht.",
+  "task": {
+    "intro": "Berechne den Bruttopreis der Produkte inklusive MwSt. Der MwSt.-Satz steht fest in einer einzigen Zelle und darf sich beim Kopieren der Formel nicht verschieben.",
+    "steps": [
+      "Trage in Zelle C2 eine Formel ein, die den Nettopreis inklusive MwSt. berechnet.",
+      "Nutze für den MwSt.-Satz einen absoluten Bezug ($), damit er beim Kopieren nach unten fest bleibt.",
+      "Kopiere die Formel anschließend per Ausfüllkästchen bis C5."
+    ]
+  },
+  "grid": {
+    "cols": ["A", "B", "C"],
+    "rowCount": 7,
+    "cells": {
+      "A1": { "value": "Produkt", "type": "header" },
+      "B1": { "value": "Nettopreis", "type": "header" },
+      "C1": { "value": "Bruttopreis", "type": "header" },
+
+      "A2": { "value": "Laptop" },
+      "B2": { "value": 899, "format": "currency0" },
+      "C2": {
+        "type": "input",
+        "answer": {
+          "value": 1069.81,
+          "tolerance": 0.5,
+          "acceptedFormulas": ["=B2*(1+$B$7)"]
+        }
+      },
+
+      "A3": { "value": "Smartphone" },
+      "B3": { "value": 479, "format": "currency0" },
+      "C3": {
+        "type": "input",
+        "answer": {
+          "value": 570.01,
+          "tolerance": 0.5,
+          "acceptedFormulas": ["=B3*(1+$B$7)"]
+        }
+      },
+
+      "A4": { "value": "Keyboard" },
+      "B4": { "value": 89, "format": "currency0" },
+      "C4": {
+        "type": "input",
+        "answer": {
+          "value": 105.91,
+          "tolerance": 0.5,
+          "acceptedFormulas": ["=B4*(1+$B$7)"]
+        }
+      },
+
+      "A5": { "value": "TV" },
+      "B5": { "value": 649, "format": "currency0" },
+      "C5": {
+        "type": "input",
+        "answer": {
+          "value": 772.31,
+          "tolerance": 0.5,
+          "acceptedFormulas": ["=B5*(1+$B$7)"]
+        }
+      },
+
+      "A7": { "value": "MwSt.-Satz:" },
+      "B7": { "value": 0.19, "format": "percent" }
+    }
+  },
+  "hints": [
+    "Bruttopreis = Nettopreis × (1 + MwSt.-Satz).",
+    "Ein absoluter Bezug fixiert Zeile und/oder Spalte mit einem $-Zeichen, z. B. $B$7 – er bleibt beim Kopieren immer gleich.",
+    "Ohne $-Zeichen würde sich der Bezug auf den MwSt.-Satz beim Kopieren nach unten automatisch verschieben und auf eine leere Zelle zeigen.",
+    "Du kannst statt der Formel auch direkt den berechneten Bruttopreis eintragen."
+  ],
+  "explanation": "B2*(1+$B$7) berechnet den Bruttopreis, indem der Nettopreis mit (1 + MwSt.-Satz) multipliziert wird. $B$7 ist ein absoluter Bezug – er bleibt beim Kopieren nach unten immer auf Zeile 7 stehen, während sich B2 als relativer Bezug automatisch an jede Zeile anpasst. So funktioniert dieselbe Formel für alle Produkte.",
+  "solution": "=B2*(1+$B$7)   (analog für C3 bis C5)"
+}

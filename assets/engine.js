@@ -359,6 +359,9 @@
     if (format === "currency0" && typeof value === "number") {
       return value.toLocaleString("de-DE", { style: "currency", currency: "EUR", minimumFractionDigits: 0, maximumFractionDigits: 0 });
     }
+    if (format === "percent" && typeof value === "number") {
+      return value.toLocaleString("de-DE", { style: "percent", minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    }
     return String(value);
   }
 

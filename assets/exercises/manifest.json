@@ -28,6 +28,13 @@
     "description": "Nutze einen relativen Zellbezug, damit sich deine Formel beim Kopieren automatisch an jede Zeile anpasst."
   },
   {
+    "id": "absolute-bezuege-mwst",
+    "title": "Bruttopreis mit MwSt. berechnen",
+    "level": "anfaenger",
+    "category": "zellbezüge",
+    "description": "Nutze einen absoluten Zellbezug, damit eine feste Zelle beim Kopieren nicht verrutscht."
+  },
+  {
     "id": "wenn-bestanden",
     "title": "Bestanden oder nicht bestanden?",
     "level": "anfaenger",
