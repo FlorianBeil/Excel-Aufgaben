@@ -1,0 +1,51 @@
+{
+  "id": "summewenn-umsatz-region",
+  "title": "Umsatz je Region summieren",
+  "level": "fortgeschritten",
+  "category": "bedingungsfunktionen",
+  "description": "Nutze die SUMMEWENN-Funktion, um den Umsatz einer bestimmten Region zu summieren.",
+  "task": {
+    "intro": "Ermittle mit SUMMEWENN den gesamten Umsatz der Region „Nord“.",
+    "steps": [
+      "Trage in Zelle B8 eine SUMMEWENN-Formel ein, die den Umsatz der Region „Nord“ summiert."
+    ]
+  },
+  "grid": {
+    "cols": ["A", "B"],
+    "rowCount": 8,
+    "cells": {
+      "A1": { "value": "Region", "type": "header" },
+      "B1": { "value": "Umsatz (€)", "type": "header" },
+
+      "A2": { "value": "Nord" },
+      "B2": { "value": 1200, "format": "currency0" },
+      "A3": { "value": "Süd" },
+      "B3": { "value": 900, "format": "currency0" },
+      "A4": { "value": "Nord" },
+      "B4": { "value": 1500, "format": "currency0" },
+      "A5": { "value": "West" },
+      "B5": { "value": 700, "format": "currency0" },
+      "A6": { "value": "Nord" },
+      "B6": { "value": 800, "format": "currency0" },
+
+      "A8": { "value": "Summe Nord" },
+      "B8": {
+        "type": "input",
+        "answer": {
+          "value": 3500,
+          "tolerance": 0.005,
+          "acceptedFormulas": ["=SUMMEWENN(A2:A6;\"Nord\";B2:B6)"]
+        }
+      }
+    }
+  },
+  "hints": [
+    "SUMMEWENN-Aufbau: =SUMMEWENN(Bereich; Kriterium; Summe_Bereich)",
+    "Bereich ist der Zellbereich mit den Regionen.",
+    "Kriterium ist der gesuchte Regionsname als Text in Anführungszeichen, z. B. \"Nord\".",
+    "Summe_Bereich ist der Zellbereich mit den Umsätzen, die addiert werden sollen.",
+    "Du kannst statt der Formel auch direkt die berechnete Summe eintragen."
+  ],
+  "explanation": "SUMMEWENN(A2:A6;\"Nord\";B2:B6) durchsucht den Bereich A2:A6 nach dem Kriterium „Nord“ und addiert für jede Übereinstimmung den zugehörigen Wert aus B2:B6. Von den drei Nord-Einträgen (1.200 €, 1.500 € und 800 €) ergibt sich eine Summe von 3.500 €.",
+  "solution": "=SUMMEWENN(A2:A6;\"Nord\";B2:B6)"
+}

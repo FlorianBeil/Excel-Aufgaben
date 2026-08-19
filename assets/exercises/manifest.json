@@ -82,5 +82,12 @@
     "level": "fortgeschritten",
     "category": "bedingungsfunktionen",
     "description": "Nutze die ZÄHLENWENN-Funktion, um zu zählen, wie viele Verkäufe einen bestimmten Betrag übersteigen."
+  },
+  {
+    "id": "summewenn-umsatz-region",
+    "title": "Umsatz je Region summieren",
+    "level": "fortgeschritten",
+    "category": "bedingungsfunktionen",
+    "description": "Nutze die SUMMEWENN-Funktion, um den Umsatz einer bestimmten Region zu summieren."
   }
 ]
