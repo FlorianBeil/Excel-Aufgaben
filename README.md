@@ -188,3 +188,15 @@ Farben, Schriften und Komponenten (Karten, Tabellen-Grid, Badges, Buttons,
 Level-Tabs) liegen zentral in `assets/engine.css`. Neue Übungen sollten
 ausschließlich vorhandene Klassen nutzen, damit alle Seiten optisch
 konsistent bleiben.
+
+## Cache-Busting bei Änderungen an den Kern-Dateien
+
+`portal/index.html` und `portal/uebung.html` laden `engine.css`, `engine.js`,
+`formula-engine.js`, `progress.js` und `iframe-resize.js` mit einem
+`?v=<Zahl>`-Parameter. Browser (und CDNs) cachen diese Dateien sonst
+teils hartnäckig, sodass Änderungen bei Besuchern verzögert ankommen.
+
+**Bei jeder Änderung an einer dieser fünf Dateien: die Versionsnummer in
+beiden HTML-Dateien um 1 erhöhen.** Reine Übungsdaten (`assets/exercises/*.json`)
+sind davon nicht betroffen — die werden bereits mit `{ cache: "no-cache" }`
+geladen.
