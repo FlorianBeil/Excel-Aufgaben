@@ -42,6 +42,13 @@
     "description": "Nutze die WENN-Funktion, um je nach Bedingung einen von zwei Texten anzuzeigen."
   },
   {
+    "id": "sverweis-basis",
+    "title": "Preis nachschlagen",
+    "level": "anfaenger",
+    "category": "verweisfunktionen",
+    "description": "Nutze SVERWEIS, um zu einem gesuchten Produkt automatisch den passenden Preis zu finden."
+  },
+  {
     "id": "sverweis-preisliste",
     "title": "Finde den passenden Preis",
     "level": "anfaenger",

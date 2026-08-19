@@ -1,0 +1,51 @@
+{
+  "id": "sverweis-basis",
+  "title": "Preis nachschlagen",
+  "level": "anfaenger",
+  "category": "verweisfunktionen",
+  "description": "Nutze SVERWEIS, um zu einem gesuchten Produkt automatisch den passenden Preis zu finden.",
+  "task": {
+    "intro": "Ermittle mit SVERWEIS den Preis für das gesuchte Produkt.",
+    "steps": [
+      "Trage in Zelle B8 eine SVERWEIS-Formel ein, die den Preis für das gesuchte Produkt ermittelt."
+    ]
+  },
+  "grid": {
+    "cols": ["A", "B"],
+    "rowCount": 8,
+    "cells": {
+      "A1": { "value": "Produkt", "type": "header" },
+      "B1": { "value": "Preis", "type": "header" },
+
+      "A2": { "value": "Maus" },
+      "B2": { "value": 19.99, "format": "currency" },
+      "A3": { "value": "Tastatur" },
+      "B3": { "value": 34.99, "format": "currency" },
+      "A4": { "value": "Monitor" },
+      "B4": { "value": 189, "format": "currency" },
+      "A5": { "value": "Headset" },
+      "B5": { "value": 49.99, "format": "currency" },
+
+      "A7": { "value": "Suchwert:" },
+      "B7": { "value": "Tastatur" },
+
+      "A8": { "value": "Preis:" },
+      "B8": {
+        "type": "input",
+        "answer": {
+          "value": 34.99,
+          "tolerance": 0.005,
+          "acceptedFormulas": ["=SVERWEIS(B7;A2:B5;2;FALSCH)"]
+        }
+      }
+    }
+  },
+  "hints": [
+    "SVERWEIS-Aufbau: =SVERWEIS(Suchkriterium; Matrix; Spaltenindex; [Bereich_Verweis])",
+    "Suchkriterium ist die Zelle mit dem gesuchten Produktnamen.",
+    "FALSCH (oder 0) als letztes Argument sorgt für eine exakte statt ungefähre Suche.",
+    "Du kannst statt der Formel auch direkt den berechneten Preis eintragen."
+  ],
+  "explanation": "SVERWEIS(B7;A2:B5;2;FALSCH) sucht den Wert aus B7 in der ersten Spalte des Bereichs A2:B5 und gibt den Wert aus der 2. Spalte derselben Zeile zurück – den Preis. FALSCH sorgt für eine exakte statt ungefähre Suche.",
+  "solution": "=SVERWEIS(B7;A2:B5;2;FALSCH)"
+}
