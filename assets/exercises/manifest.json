@@ -63,13 +63,6 @@
     "description": "Nutze GROSS2, GROSS und KLEIN, um Text in die gewünschte Schreibweise zu bringen."
   },
   {
-    "id": "sverweis-preisliste",
-    "title": "Finde den passenden Preis",
-    "level": "fortgeschritten",
-    "category": "verweisfunktionen",
-    "description": "Kombiniere SVERWEIS mit WENNFEHLER, um für gesuchte Produkte den passenden Preis zu finden – auch wenn ein Produkt nicht in der Liste steht."
-  },
-  {
     "id": "wenn-verschachtelt-notenskala",
     "title": "Notenskala mit verschachtelter WENN-Funktion",
     "level": "fortgeschritten",
@@ -131,5 +124,12 @@
     "level": "fortgeschritten",
     "category": "textfunktionen",
     "description": "Nutze TEXTVOR und TEXTNACH, um eine E-Mail-Adresse am @-Zeichen zu zerlegen."
+  },
+  {
+    "id": "sverweis-preisliste",
+    "title": "Finde den passenden Preis",
+    "level": "fortgeschritten",
+    "category": "verweisfunktionen",
+    "description": "Kombiniere SVERWEIS mit WENNFEHLER, um für gesuchte Produkte den passenden Preis zu finden – auch wenn ein Produkt nicht in der Liste steht."
   }
 ]
