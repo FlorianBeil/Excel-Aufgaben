@@ -377,7 +377,7 @@
     // Zerlegt eine Formel in Tokens: Zellbezüge/Bereiche, Funktionsnamen, Zahlen, Rest.
     const tokens = [];
     const re = new RegExp(
-      "(" + REF_TOKEN_RE.source + ")|([A-Za-z_][A-Za-z0-9_.]*)(?=\\()|(-?\\d+(?:[.,]\\d+)?)|([^A-Za-z0-9]|[A-Za-z0-9])",
+      "(" + REF_TOKEN_RE.source + ")|([A-Za-zÄÖÜäöü_][A-Za-z0-9ÄÖÜäöü_.]*)(?=\\()|(-?\\d+(?:[.,]\\d+)?)|([^A-Za-z0-9]|[A-Za-z0-9])",
       "g"
     );
     let m;
@@ -474,7 +474,7 @@
     let name = "";
     for (let i = 0; i < caret; i++) {
       const ch = text[i];
-      if (/[A-Za-z]/.test(ch)) {
+      if (/[A-Za-zÄÖÜäöü]/.test(ch)) {
         name += ch;
         continue;
       }
