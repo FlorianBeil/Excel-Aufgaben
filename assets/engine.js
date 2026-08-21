@@ -1484,10 +1484,26 @@
 
   let activeSuccessOverlay = null;
 
-  function showSuccessPopup() {
+  // anchorEl: das Element, auf dessen Höhe das Popup zentriert werden soll (die Tabelle) –
+  // wichtig bei einer Einbettung per iframe mit fester, großzügig bemessener Höhe (z. B. bei
+  // Ablefy): "position: fixed" würde sich dort auf die volle iframe-Höhe beziehen und das
+  // Popup weit unterhalb der eigentlich sichtbaren Tabelle zeigen. Daher "position: absolute"
+  // mit Koordinaten, die aus der Bounding-Box des Ankerelements berechnet werden.
+  function showSuccessPopup(anchorEl) {
     if (activeSuccessOverlay) activeSuccessOverlay.remove();
 
+    const target = (anchorEl && anchorEl.getBoundingClientRect) ? anchorEl : document.body;
+    const rect = target.getBoundingClientRect();
+    const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+    const pad = 24;
+
     const overlay = el("div", { class: "success-popup-overlay" });
+    overlay.style.left = rect.left + scrollX - pad + "px";
+    overlay.style.top = rect.top + scrollY - pad + "px";
+    overlay.style.width = rect.width + pad * 2 + "px";
+    overlay.style.height = rect.height + pad * 2 + "px";
+
     const popup = el("div", { class: "success-popup" });
     const message = SUCCESS_MESSAGES[Math.floor(Math.random() * SUCCESS_MESSAGES.length)];
 
@@ -1546,7 +1562,7 @@
       feedback.classList.add("is-success");
       const successText = refs.length === 1 ? "Richtig! 🎉" : "Richtig! Alle " + refs.length + " Felder stimmen. 🎉";
       feedback.appendChild(el("p", { text: successText }));
-      showSuccessPopup();
+      showSuccessPopup(sheet.node);
 
       const data = context && context.exerciseData;
       if (data && data.explanation) {

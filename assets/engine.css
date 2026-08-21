@@ -741,12 +741,12 @@ td.cell--input.is-wrong .cell-editable {
 /* ---------- Erfolgs-Popup (beim richtigen Lösen einer Übung) ---------- */
 
 .success-popup-overlay {
-  position: fixed;
-  inset: 0;
+  position: absolute;
   display: flex;
   align-items: center;
   justify-content: center;
   background: rgba(15, 30, 22, 0.4);
+  border-radius: var(--radius);
   z-index: 9999;
   cursor: pointer;
   animation: success-fade-in 0.2s ease-out;
