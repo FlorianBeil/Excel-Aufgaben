@@ -737,3 +737,106 @@ td.cell--input.is-wrong .cell-editable {
   font-size: 0.82rem;
   padding: 2rem 1.5rem;
 }
+
+/* ---------- Erfolgs-Popup (beim richtigen Lösen einer Übung) ---------- */
+
+.success-popup-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 30, 22, 0.4);
+  z-index: 9999;
+  cursor: pointer;
+  animation: success-fade-in 0.2s ease-out;
+}
+
+.success-popup {
+  position: relative;
+  background: var(--surface);
+  border-radius: 18px;
+  padding: 2.1rem 2.5rem 2rem;
+  text-align: center;
+  max-width: 320px;
+  box-shadow: 0 24px 60px rgba(11, 92, 48, 0.28);
+  cursor: default;
+  animation: success-pop-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.success-popup__check-circle {
+  stroke: var(--excel-green);
+  stroke-width: 3;
+  stroke-dasharray: 152;
+  stroke-dashoffset: 152;
+  animation: success-draw-circle 0.5s ease-out forwards;
+}
+
+.success-popup__check-mark {
+  stroke: var(--excel-green);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  animation: success-draw-check 0.35s 0.45s ease-out forwards;
+}
+
+.success-popup__title {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0.9rem 0 0.3rem;
+  color: var(--text-primary);
+}
+
+.success-popup__subtitle {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.success-popup__confetti {
+  position: absolute;
+  left: 50%;
+  top: 38%;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  opacity: 0;
+  animation: success-confetti 0.9s ease-out forwards;
+}
+
+@keyframes success-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes success-pop-in {
+  0% { transform: scale(0.6); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes success-draw-circle {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes success-draw-check {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes success-confetti {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .success-popup-overlay,
+  .success-popup,
+  .success-popup__check-circle,
+  .success-popup__check-mark,
+  .success-popup__confetti {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

@@ -1460,6 +1460,60 @@
     return false;
   }
 
+  // Kurzes Erfolgs-Popup mit Konfetti, das beim richtigen Lösen einer Übung erscheint –
+  // schließt sich von selbst oder per Klick, blockiert also nichts dauerhaft.
+  const SUCCESS_MESSAGES = ["Klasse gemacht!", "Stark gelöst!", "Sehr gut!", "Läuft bei dir!"];
+
+  function buildConfetti() {
+    const colors = ["#107C41", "#0B5C30", "#FFC107", "#2F80ED", "#EB5757"];
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < 14; i++) {
+      const dot = document.createElement("span");
+      dot.className = "success-popup__confetti";
+      const angle = Math.random() * Math.PI * 2;
+      const dist = 55 + Math.random() * 55;
+      dot.style.setProperty("--dx", Math.cos(angle) * dist + "px");
+      dot.style.setProperty("--dy", Math.sin(angle) * dist + "px");
+      dot.style.setProperty("--rot", Math.round(Math.random() * 360) + "deg");
+      dot.style.background = colors[i % colors.length];
+      dot.style.animationDelay = Math.random() * 0.15 + "s";
+      frag.appendChild(dot);
+    }
+    return frag;
+  }
+
+  let activeSuccessOverlay = null;
+
+  function showSuccessPopup() {
+    if (activeSuccessOverlay) activeSuccessOverlay.remove();
+
+    const overlay = el("div", { class: "success-popup-overlay" });
+    const popup = el("div", { class: "success-popup" });
+    const message = SUCCESS_MESSAGES[Math.floor(Math.random() * SUCCESS_MESSAGES.length)];
+
+    popup.innerHTML =
+      '<svg class="success-popup__check" viewBox="0 0 52 52" width="64" height="64">' +
+      '<circle class="success-popup__check-circle" cx="26" cy="26" r="24" fill="none"/>' +
+      '<path class="success-popup__check-mark" fill="none" d="M14 27l7 7 16-16"/>' +
+      "</svg>" +
+      '<p class="success-popup__title">' +
+      escapeHtml(message) +
+      "</p>" +
+      '<p class="success-popup__subtitle">Du hast die Übung richtig gelöst.</p>';
+    popup.appendChild(buildConfetti());
+    overlay.appendChild(popup);
+    document.body.appendChild(overlay);
+    activeSuccessOverlay = overlay;
+
+    function close() {
+      overlay.removeEventListener("click", close);
+      overlay.remove();
+      if (activeSuccessOverlay === overlay) activeSuccessOverlay = null;
+    }
+    overlay.addEventListener("click", close);
+    setTimeout(close, 3200);
+  }
+
   function checkExercise(sheet, feedback, context) {
     const refs = Object.keys(sheet.inputEntries);
     let answered = 0;
@@ -1492,6 +1546,7 @@
       feedback.classList.add("is-success");
       const successText = refs.length === 1 ? "Richtig! 🎉" : "Richtig! Alle " + refs.length + " Felder stimmen. 🎉";
       feedback.appendChild(el("p", { text: successText }));
+      showSuccessPopup();
 
       const data = context && context.exerciseData;
       if (data && data.explanation) {
