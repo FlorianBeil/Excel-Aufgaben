@@ -1482,7 +1482,10 @@
     return frag;
   }
 
-  let activeSuccessOverlay = null;
+  // Geteilt zwischen Erfolgs- UND Fehler-Popup: ein neuer Klick auf "Prüfen"
+  // soll ein noch offenes Popup der jeweils anderen Art zuverlässig schließen
+  // statt es stehen zu lassen.
+  let activePopupOverlay = null;
 
   // anchorEl: das Element, auf dessen Höhe das Popup zentriert werden soll (die Tabelle) –
   // wichtig bei einer Einbettung per iframe mit fester, großzügig bemessener Höhe (z. B. bei
@@ -1490,7 +1493,7 @@
   // Popup weit unterhalb der eigentlich sichtbaren Tabelle zeigen. Daher "position: absolute"
   // mit Koordinaten, die aus der Bounding-Box des Ankerelements berechnet werden.
   function showSuccessPopup(anchorEl) {
-    if (activeSuccessOverlay) activeSuccessOverlay.remove();
+    if (activePopupOverlay) activePopupOverlay.remove();
 
     const target = (anchorEl && anchorEl.getBoundingClientRect) ? anchorEl : document.body;
     const rect = target.getBoundingClientRect();
@@ -1519,15 +1522,56 @@
     popup.appendChild(buildConfetti());
     overlay.appendChild(popup);
     document.body.appendChild(overlay);
-    activeSuccessOverlay = overlay;
+    activePopupOverlay = overlay;
 
     function close() {
       overlay.removeEventListener("click", close);
       overlay.remove();
-      if (activeSuccessOverlay === overlay) activeSuccessOverlay = null;
+      if (activePopupOverlay === overlay) activePopupOverlay = null;
     }
     overlay.addEventListener("click", close);
     setTimeout(close, 3200);
+  }
+
+  // Fehler-Popup bei falscher Lösung — gleiches Muster wie showSuccessPopup(),
+  // aber ohne automatisches Schließen (der Text soll tatsächlich gelesen
+  // werden können) und mit der konkreten Prüf-Meldung als Inhalt statt eines
+  // generischen Lobs.
+  function showErrorPopup(anchorEl, message) {
+    if (activePopupOverlay) activePopupOverlay.remove();
+
+    const target = (anchorEl && anchorEl.getBoundingClientRect) ? anchorEl : document.body;
+    const rect = target.getBoundingClientRect();
+    const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+    const pad = 24;
+
+    const overlay = el("div", { class: "error-popup-overlay" });
+    overlay.style.left = rect.left + scrollX - pad + "px";
+    overlay.style.top = rect.top + scrollY - pad + "px";
+    overlay.style.width = rect.width + pad * 2 + "px";
+    overlay.style.height = rect.height + pad * 2 + "px";
+
+    const popup = el("div", { class: "error-popup" });
+    popup.innerHTML =
+      '<svg class="error-popup__icon" viewBox="0 0 52 52" width="64" height="64">' +
+      '<circle class="error-popup__icon-circle" cx="26" cy="26" r="24" fill="none"/>' +
+      '<path class="error-popup__icon-cross" fill="none" d="M17 17l18 18M35 17l-18 18"/>' +
+      "</svg>" +
+      '<p class="error-popup__title">Noch nicht ganz</p>' +
+      '<p class="error-popup__subtitle">' +
+      escapeHtml(message) +
+      "</p>";
+    overlay.appendChild(popup);
+    document.body.appendChild(overlay);
+    activePopupOverlay = overlay;
+
+    function close() {
+      overlay.removeEventListener("click", close);
+      overlay.remove();
+      if (activePopupOverlay === overlay) activePopupOverlay = null;
+    }
+    overlay.addEventListener("click", close);
   }
 
   function checkExercise(sheet, feedback, context) {
@@ -1554,7 +1598,9 @@
 
     if (answered === 0) {
       feedback.classList.add("is-error");
-      feedback.appendChild(el("p", { text: "Bitte trage zuerst eine Antwort ein." }));
+      const msg = "Bitte trage zuerst eine Antwort ein.";
+      feedback.appendChild(el("p", { text: msg }));
+      showErrorPopup(sheet.node, msg);
       return;
     }
 
@@ -1598,7 +1644,9 @@
       }
     } else {
       feedback.classList.add("is-error");
-      feedback.appendChild(el("p", { text: correct + " von " + refs.length + " Feldern korrekt. Versuch es weiter!" }));
+      const msg = correct + " von " + refs.length + " Feldern korrekt. Versuch es weiter!";
+      feedback.appendChild(el("p", { text: msg }));
+      showErrorPopup(sheet.node, msg);
     }
   }
 
