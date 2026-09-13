@@ -1757,38 +1757,7 @@
       feedback.appendChild(el("p", { text: successText }));
       showSuccessPopup(sheet.node);
 
-      const data = context && context.exerciseData;
-      if (data && data.explanation) {
-        feedback.appendChild(el("p", { class: "exercise-feedback__explanation", text: data.explanation }));
-      }
-
-      if (data && window.ExcelFloProgress) {
-        window.ExcelFloProgress.markCompleted(data.id);
-        const nextInfo = computeNextExercise(context.manifest, data.id);
-
-        if (nextInfo.allDone) {
-          feedback.appendChild(
-            el("p", { class: "exercise-feedback__next", text: "🏆 Du hast alle Übungen in allen Stufen abgeschlossen!" })
-          );
-        } else if (nextInfo.levelDone) {
-          feedback.appendChild(
-            el("p", {
-              class: "exercise-feedback__next",
-              text: "✅ Stufe „" + nextInfo.levelLabel + "“ abgeschlossen!",
-            })
-          );
-        } else if (nextInfo.next) {
-          const link = el(
-            "a",
-            {
-              class: "btn btn--primary",
-              href: (context.exercisePagePath || "uebung.html") + "?id=" + encodeURIComponent(nextInfo.next.id),
-            },
-            [document.createTextNode("Nächste Übung: " + nextInfo.next.title + " →")]
-          );
-          feedback.appendChild(el("p", { class: "exercise-feedback__next" }, [link]));
-        }
-      }
+      appendCompletionFeedback(feedback, context && context.exerciseData, context);
     } else {
       feedback.classList.add("is-error");
       const msg = correct + " von " + refs.length + " Feldern korrekt. Versuch es weiter!";
@@ -1811,5 +1780,51 @@
     initExercise();
   });
 
-  window.ExcelFlo = { colLetter, checkCell };
+  // Nach erfolgreichem Lösen: Erklärung, Fortschritt speichern, nächste Übung vorschlagen.
+  // Geteilt mit engine-powerquery.js (über window.ExcelFlo), damit alle Bereiche gleich reagieren.
+  function appendCompletionFeedback(feedback, data, context) {
+    if (data && data.explanation) {
+      feedback.appendChild(el("p", { class: "exercise-feedback__explanation", text: data.explanation }));
+    }
+
+    if (data && window.ExcelFloProgress) {
+      window.ExcelFloProgress.markCompleted(data.id);
+      const nextInfo = computeNextExercise(context.manifest, data.id);
+
+      if (nextInfo.allDone) {
+        feedback.appendChild(
+          el("p", { class: "exercise-feedback__next", text: "🏆 Du hast alle Übungen in allen Stufen abgeschlossen!" })
+        );
+      } else if (nextInfo.levelDone) {
+        feedback.appendChild(
+          el("p", {
+            class: "exercise-feedback__next",
+            text: "✅ Stufe „" + nextInfo.levelLabel + "“ abgeschlossen!",
+          })
+        );
+      } else if (nextInfo.next) {
+        const link = el(
+          "a",
+          {
+            class: "btn btn--primary",
+            href: (context.exercisePagePath || "uebung.html") + "?id=" + encodeURIComponent(nextInfo.next.id),
+          },
+          [document.createTextNode("Nächste Übung: " + nextInfo.next.title + " →")]
+        );
+        feedback.appendChild(el("p", { class: "exercise-feedback__next" }, [link]));
+      }
+    }
+  }
+
+  window.ExcelFlo = {
+    colLetter,
+    checkCell,
+    // Geteilte UI-Helfer für weitere Bereiche (z. B. engine-powerquery.js)
+    el,
+    LEVEL_LABELS,
+    formatCategoryLabel,
+    showSuccessPopup,
+    showErrorPopup,
+    appendCompletionFeedback,
+  };
 })();

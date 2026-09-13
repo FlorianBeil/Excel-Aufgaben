@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Excel.Flo – Interaktive Excel-Übungen</title>
-<meta name="description" content="Kostenlose, interaktive Excel-Übungen zu SVERWEIS, Formeln und mehr – direkt im Browser, ohne Anmeldung.">
+<title>Excel.Flo – Power-Query-Übung</title>
 <link rel="icon" type="image/svg+xml" href="../assets/img/logo.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/engine.css?v=8">
+<link rel="stylesheet" href="../assets/engine-powerquery.css?v=3">
 </head>
-<body>
+<body class="pq-page">
 
 <header class="site-header">
   <div class="site-header__inner">
@@ -19,29 +19,17 @@
       <span class="brand__icon"><img src="../assets/img/logo-white.webp" alt=""></span>
       <span class="brand__wordmark">Excel<span class="dot">.</span>Flo</span>
     </a>
+    <a class="site-header__back" href="index.html">← Alle Übungen</a>
   </div>
 </header>
 
 <main>
-  <div class="page-intro">
-    <h1>Dein Übungsportal zu Excel-Funktionen</h1>
-    <p>Wähle eine Stufe und eine Übung aus. Jede Aufgabe hat ein festes Ziel und automatisches Feedback – dein Fortschritt wird dabei in diesem Browser gespeichert.</p>
-  </div>
-
-  <div class="level-bar">
-    <div class="level-tabs" id="level-tabs"></div>
-    <div class="level-reset" id="level-reset"></div>
-  </div>
-
-  <div class="stage-banner" id="stage-banner"></div>
-
   <div
-    class="exercise-grid"
-    id="exercise-list"
-    data-manifest-path="../assets/exercises/manifest.json"
+    id="pq-exercise-root"
+    data-exercises-dir="../assets/exercises/powerquery/"
     data-exercise-page="uebung.html"
   >
-    <p class="exercise-grid__empty">Übungen werden geladen …</p>
+    <p>Übung wird geladen …</p>
   </div>
 </main>
 
@@ -51,8 +39,14 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../assets/progress.js?v=3"></script>
-<script src="../assets/formula-engine.js?v=13"></script>
 <script src="../assets/engine.js?v=26"></script>
+<script src="../assets/engine-powerquery.js?v=2"></script>
+<script src="../assets/engine-powerquery-icons.js?v=1"></script>
+<script src="../assets/engine-powerquery-ui.js?v=3"></script>
+<script src="../assets/engine-powerquery-excel.js?v=1"></script>
+<script src="../assets/engine-powerquery-editor.js?v=2"></script>
+<script src="../assets/engine-powerquery-dialogs.js?v=1"></script>
+<script src="../assets/engine-powerquery-page.js?v=1"></script>
 <script src="../assets/iframe-resize.js?v=2"></script>
 </body>
 </html>

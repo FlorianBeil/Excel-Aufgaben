@@ -1,0 +1,9 @@
+[
+  {
+    "id": "verkaufsdaten-kassensystem",
+    "title": "Verkaufsdaten aus dem Kassensystem bereinigen",
+    "level": "anfaenger",
+    "category": "datenbereinigung",
+    "description": "Bereinige die Rohdaten aus dem Kassenexport: entferne leere Zeilen, trenne Namen, korrigiere Datentypen, entferne Leerzeichen und filtere stornierte Bestellungen heraus."
+  }
+]

@@ -1,0 +1,2075 @@
+/* Excel.Flo – Power-Query-Übungen: Nachbau von Excel (Registerkarte „Daten“)
+   und dem Power Query-Editor. Innerhalb des Nachbaus bewusst Office-Optik
+   (Segoe UI, Office-Grautöne); die Seite drumherum bleibt im Excel.Flo-Design
+   aus engine.css. */
+
+body.pq-page main {
+  max-width: 1320px;
+}
+
+/* ---------- Bühne ---------- */
+
+.xl-stage-scroll {
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+  border-radius: var(--radius);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08), 0 10px 30px rgba(16, 124, 65, 0.1);
+}
+
+.xl-stage {
+  position: relative;
+  min-width: 1060px;
+  font-family: "Segoe UI", "Segoe UI Variable", system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+  line-height: 1.3;
+  color: #242424;
+  -webkit-font-smoothing: auto;
+}
+
+.xl-stage *,
+.xl-menu *,
+.xl-tip * {
+  box-sizing: border-box;
+}
+
+.xl-stage [hidden],
+.xl-menu [hidden] {
+  display: none !important;
+}
+
+.xl-stage button,
+.xl-menu button {
+  font: inherit;
+  color: inherit;
+}
+
+.xl-window {
+  display: flex;
+  flex-direction: column;
+  height: 660px;
+  border: 1px solid #c4c4c4;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.xl-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.xl-icon svg {
+  display: block;
+}
+
+.xl-caret {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  margin-left: 4px;
+  border-left: 3.5px solid transparent;
+  border-right: 3.5px solid transparent;
+  border-top: 4px solid #5e5e5e;
+  vertical-align: middle;
+}
+
+.xl-caret.is-up {
+  border-top: 0;
+  border-bottom: 4px solid #5e5e5e;
+}
+
+/* ---------- Tabs & Menüband (gemeinsam) ---------- */
+
+.xl-tabs {
+  display: flex;
+  align-items: stretch;
+}
+
+.xl-tab {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.xl-ribbon {
+  flex-shrink: 0;
+}
+
+.xl-ribbon__row {
+  display: flex;
+  align-items: stretch;
+  height: 94px;
+  padding: 3px 4px 0;
+  overflow: hidden;
+}
+
+.xl-rgroup {
+  display: flex;
+  flex-shrink: 0;
+  position: relative;
+  padding: 0 4px;
+}
+
+.xl-rgroup + .xl-rgroup::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 6px;
+  width: 1px;
+  background: #dcdcdc;
+}
+
+.xl-rgroup__full,
+.xl-rgroup__collapsed {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.xl-rgroup__collapsed,
+.xl-rgroup.is-collapsed .xl-rgroup__full {
+  display: none;
+}
+
+.xl-rgroup.is-collapsed .xl-rgroup__collapsed {
+  display: flex;
+}
+
+.xl-rgroup__controls {
+  display: flex;
+  align-items: flex-start;
+  gap: 1px;
+  flex: 1;
+}
+
+.xl-rgroup__label {
+  font-size: 11px;
+  color: #5e5e5e;
+  text-align: center;
+  white-space: nowrap;
+  padding: 1px 4px 3px;
+}
+
+.xl-rgroup.is-compact .xl-rstack:not(.keep-labels) .xl-rsmall__label {
+  display: none;
+}
+
+.xl-rgroup.is-popup {
+  padding: 4px 6px 0;
+  height: 94px;
+}
+
+.xl-menu--ribbon {
+  padding: 0;
+}
+
+.xl-rbig {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 42px;
+  height: 70px;
+  padding: 3px 4px 2px;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.xl-rbig__label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 11.5px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.xl-rbig--split {
+  padding: 0;
+  gap: 0;
+  cursor: default;
+}
+
+.xl-rbig__top,
+.xl-rbig__bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.xl-rbig__top {
+  padding: 3px 4px 1px;
+}
+
+.xl-rbig__bottom {
+  flex: 1;
+  padding: 1px 4px 2px;
+}
+
+.xl-rbig__top:hover:not(:disabled),
+.xl-rbig__bottom:hover:not(:disabled) {
+  background: #e3e3e3;
+}
+
+.xl-rstack {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding-top: 1px;
+}
+
+.xl-rsmall {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  padding: 0 5px 0 3px;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.xl-rsmall.is-icon-only .xl-rsmall__label {
+  display: none;
+}
+
+.xl-rsmall:not(:has(.xl-icon)) {
+  padding-left: 5px;
+}
+
+.xl-rbig:hover:not(:disabled):not(.xl-rbig--split),
+.xl-rsmall:hover:not(:disabled) {
+  background: #e3e3e3;
+}
+
+.xl-rbig.is-pressed,
+.xl-rsmall.is-pressed {
+  background: #d4e9dc;
+  border-color: #9fcfb1;
+}
+
+.xl-rbig:disabled,
+.xl-rsmall:disabled,
+.xl-rbig--split.is-disabled {
+  cursor: default;
+  color: #a19f9d;
+}
+
+.xl-rbig:disabled .xl-icon,
+.xl-rsmall:disabled .xl-icon,
+.xl-rbig__top:disabled .xl-icon {
+  opacity: 0.38;
+  filter: grayscale(1);
+}
+
+.xl-rbig:disabled .xl-caret,
+.xl-rsmall:disabled .xl-caret,
+.xl-rbig__bottom:disabled .xl-caret {
+  border-top-color: #b8b8b8;
+}
+
+.xl-rcheck {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  padding: 0 6px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.xl-rcheck input {
+  margin: 0;
+  accent-color: #217346;
+}
+
+.xl-rgallery {
+  display: flex;
+  height: 70px;
+  margin-top: 1px;
+  border: 1px solid #d6d6d6;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.xl-rgallery__items {
+  display: flex;
+  padding: 2px;
+  gap: 2px;
+}
+
+.xl-rgallery__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  width: 72px;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.xl-rgallery__item:hover {
+  background: #e3e3e3;
+}
+
+.xl-rgallery__scroll {
+  display: flex;
+  border-left: 1px solid #d6d6d6;
+}
+
+.xl-rgallery__more {
+  width: 16px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.xl-rgallery__more .xl-caret {
+  margin: 0;
+}
+
+/* ---------- Menüs ---------- */
+
+.xl-menu {
+  position: fixed;
+  z-index: 10000;
+  min-width: 190px;
+  padding: 4px 0;
+  background: #fff;
+  border: 1px solid #c6c6c6;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+  color: #242424;
+}
+
+.xl-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 18px 0 6px;
+  cursor: default;
+  white-space: nowrap;
+}
+
+.xl-menu__item:not(.is-disabled):hover,
+.xl-menu__item.has-sub:hover {
+  background: #e6e6e6;
+}
+
+.xl-menu__item.is-disabled {
+  color: #a6a6a6;
+}
+
+.xl-menu__icon {
+  display: inline-flex;
+  width: 20px;
+  justify-content: center;
+}
+
+.xl-menu__check {
+  font-weight: 700;
+  color: #217346;
+}
+
+.xl-menu__label {
+  flex: 1;
+}
+
+.xl-menu__shortcut {
+  color: #707070;
+  margin-left: 24px;
+}
+
+.xl-menu__arrow {
+  margin-left: 16px;
+  font-size: 14px;
+  color: #5e5e5e;
+}
+
+.xl-menu__sep {
+  height: 1px;
+  margin: 4px 8px 4px 32px;
+  background: #e1e1e1;
+}
+
+.xl-menu__header {
+  padding: 4px 10px;
+  font-weight: 600;
+  color: #5e5e5e;
+  background: #f3f3f3;
+}
+
+/* Filtermenü am Spaltenkopf */
+
+.xl-menu--filter {
+  width: 260px;
+}
+
+.pq-filtermenu__search {
+  padding: 6px 10px 4px 32px;
+}
+
+.pq-filtermenu__list {
+  max-height: 190px;
+  overflow-y: auto;
+  margin: 0 10px 0 32px;
+  padding: 3px 6px;
+  border: 1px solid #c8c8c8;
+}
+
+.pq-filtermenu__list .xl-checkbox {
+  padding: 2px 0;
+}
+
+.pq-filtermenu__buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  padding: 8px 10px 6px;
+}
+
+/* ---------- Tooltips & Hinweisleiste ---------- */
+
+.xl-tip {
+  position: fixed;
+  z-index: 10001;
+  max-width: 290px;
+  padding: 7px 9px;
+  background: #fff;
+  border: 1px solid #bdbdbd;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.16);
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+  color: #242424;
+  pointer-events: none;
+}
+
+.xl-tip strong {
+  display: block;
+  margin-bottom: 3px;
+}
+
+.xl-msgbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  min-height: 32px;
+  padding: 4px 8px 4px 12px;
+  background: #fff4ce;
+  border-bottom: 1px solid #e6d28a;
+}
+
+.xl-msgbar__title {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.xl-msgbar__text {
+  flex: 1;
+}
+
+.xl-msgbar__close {
+  display: inline-flex;
+  padding: 3px;
+  background: none;
+  border: 0;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.xl-msgbar__close:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+/* ---------- Dialoge ---------- */
+
+.xl-dialog-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(40, 40, 40, 0.22);
+  border-radius: var(--radius);
+}
+
+.xl-dialog {
+  max-width: 100%;
+  max-height: 100%;
+  overflow: auto;
+  background: #fff;
+  border: 1px solid #9a9a9a;
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.3);
+}
+
+.xl-dialog__titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 30px;
+  padding: 0 4px 0 12px;
+}
+
+.xl-dialog__apptitle {
+  color: #5e5e5e;
+}
+
+.xl-dialog__close {
+  display: inline-flex;
+  padding: 6px 10px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.xl-dialog__close:hover {
+  background: #e81123;
+}
+
+.xl-dialog__close:hover svg path {
+  stroke: #fff;
+}
+
+.xl-dialog__content {
+  padding: 0 24px 6px;
+}
+
+.xl-dialog__title {
+  margin: 2px 0 4px;
+  font-family: "Segoe UI Light", "Segoe UI", system-ui, sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  color: #242424;
+}
+
+.xl-dialog__title:empty {
+  display: none;
+}
+
+.xl-dialog__subtitle {
+  margin: 0 0 14px;
+  color: #3b3b3b;
+}
+
+.xl-dialog__error {
+  margin: 8px 0 0;
+  color: #c50f1f;
+}
+
+.xl-dialog__error:empty {
+  display: none;
+}
+
+.xl-dialog__buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 14px 24px 18px;
+}
+
+.xl-btn {
+  min-width: 80px;
+  height: 26px;
+  padding: 0 12px;
+  background: #fdfdfd;
+  border: 1px solid #adadad;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.xl-btn:hover:not(:disabled) {
+  background: #e5f1ea;
+  border-color: #217346;
+}
+
+.xl-btn--primary {
+  background: #217346;
+  border-color: #185c37;
+  color: #fff !important;
+}
+
+.xl-btn--primary:hover:not(:disabled) {
+  background: #185c37;
+}
+
+.xl-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.xl-btn--small {
+  min-width: 0;
+  height: 24px;
+  padding: 0 8px;
+}
+
+.xl-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.xl-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.xl-field__label {
+  margin: 0;
+  color: #242424;
+}
+
+.xl-input,
+.xl-select {
+  height: 26px;
+  padding: 0 6px;
+  background: #fff;
+  border: 1px solid #ababab;
+  border-radius: 0;
+  font: inherit;
+  font-size: 12px;
+  color: #242424;
+}
+
+.xl-input:focus,
+.xl-select:focus {
+  outline: none;
+  border-color: #217346;
+  box-shadow: inset 0 0 0 1px #217346;
+}
+
+.xl-input:disabled,
+.xl-select:disabled {
+  background: #f3f3f3;
+  color: #a6a6a6;
+}
+
+.xl-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.xl-inline .xl-select {
+  min-width: 190px;
+}
+
+.xl-radiogroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.xl-radiogroup--row {
+  flex-direction: row;
+  gap: 20px;
+}
+
+.xl-radiogroup.is-disabled,
+.xl-filter-row.is-disabled,
+.xl-radio.is-disabled {
+  opacity: 0.5;
+}
+
+.xl-radio,
+.xl-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.xl-radio input,
+.xl-checkbox input {
+  margin: 0;
+  accent-color: #217346;
+}
+
+.xl-checkbox.is-disabled {
+  color: #a6a6a6;
+  cursor: default;
+}
+
+.xl-checklist {
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 8px;
+  padding: 4px 8px;
+  border: 1px solid #c8c8c8;
+}
+
+.xl-checklist .xl-checkbox {
+  padding: 2px 0;
+}
+
+.xl-adv__content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 6px 0 0 16px;
+}
+
+.xl-advtoggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.xl-filter-keep {
+  margin: 4px 0 0;
+}
+
+.xl-filter-row {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 8px;
+}
+
+.xl-group-agg {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.xl-code {
+  height: 300px;
+  margin: 0;
+  padding: 8px 10px;
+  overflow: auto;
+  background: #fff;
+  border: 1px solid #c8c8c8;
+  font-family: Consolas, "JetBrains Mono", monospace;
+  font-size: 12.5px;
+  line-height: 1.45;
+  white-space: pre;
+}
+
+.xl-advanced-editor__ok {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0 0;
+}
+
+.xl-okmark {
+  color: #107c41;
+  font-weight: 700;
+}
+
+.xl-create-table {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.xl-create-table__label,
+.xl-import p {
+  margin: 0;
+}
+
+.xl-import {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ---------- Excel-Fenster ---------- */
+
+.xl-window--excel {
+  background: #f3f3f3;
+}
+
+.xl-titlebar {
+  display: flex;
+  align-items: center;
+  height: 42px;
+  padding: 0 0 0 12px;
+  flex-shrink: 0;
+  font-size: 12px;
+}
+
+.xl-titlebar__left,
+.xl-titlebar__center,
+.xl-titlebar__right,
+.xl-qat,
+.xl-autosave {
+  display: flex;
+  align-items: center;
+}
+
+.xl-titlebar__left {
+  gap: 14px;
+}
+
+.xl-autosave {
+  gap: 8px;
+  color: #616161;
+}
+
+.xl-toggle {
+  display: inline-flex;
+  align-items: center;
+  width: 40px;
+  height: 20px;
+  padding: 0 3px;
+  border: 1px solid #616161;
+  border-radius: 10px;
+  font-size: 9px;
+  color: #616161;
+  justify-content: flex-end;
+}
+
+.xl-toggle::before {
+  content: "";
+  width: 12px;
+  height: 12px;
+  margin-right: auto;
+  border-radius: 50%;
+  background: #616161;
+}
+
+.xl-qat {
+  gap: 6px;
+  color: #616161;
+}
+
+.xl-qat .xl-caret {
+  margin-left: -3px;
+}
+
+.xl-titlebar__center {
+  flex: 1;
+  justify-content: center;
+  gap: 28px;
+}
+
+.xl-filename {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #616161;
+}
+
+.xl-filename strong {
+  font-weight: 400;
+}
+
+.xl-searchbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 360px;
+  height: 30px;
+  padding: 0 10px;
+  background: #fff;
+  border: 1px solid #d1d1d1;
+  border-radius: 4px;
+  color: #616161;
+  font-size: 13px;
+}
+
+.xl-titlebar__right {
+  gap: 10px;
+}
+
+.xl-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #185c37;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.xl-winctl {
+  display: flex;
+}
+
+.xl-winctl span {
+  width: 44px;
+  text-align: center;
+  color: #5e5e5e;
+  font-size: 12px;
+}
+
+.xl-tabsrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 36px;
+  padding: 0 12px;
+  flex-shrink: 0;
+}
+
+.xl-window--excel .xl-tab {
+  position: relative;
+  padding: 6px 9px;
+  font-size: 14px;
+  color: #242424;
+  border-radius: 4px;
+}
+
+.xl-window--excel .xl-tab:hover {
+  background: #e6e6e6;
+}
+
+.xl-window--excel .xl-tab.is-active {
+  font-weight: 600;
+}
+
+.xl-window--excel .xl-tab.is-active::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 0;
+  height: 3px;
+  border-radius: 2px;
+  background: #217346;
+}
+
+.xl-tabsrow__right {
+  display: flex;
+  gap: 8px;
+}
+
+.xl-pillbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
+  background: #fff;
+  border: 1px solid #c8c8c8;
+  border-radius: 4px;
+  font-size: 14px !important;
+  cursor: pointer;
+}
+
+.xl-pillbtn--share {
+  background: #107c41;
+  border-color: #107c41;
+  color: #fff !important;
+}
+
+.xl-pillbtn--share .xl-caret {
+  border-top-color: #fff;
+}
+
+.xl-window--excel .xl-ribbon {
+  margin: 0 8px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
+}
+
+.xl-window--excel .xl-rbig__label {
+  font-size: 12.5px;
+}
+
+.xl-window--excel .xl-rsmall {
+  font-size: 12.5px;
+}
+
+.xl-window--excel .xl-rgroup__label {
+  font-size: 12px;
+}
+
+.xl-window--excel .xl-msgbar {
+  margin: 6px 8px 0;
+  border: 1px solid #e6d28a;
+  border-radius: 4px;
+}
+
+.xl-formulabar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 8px;
+  flex-shrink: 0;
+}
+
+.xl-namebox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 128px;
+  height: 26px;
+  padding: 0 6px;
+  background: #fff;
+  border: 1px solid #d1d1d1;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.xl-formulabar__dots {
+  color: #8a8a8a;
+}
+
+.xl-formulabar__btns {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 26px;
+  padding: 0 8px;
+  background: #fff;
+  border: 1px solid #d1d1d1;
+  border-radius: 4px;
+  color: #9a9a9a;
+  font-size: 13px;
+}
+
+.xl-formulabar__fx {
+  font-family: "Times New Roman", serif;
+  font-style: italic;
+  font-size: 15px;
+  color: #424242;
+}
+
+.xl-formulabar__content {
+  flex: 1;
+  height: 26px;
+  padding: 4px 8px;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #d1d1d1;
+  border-radius: 4px;
+  font-size: 14px;
+  white-space: pre;
+}
+
+.xl-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  background: #fff;
+  border-top: 1px solid #e1e1e1;
+}
+
+.xl-grid-scroll {
+  flex: 1;
+  min-width: 0;
+  overflow: auto;
+  outline: none;
+}
+
+.xl-grid {
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-family: Aptos, "Aptos Narrow", Calibri, "Segoe UI", sans-serif;
+  font-size: 14px;
+  color: #000;
+}
+
+.xl-grid th,
+.xl-grid td {
+  height: 21px;
+  padding: 0 4px;
+  border: 1px solid #e1e1e1;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.xl-grid thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #fff;
+  color: #616161;
+  font-weight: 400;
+  font-size: 13px;
+  text-align: center;
+  border-bottom-color: #c8c8c8;
+}
+
+.xl-grid__corner {
+  left: 0;
+  z-index: 3 !important;
+}
+
+.xl-grid__rowhead {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: #fff;
+  color: #616161;
+  font-weight: 400;
+  font-size: 13px;
+  text-align: center;
+  border-right-color: #c8c8c8 !important;
+}
+
+.xl-grid th.is-active-head {
+  background: #d3f0e0;
+  color: #0e5c2f;
+  font-weight: 600;
+}
+
+.xl-grid thead th.is-active-head {
+  box-shadow: inset 0 -2px 0 #107c41;
+}
+
+.xl-grid__rowhead.is-active-head {
+  box-shadow: inset -2px 0 0 #107c41;
+}
+
+.xl-cell {
+  position: relative;
+  cursor: cell;
+}
+
+.xl-cell__text {
+  display: block;
+  overflow: hidden;
+  white-space: pre;
+  text-overflow: clip;
+}
+
+.xl-cell--num {
+  text-align: right;
+}
+
+.xl-cell--thead {
+  background: #4472c4;
+  color: #fff;
+  font-weight: 700;
+  border-color: #4472c4 !important;
+  padding-right: 22px !important;
+}
+
+.xl-cell--band {
+  background: #d9e1f2;
+  border-color: #d9e1f2 !important;
+}
+
+.xl-cell--tbody {
+  border-color: #ffffff !important;
+}
+
+.xl-cell__filterbtn {
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border: 1px solid #bfbfbf;
+  border-radius: 2px;
+}
+
+.xl-cell.is-selected {
+  outline: 2px solid #107c41;
+  outline-offset: -2px;
+  z-index: 1;
+}
+
+.xl-cell.is-wrong {
+  background: #ffc7ce !important;
+  color: #9c0006;
+}
+
+.xl-taskpane {
+  display: flex;
+  flex-direction: column;
+  width: 270px;
+  flex-shrink: 0;
+  border-left: 1px solid #d1d1d1;
+  background: #fff;
+}
+
+.xl-taskpane__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 8px 6px 14px;
+}
+
+.xl-taskpane__title {
+  font-size: 16px;
+}
+
+.xl-taskpane__close {
+  display: inline-flex;
+  padding: 4px;
+  background: none;
+  border: 0;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.xl-taskpane__close:hover {
+  background: #e6e6e6;
+}
+
+.xl-taskpane__tabs {
+  display: flex;
+  gap: 16px;
+  padding: 0 14px;
+  border-bottom: 1px solid #e1e1e1;
+  font-size: 13px;
+}
+
+.xl-taskpane__tabs span {
+  padding: 6px 0;
+  color: #616161;
+}
+
+.xl-taskpane__tabs .is-active {
+  color: #107c41;
+  font-weight: 600;
+  box-shadow: inset 0 -2px 0 #107c41;
+}
+
+.xl-taskpane__count {
+  padding: 8px 14px 4px;
+  color: #616161;
+}
+
+.xl-querylist__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 6px;
+  padding: 6px 8px;
+  cursor: pointer;
+  outline: none;
+}
+
+.xl-querylist__item:hover,
+.xl-querylist__item:focus {
+  background: #eef6f1;
+}
+
+.xl-querylist__text {
+  display: flex;
+  flex-direction: column;
+}
+
+.xl-querylist__text strong {
+  font-size: 13px;
+  font-weight: 600;
+  color: #107c41;
+}
+
+.xl-querylist__text span {
+  color: #616161;
+}
+
+.xl-sheettabs {
+  display: flex;
+  align-items: stretch;
+  height: 32px;
+  padding: 0 8px;
+  flex-shrink: 0;
+  background: #f3f3f3;
+  border-top: 1px solid #e1e1e1;
+}
+
+.xl-sheettabs__nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-right: 10px;
+  opacity: 0.55;
+}
+
+.xl-sheettabs__list {
+  display: flex;
+}
+
+.xl-sheettab {
+  padding: 0 16px;
+  background: none;
+  border: 0;
+  font-size: 13px !important;
+  cursor: pointer;
+}
+
+.xl-sheettab:hover {
+  background: #e6e6e6;
+}
+
+.xl-sheettab.is-active {
+  background: #fff;
+  color: #107c41 !important;
+  font-weight: 600;
+  box-shadow: inset 0 -3px 0 #107c41;
+}
+
+.xl-sheettabs__add {
+  width: 30px;
+  background: none;
+  border: 0;
+  font-size: 18px !important;
+  color: #616161 !important;
+  cursor: pointer;
+}
+
+.xl-statusbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 24px;
+  padding: 0 12px;
+  flex-shrink: 0;
+  background: #f3f3f3;
+  color: #424242;
+}
+
+.xl-statusbar__right,
+.xl-statusbar__views,
+.xl-zoom {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.xl-zoom__track {
+  position: relative;
+  width: 90px;
+  height: 1px;
+  background: #8a8a8a;
+}
+
+.xl-zoom__thumb {
+  position: absolute;
+  left: 44px;
+  top: -5px;
+  width: 3px;
+  height: 11px;
+  background: #424242;
+}
+
+/* ---------- Power Query-Editor ---------- */
+
+.pq-window {
+  background: #fff;
+}
+
+.pq-titlebar {
+  display: flex;
+  align-items: center;
+  height: 30px;
+  flex-shrink: 0;
+  padding-left: 4px;
+}
+
+.pq-titlebar__left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pq-titlebar__sep {
+  width: 1px;
+  height: 16px;
+  margin: 0 6px;
+  background: #c8c8c8;
+}
+
+.pq-titlebar__title {
+  flex: 1;
+  font-size: 14px;
+  color: #7a7a7a;
+}
+
+.pq-titlebar__controls {
+  display: flex;
+  align-self: stretch;
+}
+
+.pq-winbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  color: #5e5e5e;
+  background: none;
+  border: 0;
+  font-size: 13px;
+}
+
+.pq-winbtn--close {
+  cursor: pointer;
+}
+
+.pq-winbtn--close:hover {
+  background: #e81123;
+  color: #fff !important;
+}
+
+.pq-tabsrow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 27px;
+  flex-shrink: 0;
+  border-bottom: 1px solid #d4d4d4;
+}
+
+.pq-window .xl-tab {
+  height: 27px;
+  margin-bottom: -1px;
+  padding: 0 16px;
+  font-size: 12.5px;
+  border: 1px solid transparent;
+  border-bottom: 0;
+}
+
+.pq-window .xl-tab:not(.is-active):not(.pq-tab--file):hover {
+  color: #217346;
+}
+
+.pq-window .xl-tab.is-active {
+  background: #f7f7f7;
+  border-color: #d4d4d4;
+}
+
+.pq-window .pq-tab--file {
+  margin-right: 2px;
+  background: #d13438;
+  color: #fff !important;
+}
+
+.pq-window .pq-tab--file:hover {
+  background: #b52b2f;
+}
+
+.pq-tabsrow__right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  align-self: center;
+  padding-right: 10px;
+}
+
+.pq-ribbon {
+  background: #f7f7f7;
+  border-bottom: 1px solid #d4d4d4;
+}
+
+.pq-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.pq-queries {
+  display: flex;
+  flex-direction: column;
+  width: 230px;
+  flex-shrink: 0;
+  border-right: 1px solid #d4d4d4;
+}
+
+.pq-queries.is-collapsed {
+  width: 30px;
+  align-items: center;
+  padding-top: 6px;
+  gap: 10px;
+}
+
+.pq-queries__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 12px 10px 6px 16px;
+  border-bottom: 1px solid #a6a6a6;
+}
+
+.pq-queries__title {
+  padding-bottom: 2px;
+  color: #217346;
+}
+
+.pq-queries__toggle {
+  display: inline-flex;
+  padding: 2px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.pq-queries__toggle:hover {
+  background: #e6e6e6;
+}
+
+.pq-queries__vertical {
+  writing-mode: vertical-rl;
+  color: #5e5e5e;
+  letter-spacing: 0.02em;
+}
+
+.pq-queries__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 2px 8px;
+  padding: 4px 8px;
+}
+
+.pq-queries__item.is-selected {
+  background: #d4e9dc;
+}
+
+.pq-center {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.pq-formulabar {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  min-height: 30px;
+  padding: 3px 4px 3px 8px;
+  flex-shrink: 0;
+  border-bottom: 1px solid #d4d4d4;
+}
+
+.pq-formulabar__btn {
+  width: 22px;
+  line-height: 22px;
+  text-align: center;
+  color: #a6a6a6;
+}
+
+.pq-formulabar__fx {
+  width: 24px;
+  line-height: 22px;
+  font-family: "Times New Roman", serif;
+  font-style: italic;
+  font-size: 15px;
+  color: #424242;
+  text-align: center;
+  border-right: 1px solid #d4d4d4;
+  margin-right: 4px;
+}
+
+.pq-formulabar__text {
+  flex: 1;
+  min-width: 0;
+  line-height: 22px;
+  font-size: 12.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pq-formulabar.is-expanded .pq-formulabar__text {
+  max-height: 96px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.pq-formulabar__expand {
+  width: 22px;
+  height: 22px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.pq-formulabar__expand .xl-caret {
+  margin: 0;
+}
+
+.pq-grid-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  outline: none;
+}
+
+.pq-grid {
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 12.5px;
+}
+
+.pq-grid.is-mono {
+  font-family: Consolas, "JetBrains Mono", monospace;
+}
+
+.pq-grid thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #fff;
+  border-bottom: 1px solid #b5b5b5;
+  vertical-align: top;
+}
+
+.pq-grid__corner {
+  left: 0;
+  z-index: 3 !important;
+  width: 42px;
+  min-width: 42px;
+  border-right: 1px solid #e1e1e1;
+}
+
+.pq-grid__cornerbtn {
+  display: flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 4px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.pq-grid__cornerbtn:hover {
+  background: #e6e6e6;
+}
+
+.pq-grid__cornerbtn .xl-caret {
+  margin-left: 2px;
+}
+
+.pq-colhead {
+  min-width: 150px;
+  padding: 0;
+  border-right: 1px solid #e1e1e1;
+  font-weight: 400;
+  text-align: left;
+  cursor: default;
+}
+
+.pq-colhead__inner {
+  display: flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 2px 0 3px;
+}
+
+.pq-colhead.is-selected {
+  background: #c7e6d2 !important;
+}
+
+.pq-colhead__type,
+.pq-colhead__filter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  padding: 0 2px;
+  background: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.pq-colhead__type:hover,
+.pq-colhead__filter:hover {
+  background: #fff;
+  border-color: #b5b5b5;
+}
+
+.pq-colhead__filter.is-filtered {
+  background: #e2eefa;
+}
+
+.pq-colhead__name {
+  flex: 1;
+  min-width: 0;
+  padding: 0 6px 0 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pq-colhead__rename {
+  flex: 1;
+  min-width: 0;
+  height: 20px;
+  margin: 0 4px;
+  padding: 0 3px;
+  border: 1px solid #217346;
+  font: inherit;
+  outline: none;
+}
+
+.pq-grid__rownum {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  width: 42px;
+  padding: 0 8px 0 4px;
+  background: #fff;
+  color: #5e5e5e;
+  font-weight: 400;
+  text-align: left;
+  border-right: 1px solid #e1e1e1;
+  border-bottom: 1px solid #efefef;
+}
+
+.pq-cell {
+  max-width: 260px;
+  height: 23px;
+  padding: 0 7px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border-right: 1px solid #efefef;
+  border-bottom: 1px solid #efefef;
+  cursor: default;
+}
+
+.pq-grid.is-whitespace .pq-cell {
+  white-space: pre;
+}
+
+.pq-cell--num {
+  text-align: right;
+}
+
+.pq-cell--null {
+  font-style: italic;
+  color: #7a7a7a;
+}
+
+.pq-cell--error {
+  color: #c50f1f;
+  cursor: help;
+}
+
+.pq-cell.is-colsel {
+  background: #e4f2e9;
+}
+
+.pq-grid-empty {
+  margin: 12px 16px;
+  color: #7a7a7a;
+}
+
+.pq-quality {
+  padding: 2px 6px 5px;
+  font-size: 10.5px;
+  color: #424242;
+  border-top: 1px solid #efefef;
+}
+
+.pq-quality__bar {
+  display: flex;
+  height: 3px;
+  margin-bottom: 3px;
+  background: #efefef;
+}
+
+.pq-quality__bar .is-valid,
+.pq-quality__row i.is-valid {
+  background: #33a661;
+}
+
+.pq-quality__bar .is-error,
+.pq-quality__row i.is-error {
+  background: #c50f1f;
+}
+
+.pq-quality__bar .is-empty,
+.pq-quality__row i.is-empty {
+  background: #5e5e5e;
+}
+
+.pq-quality__row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pq-quality__row i {
+  width: 6px;
+  height: 6px;
+}
+
+.pq-quality__row b {
+  margin-left: auto;
+  font-weight: 400;
+}
+
+.pq-distribution {
+  padding: 3px 6px 5px;
+  border-top: 1px solid #efefef;
+}
+
+.pq-distribution__bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 1px;
+  height: 28px;
+}
+
+.pq-distribution__bars span {
+  flex: 1;
+  max-width: 12px;
+  background: #5b9bd5;
+}
+
+.pq-distribution__text {
+  margin-top: 2px;
+  font-size: 10.5px;
+  color: #424242;
+}
+
+.pq-errorpane {
+  margin: 16px;
+  padding: 14px 16px;
+  border: 1px solid #e6d28a;
+  background: #fffbea;
+}
+
+.pq-errorpane__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.pq-errorpane__head strong {
+  font-weight: 600;
+}
+
+.pq-errorpane__details {
+  margin: 6px 0 10px 24px;
+  color: #5e5e5e;
+}
+
+.pq-errorpane .xl-btn {
+  margin-left: 24px;
+}
+
+.pq-settings {
+  display: flex;
+  flex-direction: column;
+  width: 260px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  border-left: 1px solid #d4d4d4;
+  background: #fff;
+}
+
+.pq-settings__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 6px 4px 14px;
+  font-size: 16px;
+}
+
+.pq-settings__close {
+  display: inline-flex;
+  padding: 3px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.pq-settings__close:hover {
+  background: #e6e6e6;
+}
+
+.pq-settings__section {
+  margin: 10px 14px 4px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: #3b3b3b;
+  border-bottom: 1px solid #d4d4d4;
+  padding-bottom: 2px;
+}
+
+.pq-settings__field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 4px 14px 0;
+}
+
+.pq-settings__field .xl-input {
+  width: 100%;
+}
+
+.pq-settings__link {
+  align-self: flex-start;
+  margin: 4px 14px 0;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: #217346 !important;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.pq-steps {
+  list-style: none;
+  margin: 2px 0 0;
+  padding: 0 8px 12px;
+}
+
+.pq-step {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 24px;
+  padding: 0 2px;
+  cursor: default;
+}
+
+.pq-step:hover {
+  background: #f0f0f0;
+}
+
+.pq-step.is-selected {
+  background: #c7e6d2;
+}
+
+.pq-step__del,
+.pq-step__gear {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.pq-step__del {
+  visibility: hidden;
+}
+
+.pq-step:hover .pq-step__del,
+.pq-step.is-selected .pq-step__del {
+  visibility: visible;
+}
+
+span.pq-step__del {
+  visibility: hidden !important;
+}
+
+.pq-step__del:hover,
+.pq-step__gear:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.pq-step__del svg path {
+  stroke: #5e5e5e;
+}
+
+.pq-step__name {
+  flex: 1;
+  min-width: 0;
+  padding-left: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pq-step__rename {
+  flex: 1;
+  min-width: 0;
+  height: 20px;
+  border: 1px solid #217346;
+  font: inherit;
+  outline: none;
+}
+
+.pq-step.has-error .pq-step__name {
+  color: #c50f1f;
+}
+
+.pq-step.is-after-error .pq-step__name {
+  color: #8a8a8a;
+}
+
+.pq-statusbar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 24px;
+  padding: 0 12px;
+  flex-shrink: 0;
+  background: #217346;
+  color: #fff;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+}
+
+.pq-statusbar__right {
+  margin-left: auto;
+}
+
+.pq-center--empty {
+  background: #fff;
+}
+
+/* ---------- Feedback & Musterlösung (Seite) ---------- */
+
+.pq-feedback-list {
+  margin: 0.5rem 0 0;
+  padding-left: 1.2rem;
+  color: var(--text-primary);
+}
+
+.pq-feedback-list li + li {
+  margin-top: 0.3rem;
+}
+
+.pq-solution {
+  font-family: var(--font-body);
+}
+
+.pq-solution ol {
+  margin: 0;
+  padding-left: 1.3rem;
+}
+
+.pq-solution li {
+  margin-bottom: 0.25rem;
+}
+
+.pq-solution__note {
+  margin: 0.5rem 0 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}

@@ -1,0 +1,58 @@
+{
+  "id": "verkaufsdaten-kassensystem",
+  "title": "Verkaufsdaten aus dem Kassensystem bereinigen",
+  "level": "anfaenger",
+  "category": "datenbereinigung",
+  "description": "Bereinige die Rohdaten aus dem Kassenexport: entferne leere Zeilen, trenne Namen, korrigiere Datentypen, entferne Leerzeichen und filtere stornierte Bestellungen heraus.",
+  "task": {
+    "intro": "Der Export aus dem Kassensystem ist unsauber. Bereinige die Rohdaten mit Power Query und lade das Ergebnis als saubere Verkaufstabelle zurück nach Excel.",
+    "steps": [
+      "Leere Zeilen sollen nicht mehr in der Tabelle stehen.",
+      "Vor- und Nachname stehen in zwei eigenen Spalten „Vorname“ und „Nachname“.",
+      "Die Kundennamen haben keine überflüssigen Leerzeichen mehr.",
+      "Der Preis liegt als Dezimalzahl vor.",
+      "Stornierte Bestellungen sind nicht mehr enthalten.",
+      "Die fertige Tabelle enthält genau die Spalten Datum, Vorname, Nachname, Kunde und Preis – in dieser Reihenfolge – und ist in Excel geladen."
+    ]
+  },
+  "workbookName": "Kassenexport",
+  "availableActions": ["removeEmptyRows", "splitColumn", "changeType", "trimColumn", "replaceValue", "filterRows", "removeColumn", "renameColumn"],
+  "inputData": [
+    { "Datum": "01.03.2026", "Vorname_Nachname": "Anna Berger", "Kunde": " Müller GmbH ", "Preis": "129,90", "Storniert": "Nein" },
+    { "Datum": "02.03.2026", "Vorname_Nachname": "Jonas Klein", "Kunde": "Schmidt AG", "Preis": "89.50", "Storniert": "Nein" },
+    { "Datum": "", "Vorname_Nachname": "", "Kunde": "", "Preis": "", "Storniert": "" },
+    { "Datum": "03.03.2026", "Vorname_Nachname": "Lea Fischer", "Kunde": " Huber & Co ", "Preis": "45,00", "Storniert": "Ja" },
+    { "Datum": "04.03.2026", "Vorname_Nachname": "Tom Wagner", "Kunde": "Becker OHG", "Preis": "210.00", "Storniert": "Nein" },
+    { "Datum": "", "Vorname_Nachname": "", "Kunde": "", "Preis": "", "Storniert": "" },
+    { "Datum": "05.03.2026", "Vorname_Nachname": "Nina Roth", "Kunde": " Meier KG", "Preis": "15,50", "Storniert": "Nein" },
+    { "Datum": "06.03.2026", "Vorname_Nachname": "Paul Lang", "Kunde": "Weber & Partner", "Preis": "300,00", "Storniert": "Ja" },
+    { "Datum": "07.03.2026", "Vorname_Nachname": "Sara Voss", "Kunde": "Fischer GmbH ", "Preis": "99.99", "Storniert": "Nein" },
+    { "Datum": "08.03.2026", "Vorname_Nachname": "Max Krüger", "Kunde": "König AG", "Preis": "60,00", "Storniert": "Nein" }
+  ],
+  "expectedOutput": [
+    { "Datum": "01.03.2026", "Vorname": "Anna", "Nachname": "Berger", "Kunde": "Müller GmbH", "Preis": 129.90 },
+    { "Datum": "02.03.2026", "Vorname": "Jonas", "Nachname": "Klein", "Kunde": "Schmidt AG", "Preis": 89.50 },
+    { "Datum": "04.03.2026", "Vorname": "Tom", "Nachname": "Wagner", "Kunde": "Becker OHG", "Preis": 210.00 },
+    { "Datum": "05.03.2026", "Vorname": "Nina", "Nachname": "Roth", "Kunde": "Meier KG", "Preis": 15.50 },
+    { "Datum": "07.03.2026", "Vorname": "Sara", "Nachname": "Voss", "Kunde": "Fischer GmbH", "Preis": 99.99 },
+    { "Datum": "08.03.2026", "Vorname": "Max", "Nachname": "Krüger", "Kunde": "König AG", "Preis": 60.00 }
+  ],
+  "hints": [
+    "Markiere eine Zelle in den Rohdaten und starte Power Query über Daten › Aus Tabelle/Bereich.",
+    "Die Preis-Spalte enthält sowohl Komma- als auch Punkt-Schreibweise – ersetze erst das Komma durch einen Punkt, bevor du den Datentyp auf Dezimalzahl änderst.",
+    "Storniert = 'Ja' soll am Ende NICHT mehr in der Tabelle sein.",
+    "Die Storniert-Spalte wird nach dem Filtern nicht mehr gebraucht.",
+    "Eine Spalte benennst du um, indem du doppelt auf ihre Überschrift klickst."
+  ],
+  "explanation": "Power Query zeichnet jeden Bereinigungsschritt auf. Kommt nächsten Monat ein neuer Export aus dem Kassensystem, genügt ein Klick auf „Alle aktualisieren“ – alle Schritte laufen automatisch erneut. Die Reihenfolge ist dabei oft flexibel: Entscheidend ist, dass am Ende die richtige Tabelle herauskommt.",
+  "solution": [
+    { "action": "removeEmptyRows" },
+    { "action": "splitColumn", "column": "Vorname_Nachname", "delimiter": " ", "mode": "each", "newColumnNames": ["Vorname_Nachname.1", "Vorname_Nachname.2"] },
+    { "action": "renameColumn", "renames": [{ "from": "Vorname_Nachname.1", "to": "Vorname" }, { "from": "Vorname_Nachname.2", "to": "Nachname" }] },
+    { "action": "trimColumn", "columns": ["Kunde"] },
+    { "action": "replaceValue", "columns": ["Preis"], "find": ",", "replace": "." },
+    { "action": "changeType", "column": "Preis", "type": "Dezimalzahl" },
+    { "action": "filterRows", "column": "Storniert", "operator": "=", "value": "Nein" },
+    { "action": "removeColumn", "columns": ["Storniert"] }
+  ]
+}
