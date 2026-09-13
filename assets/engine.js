@@ -75,12 +75,14 @@
   const NO_FORMAT_FUNCTIONS = new Set(["ANZAHL", "ANZAHL2", "ZÄHLENWENN", "ZÄHLENWENNS", "DATEDIF", "VERGLEICH", "LÄNGE", "FINDEN"]);
 
   // Spaltenbreiten der Übungstabellen in px
-  const ROW_HEAD_WIDTH = 40;
-  const COL_MIN_WIDTH = 80;
-  const COL_MAX_WIDTH = 360;
-  const EMPTY_COL_WIDTH = 80;
-  const CELL_PADDING = 24; // 6px Innenabstand je Seite + etwas Luft
-  const SHEET_MIN_WIDTH = 480; // damit Namenfeld und Bearbeitungsleiste auch bei kleinen Tabellen Platz haben
+  const ROW_HEAD_WIDTH = 44;
+  const COL_MIN_WIDTH = 110;
+  const COL_MAX_WIDTH = 380;
+  const CELL_PADDING = 36; // 8px Innenabstand je Seite + etwas Luft
+  const CELL_FONT_SIZE = 15; // muss zu table.sheet { font-size } in engine.css passen
+  const EMPTY_COL_WIDTH = 110; // Richtwert für die Anzahl leerer Spalten
+  const EMPTY_COL_MIN_WIDTH = 40; // darunter scrollt die Tabelle horizontal
+  const SHEET_DESIGN_WIDTH = 1030; // Tabellenbreite bei voller Seitenbreite (main 1080px − Innenabstand − Rahmen)
 
   let measureCtx = null;
   let measureFamily = "";
@@ -90,7 +92,7 @@
       measureFamily =
         getComputedStyle(document.documentElement).getPropertyValue("--font-excel").trim() || "Calibri, Arial, sans-serif";
     }
-    measureCtx.font = (bold ? "700 " : "400 ") + "14px " + measureFamily;
+    measureCtx.font = (bold ? "700 " : "400 ") + CELL_FONT_SIZE + "px " + measureFamily;
     return measureCtx.measureText(text).width;
   }
 
@@ -623,8 +625,8 @@
   }
 
   function createSheet(grid) {
-    // Wie in Excel endet die Tabelle nicht direkt an den Daten: rechts mindestens eine leere Spalte
-    // (bei kleinen Tabellen mehrere, bis SHEET_MIN_WIDTH erreicht ist), unten eine leere Zeile.
+    // Wie in Excel endet die Tabelle nicht direkt an den Daten: rechts leere Spalten bis zur vollen
+    // Breite (mindestens eine), unten eine leere Zeile.
     const cols = grid.cols.slice(); // leere Spalten werden nach dem Messen der Breiten angehängt
     const rowCount = grid.rowCount + 1;
     const defs = grid.cells || {};
@@ -689,19 +691,22 @@
       wrap.focus({ preventScroll: true });
     });
 
+    // Datenspalten bekommen ihre gemessene Breite. Rechts füllen leere Spalten ohne feste Breite die
+    // Tabelle auf volle Seitenbreite (sie teilen sich den Rest gleichmäßig) – so wirken alle Übungen gleich groß.
     const colWidths = measureColumnWidths();
-    let tableWidth = ROW_HEAD_WIDTH + colWidths.reduce((sum, w) => sum + w, 0);
-    do {
+    const dataWidth = ROW_HEAD_WIDTH + colWidths.reduce((sum, w) => sum + w, 0);
+    const emptyColCount = Math.max(1, Math.round((SHEET_DESIGN_WIDTH - dataWidth) / EMPTY_COL_WIDTH));
+    for (let i = 0; i < emptyColCount; i++) {
       cols.push(colLetter(colIndexFromLetters(cols[cols.length - 1]) + 1));
-      colWidths.push(EMPTY_COL_WIDTH);
-      tableWidth += EMPTY_COL_WIDTH;
-    } while (tableWidth < SHEET_MIN_WIDTH);
+    }
+    // Auf schmalen Bildschirmen nicht zusammenquetschen, sondern horizontal scrollen
+    const minTableWidth = dataWidth + emptyColCount * EMPTY_COL_MIN_WIDTH;
 
-    const colgroup = el(
-      "colgroup",
-      {},
-      [ROW_HEAD_WIDTH].concat(colWidths).map((w) => el("col", { style: "width:" + w + "px" }))
-    );
+    const colgroup = el("colgroup", {}, [
+      el("col", { style: "width:" + ROW_HEAD_WIDTH + "px" }),
+      ...colWidths.map((w) => el("col", { style: "width:" + w + "px" })),
+      ...Array.from({ length: emptyColCount }, () => el("col")),
+    ]);
 
     const headRow = el("tr", {}, [el("th", { class: "row-head", text: "" })]);
     cols.forEach((c, i) => {
@@ -728,11 +733,10 @@
       tbody.appendChild(el("tr", {}, rowCells));
     }
 
-    const table = el("table", { class: "sheet", style: "width:" + tableWidth + "px" }, [colgroup, thead, tbody]);
+    const table = el("table", { class: "sheet", style: "min-width:" + minTableWidth + "px" }, [colgroup, thead, tbody]);
     const scrollArea = el("div", { class: "sheet-scroll" }, [table]);
     const argHint = el("div", { class: "formula-hint" });
-    // Rahmen so breit wie die Tabelle (+2px Rand), damit rechts keine leere weiße Fläche bleibt
-    const wrap = el("div", { class: "sheet-wrap", style: "width:" + (tableWidth + 2) + "px" }, [toolbar, scrollArea, argHint]);
+    const wrap = el("div", { class: "sheet-wrap" }, [toolbar, scrollArea, argHint]);
     wrap.tabIndex = 0;
 
     // Spaltenbreite wie Excels „Optimale Breite“: längster angezeigter Inhalt der Spalte (Überschriften

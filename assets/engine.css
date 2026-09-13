@@ -377,15 +377,15 @@ main {
 .sheet-wrap {
   position: relative;
   border: 1px solid #D4D4D4;
-  border-radius: 6px;
+  border-radius: 10px;
   background: var(--surface);
   margin-bottom: 1.5rem;
-  max-width: 100%; /* Breite = Tabellenbreite (inline), auf schmalen Bildschirmen scrollt die Tabelle */
-  box-sizing: border-box;
 }
 
+/* overflow clippt die Tabelle an den abgerundeten unteren Ecken */
 .sheet-scroll {
   overflow-x: auto;
+  border-radius: 0 0 9px 9px;
 }
 
 /* Funktions-QuickInfo wie in Excel: weiß, feiner grauer Rahmen, aktuelles Argument fett */
@@ -420,20 +420,21 @@ main {
   text-decoration: none;
 }
 
-/* Breite und Spaltenbreiten setzt engine.js (gemessen am Inhalt, plus leere Spalte rechts) */
+/* Spaltenbreiten setzt engine.js: Datenspalten nach Inhalt, leere Spalten füllen die volle Breite */
 table.sheet {
   border-collapse: collapse;
   table-layout: fixed;
+  width: 100%;
   font-family: var(--font-excel);
-  font-size: 14px;
+  font-size: 15px; /* = CELL_FONT_SIZE in engine.js */
   color: #1F1F1F;
 }
 
 table.sheet th,
 table.sheet td {
   border: 1px solid #E1E1E1;
-  padding: 3px 6px;
-  height: 24px;
+  padding: 4px 8px;
+  height: 28px;
   text-align: left;
   white-space: nowrap;
 }
@@ -445,7 +446,7 @@ table.sheet .row-head {
   border-color: #D4D4D4;
   color: #444;
   font-family: var(--font-excel-ui);
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 400;
   text-align: center;
   transition: background 0.1s ease, color 0.1s ease;
@@ -610,7 +611,7 @@ td.cell--input.is-wrong .cell-editable {
   padding: 6px 8px;
   background: #FFFFFF;
   border-bottom: 1px solid #E1E1E1;
-  border-radius: 6px 6px 0 0;
+  border-radius: 9px 9px 0 0;
   font-family: var(--font-excel-ui);
   font-size: 13px;
   color: #262626;
