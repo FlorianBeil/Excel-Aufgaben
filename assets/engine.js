@@ -615,14 +615,53 @@
     let highlightedRefs = [];
     let keyPoint = null; // { before, after, anchor, current } – Pfeiltasten-Referenzierung beim Formel-Schreiben
 
-    const nameBox = el("span", { class: "sheet-toolbar__namebox", text: "" });
+    // Namenfeld + Bearbeitungsleiste im Stil von Excel 365: Namenfeld mit Dropdown-Pfeil,
+    // Trenner, Abbrechen/Eingeben/fx-Gruppe und ein eigenes Feld für den Zellinhalt.
+    const ICON_CHEVRON =
+      '<svg viewBox="0 0 10 10" width="10" height="10" aria-hidden="true"><path d="M2 3.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const ICON_CANCEL =
+      '<svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M2.5 2.5l7 7M9.5 2.5l-7 7" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>';
+    const ICON_ENTER =
+      '<svg viewBox="0 0 12 12" width="13" height="13" aria-hidden="true"><path d="M2 6.5l2.6 2.6L10 3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const ICON_GRIP =
+      '<svg viewBox="0 0 4 14" width="4" height="14" aria-hidden="true"><circle cx="2" cy="2.5" r="1" fill="currentColor"/><circle cx="2" cy="7" r="1" fill="currentColor"/><circle cx="2" cy="11.5" r="1" fill="currentColor"/></svg>';
+
+    const nameBox = el("span", { class: "sheet-toolbar__nameref", text: "" });
+    const nameBoxField = el("div", { class: "sheet-toolbar__namebox", title: "Namenfeld" }, [nameBox]);
+    nameBoxField.insertAdjacentHTML("beforeend", ICON_CHEVRON);
+
+    const cancelBtn = el("button", { type: "button", class: "sheet-toolbar__icon", title: "Abbrechen", "aria-label": "Abbrechen", html: ICON_CANCEL });
+    const enterBtn = el("button", { type: "button", class: "sheet-toolbar__icon", title: "Eingeben", "aria-label": "Eingeben", html: ICON_ENTER });
+    cancelBtn.tabIndex = -1;
+    enterBtn.tabIndex = -1;
+    const functionGroup = el("div", { class: "sheet-toolbar__functions" }, [
+      cancelBtn,
+      enterBtn,
+      el("span", { class: "sheet-toolbar__fx", title: "Funktion einfügen", html: "<i>fx</i>" + ICON_CHEVRON }),
+    ]);
+
     const contentPreview = el("span", { class: "sheet-toolbar__content" });
     const toolbar = el("div", { class: "sheet-toolbar" }, [
-      nameBox,
-      el("span", { class: "sheet-toolbar__divider" }),
-      el("span", { class: "sheet-toolbar__fx", text: "fx" }),
-      contentPreview,
+      nameBoxField,
+      el("span", { class: "sheet-toolbar__grip", html: ICON_GRIP }),
+      functionGroup,
+      el("div", { class: "sheet-toolbar__formula" }, [contentPreview]),
     ]);
+
+    // Wie in Excel: ✕ verwirft, ✓ übernimmt die laufende Eingabe (die Zelle bleibt ausgewählt).
+    // mousedown statt click + preventDefault, damit die Zelle nicht vorher per blur committet.
+    cancelBtn.addEventListener("mousedown", (e) => {
+      e.preventDefault();
+      if (!editingRef) return;
+      cancelEdit();
+      wrap.focus({ preventScroll: true });
+    });
+    enterBtn.addEventListener("mousedown", (e) => {
+      e.preventDefault();
+      if (!editingRef) return;
+      commitEdit();
+      wrap.focus({ preventScroll: true });
+    });
 
     const headRow = el("tr", {}, [el("th", { class: "row-head", text: "" })]);
     cols.forEach((c, i) => {
@@ -694,7 +733,8 @@
       }
 
       const displayValue = formatValue(cellDef.value, cellDef.format);
-      const cls = cellDef.type === "header" ? "cell--header" : "cell--data";
+      let cls = cellDef.type === "header" ? "cell--header" : "cell--data";
+      if (typeof cellDef.value === "number") cls += " cell--num"; // Zahlen/Datumswerte rechtsbündig wie in Excel
       return el("td", { class: cls, "data-ref": ref, text: displayValue });
     }
 
@@ -946,6 +986,7 @@
 
       entry.el.contentEditable = "true";
       editingRef = ref;
+      toolbar.classList.add("is-editing");
       keyPoint = null;
       entry.el.focus();
       setCaretOffset(entry.el, entry.el.textContent.length);
@@ -957,6 +998,7 @@
       const entry = inputEntries[editingRef];
       if (entry) entry.el.contentEditable = "false";
       editingRef = null;
+      toolbar.classList.remove("is-editing");
       keyPoint = null;
       clearRefHighlights();
       argHint.classList.remove("is-visible");

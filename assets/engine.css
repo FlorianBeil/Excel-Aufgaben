@@ -18,6 +18,8 @@
   --font-heading: "Space Grotesk", sans-serif;
   --font-body: "Inter", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
+  --font-excel: "Aptos Narrow", Aptos, Calibri, "Segoe UI", Arial, sans-serif;
+  --font-excel-ui: "Segoe UI", "Segoe UI Variable", system-ui, -apple-system, Arial, sans-serif;
 
   --radius: 10px;
   --shadow-card: 0 1px 2px rgba(16, 124, 65, 0.06), 0 4px 14px rgba(16, 124, 65, 0.06);
@@ -374,8 +376,8 @@ main {
 
 .sheet-wrap {
   position: relative;
-  border: 1px solid var(--grid-gray);
-  border-radius: var(--radius);
+  border: 1px solid #D4D4D4;
+  border-radius: 6px;
   background: var(--surface);
   margin-bottom: 1.5rem;
 }
@@ -384,18 +386,20 @@ main {
   overflow-x: auto;
 }
 
+/* Funktions-QuickInfo wie in Excel: weiß, feiner grauer Rahmen, aktuelles Argument fett */
 .formula-hint {
   display: none;
   position: absolute;
   z-index: 10;
-  background: var(--text-primary);
-  color: #fff;
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  padding: 0.35rem 0.6rem;
-  border-radius: 6px;
+  background: #FFFFFF;
+  color: #262626;
+  border: 1px solid #C8C8C8;
+  font-family: var(--font-excel-ui);
+  font-size: 12px;
+  padding: 3px 7px;
+  border-radius: 2px;
   white-space: nowrap;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.14);
 }
 
 .formula-hint.is-visible {
@@ -403,67 +407,87 @@ main {
 }
 
 .formula-hint .tok-func {
-  color: #7fe0a3;
+  color: #0F6CBD;
+  font-weight: 400;
+  text-decoration: underline;
 }
 
 .formula-hint .is-active {
-  color: #ffd166;
+  color: inherit;
   font-weight: 700;
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 table.sheet {
   border-collapse: collapse;
   width: 100%;
-  font-family: var(--font-mono);
-  font-size: 0.88rem;
+  font-family: var(--font-excel);
+  font-size: 14px;
+  color: #1F1F1F;
 }
 
 table.sheet th,
 table.sheet td {
-  border: 1px solid var(--grid-gray);
-  padding: 0.45rem 0.6rem;
+  border: 1px solid #E1E1E1;
+  padding: 3px 6px;
+  height: 24px;
   text-align: left;
   white-space: nowrap;
 }
 
-table.sheet thead th {
-  background: var(--header-gray);
-  color: var(--text-muted);
-  font-weight: 600;
+/* Spalten- und Zeilenköpfe wie in Excel 365: hellgrau, Segoe UI, aktive Kopfzelle mit grüner Kante */
+table.sheet thead th,
+table.sheet .row-head {
+  background: #F5F5F5;
+  border-color: #D4D4D4;
+  color: #444;
+  font-family: var(--font-excel-ui);
+  font-size: 12.5px;
+  font-weight: 400;
   text-align: center;
-  position: sticky;
-  top: 0;
   transition: background 0.1s ease, color 0.1s ease;
 }
 
-table.sheet thead th.is-active {
-  background: var(--excel-green-tint);
-  color: var(--excel-green-dark);
+table.sheet thead th {
+  position: sticky;
+  top: 0;
 }
 
 table.sheet .row-head {
-  background: var(--header-gray);
-  color: var(--text-muted);
-  text-align: center;
-  font-weight: 600;
-  width: 2.5rem;
-  transition: background 0.1s ease, color 0.1s ease;
+  width: 34px;
+  min-width: 34px;
+  padding: 3px 4px;
+}
+
+table.sheet thead th.is-active {
+  background: #E1E1E1;
+  color: #0E6B37;
+  box-shadow: inset 0 -2px 0 var(--excel-green);
 }
 
 table.sheet .row-head.is-active {
-  background: var(--excel-green-tint);
-  color: var(--excel-green-dark);
+  background: #E1E1E1;
+  color: #0E6B37;
+  box-shadow: inset -2px 0 0 var(--excel-green);
+}
+
+/* Das kleine graue Dreieck in der linken oberen Ecke ("Alles auswählen") */
+table.sheet thead th.row-head::after {
+  content: "";
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  border-style: solid;
+  border-width: 0 0 8px 8px;
+  border-color: transparent transparent #BDBDBD transparent;
 }
 
 td.cell--header {
-  background: var(--header-gray);
-  font-weight: 600;
-  font-family: var(--font-body);
+  font-weight: 700;
 }
 
-td.cell--data {
-  font-family: var(--font-mono);
+table.sheet td.cell--num {
+  text-align: right;
 }
 
 td.cell--empty {
@@ -495,7 +519,6 @@ td.is-fill-preview {
 }
 
 td.cell--input {
-  padding: 0.4rem 0.6rem;
   background: #FFFBEA;
 }
 
@@ -503,9 +526,9 @@ td.cell--input {
   min-height: 1.2em;
   white-space: pre;
   outline: none;
-  font-family: var(--font-mono);
-  font-size: 0.88rem;
-  color: var(--text-primary);
+  font-family: inherit;
+  font-size: inherit;
+  color: #1F1F1F;
 }
 
 .cell-editable[contenteditable="true"] {
@@ -568,42 +591,132 @@ td.cell--input.is-wrong .cell-editable {
   color: var(--error-red);
 }
 
-/* ---------- Formelleiste ---------- */
+/* ---------- Namenfeld & Bearbeitungsleiste (Excel 365) ---------- */
 
 .sheet-toolbar {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.4rem 0.7rem;
-  background: var(--header-gray);
-  border-bottom: 1px solid var(--grid-gray);
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
+  gap: 6px;
+  padding: 6px 8px;
+  background: #FFFFFF;
+  border-bottom: 1px solid #E1E1E1;
+  border-radius: 6px 6px 0 0;
+  font-family: var(--font-excel-ui);
+  font-size: 13px;
+  color: #262626;
+}
+
+.sheet-toolbar__namebox,
+.sheet-toolbar__functions,
+.sheet-toolbar__formula {
+  display: flex;
+  align-items: center;
+  height: 26px;
+  border: 1px solid #D1D1D1;
+  border-radius: 4px;
+  background: #FFFFFF;
 }
 
 .sheet-toolbar__namebox {
-  min-width: 3.5rem;
-  font-weight: 700;
-  color: var(--excel-green-dark);
+  flex: 0 0 auto;
+  justify-content: space-between;
+  gap: 6px;
+  width: 104px;
+  padding: 0 6px 0 8px;
 }
 
-.sheet-toolbar__divider {
-  width: 1px;
-  align-self: stretch;
-  background: var(--grid-gray);
+.sheet-toolbar__nameref {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sheet-toolbar__namebox svg,
+.sheet-toolbar__fx svg {
+  flex: 0 0 auto;
+  color: #616161;
+}
+
+.sheet-toolbar__grip {
+  display: flex;
+  align-items: center;
+  color: #8A8A8A;
+}
+
+.sheet-toolbar__functions {
+  flex: 0 0 auto;
+  gap: 2px;
+  padding: 0 3px;
+}
+
+/* ✕ und ✓ sind wie in Excel ausgegraut, solange keine Eingabe läuft */
+.sheet-toolbar__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  color: #B8B8B8;
+  cursor: default;
+}
+
+.sheet-toolbar.is-editing .sheet-toolbar__icon {
+  color: #424242;
+  cursor: pointer;
+}
+
+.sheet-toolbar.is-editing .sheet-toolbar__icon:hover {
+  background: #EBEBEB;
 }
 
 .sheet-toolbar__fx {
-  font-style: italic;
-  color: var(--excel-green);
-  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 20px;
+  padding: 0 4px 0 5px;
+  color: #424242;
+}
+
+.sheet-toolbar__fx i {
+  font-family: "Cambria Math", Cambria, "Times New Roman", serif;
+  font-size: 15px;
+  letter-spacing: -0.5px;
+}
+
+.sheet-toolbar__formula {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0 8px;
+  overflow: hidden;
 }
 
 .sheet-toolbar__content {
-  flex: 1;
-  color: var(--text-primary);
+  width: 100%;
+  font-family: var(--font-excel);
+  font-size: 14px;
+  color: #1F1F1F;
   white-space: nowrap;
   overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.sheet-toolbar__content::-webkit-scrollbar {
+  display: none;
+}
+
+@media (max-width: 520px) {
+  .sheet-toolbar__namebox {
+    width: 70px;
+  }
+
+  .sheet-toolbar__grip {
+    display: none;
+  }
 }
 
 /* ---------- Aktionsleiste & Feedback ---------- */
