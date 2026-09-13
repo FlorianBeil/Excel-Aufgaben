@@ -70,6 +70,30 @@
     return node;
   }
 
+  // Funktionen, deren Ergebnis eine Anzahl/Position ist – das übernimmt kein €/%/Datum-Format.
+  // (Modulebene statt in createSheet, weil die Spaltenbreiten schon vor dem Tabellenaufbau gemessen werden.)
+  const NO_FORMAT_FUNCTIONS = new Set(["ANZAHL", "ANZAHL2", "ZÄHLENWENN", "ZÄHLENWENNS", "DATEDIF", "VERGLEICH", "LÄNGE", "FINDEN"]);
+
+  // Spaltenbreiten der Übungstabellen in px
+  const ROW_HEAD_WIDTH = 40;
+  const COL_MIN_WIDTH = 80;
+  const COL_MAX_WIDTH = 360;
+  const EMPTY_COL_WIDTH = 80;
+  const CELL_PADDING = 24; // 6px Innenabstand je Seite + etwas Luft
+  const SHEET_MIN_WIDTH = 480; // damit Namenfeld und Bearbeitungsleiste auch bei kleinen Tabellen Platz haben
+
+  let measureCtx = null;
+  let measureFamily = "";
+  function measureCellText(text, bold) {
+    if (!measureCtx) {
+      measureCtx = document.createElement("canvas").getContext("2d");
+      measureFamily =
+        getComputedStyle(document.documentElement).getPropertyValue("--font-excel").trim() || "Calibri, Arial, sans-serif";
+    }
+    measureCtx.font = (bold ? "700 " : "400 ") + "14px " + measureFamily;
+    return measureCtx.measureText(text).width;
+  }
+
   function colLetter(index) {
     // 0 -> A, 1 -> B, ...
     let n = index + 1;
@@ -599,8 +623,10 @@
   }
 
   function createSheet(grid) {
-    const cols = grid.cols;
-    const rowCount = grid.rowCount;
+    // Wie in Excel endet die Tabelle nicht direkt an den Daten: rechts mindestens eine leere Spalte
+    // (bei kleinen Tabellen mehrere, bis SHEET_MIN_WIDTH erreicht ist), unten eine leere Zeile.
+    const cols = grid.cols.slice(); // leere Spalten werden nach dem Messen der Breiten angehängt
+    const rowCount = grid.rowCount + 1;
     const defs = grid.cells || {};
 
     const cellEls = {}; // ref -> td
@@ -663,6 +689,20 @@
       wrap.focus({ preventScroll: true });
     });
 
+    const colWidths = measureColumnWidths();
+    let tableWidth = ROW_HEAD_WIDTH + colWidths.reduce((sum, w) => sum + w, 0);
+    do {
+      cols.push(colLetter(colIndexFromLetters(cols[cols.length - 1]) + 1));
+      colWidths.push(EMPTY_COL_WIDTH);
+      tableWidth += EMPTY_COL_WIDTH;
+    } while (tableWidth < SHEET_MIN_WIDTH);
+
+    const colgroup = el(
+      "colgroup",
+      {},
+      [ROW_HEAD_WIDTH].concat(colWidths).map((w) => el("col", { style: "width:" + w + "px" }))
+    );
+
     const headRow = el("tr", {}, [el("th", { class: "row-head", text: "" })]);
     cols.forEach((c, i) => {
       const th = el("th", { text: c });
@@ -688,11 +728,51 @@
       tbody.appendChild(el("tr", {}, rowCells));
     }
 
-    const table = el("table", { class: "sheet" }, [thead, tbody]);
+    const table = el("table", { class: "sheet", style: "width:" + tableWidth + "px" }, [colgroup, thead, tbody]);
     const scrollArea = el("div", { class: "sheet-scroll" }, [table]);
     const argHint = el("div", { class: "formula-hint" });
-    const wrap = el("div", { class: "sheet-wrap" }, [toolbar, scrollArea, argHint]);
+    // Rahmen so breit wie die Tabelle (+2px Rand), damit rechts keine leere weiße Fläche bleibt
+    const wrap = el("div", { class: "sheet-wrap", style: "width:" + (tableWidth + 2) + "px" }, [toolbar, scrollArea, argHint]);
     wrap.tabIndex = 0;
+
+    // Spaltenbreite wie Excels „Optimale Breite“: längster angezeigter Inhalt der Spalte (Überschriften
+    // fett, bei Eingabezellen das erwartete Ergebnis inkl. Spill-Werten), begrenzt auf Mindest-/Höchstbreite.
+    function measureColumnWidths() {
+      const longest = grid.cols.map(() => 0);
+      const note = (ref, text, bold) => {
+        const idx = grid.cols.indexOf(refRowCol(ref).col);
+        if (idx < 0 || !text) return;
+        longest[idx] = Math.max(longest[idx], measureCellText(text, bold));
+      };
+
+      Object.keys(defs).forEach((ref) => {
+        const def = defs[ref];
+        if (def.type !== "input") {
+          note(ref, formatValue(def.value, def.format), def.type === "header");
+          return;
+        }
+        const answer = def.answer || {};
+        const formula = (answer.acceptedFormulas || [])[0];
+        const format = def.format || (formula ? inferFormat(formula) : null);
+        if (Array.isArray(answer.value)) {
+          const matrix = Array.isArray(answer.value[0]) ? answer.value : [answer.value];
+          const spill = def.spill || [];
+          matrix.forEach((row, r) =>
+            row.forEach((v, c) => note((spill[r] && spill[r][c]) || ref, displayText(v, format)))
+          );
+        } else {
+          note(ref, displayText(answer.value, format));
+        }
+      });
+
+      return longest.map((w) => Math.min(COL_MAX_WIDTH, Math.max(COL_MIN_WIDTH, Math.ceil(w) + CELL_PADDING)));
+    }
+
+    function displayText(value, format) {
+      if (typeof value === "number") return format ? formatValue(value, format) : formatGeneral(value);
+      if (typeof value === "boolean") return value ? "WAHR" : "FALSCH";
+      return value == null ? "" : String(value);
+    }
 
     function buildCell(ref, cellDef) {
       if (!cellDef) {
@@ -782,9 +862,6 @@
     }
 
     /* ---- Ergebnisanzeige in Eingabezellen (wie Excel: Zelle = Ergebnis, Leiste = Formel) ---- */
-
-    // Funktionen, deren Ergebnis eine Anzahl/Position ist – das übernimmt kein €/%/Datum-Format.
-    const NO_FORMAT_FUNCTIONS = new Set(["ANZAHL", "ANZAHL2", "ZÄHLENWENN", "ZÄHLENWENNS", "DATEDIF", "VERGLEICH", "LÄNGE", "FINDEN"]);
 
     // Wie Excel: Ohne eigenes Format übernimmt ein Zahlenergebnis das Format der ersten
     // referenzierten Zelle mit Format (z. B. SUMME über €-Beträge → €, EDATUM auf ein Datum → Datum).
@@ -1094,11 +1171,14 @@
       if (!editingRef) return;
       const committedRef = editingRef;
       const entry = inputEntries[editingRef];
-      if (entry) {
-        entry.el.contentEditable = "false";
-        entry.raw = entry.el.textContent;
-      }
+      // Reihenfolge wichtig: contentEditable=false nimmt der Zelle den Fokus, der blur-Handler ruft
+      // commitEdit dann verschachtelt auf. Wäre editingRef noch gesetzt, würde danach raw mit dem
+      // bereits angezeigten Ergebnis überschrieben – und die Bearbeitungsleiste zeigte „2,4“ statt der Formel.
       editingRef = null;
+      if (entry) {
+        entry.raw = entry.el.textContent;
+        entry.el.contentEditable = "false";
+      }
       toolbar.classList.remove("is-editing");
       keyPoint = null;
       clearRefHighlights();

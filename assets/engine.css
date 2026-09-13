@@ -380,6 +380,8 @@ main {
   border-radius: 6px;
   background: var(--surface);
   margin-bottom: 1.5rem;
+  max-width: 100%; /* Breite = Tabellenbreite (inline), auf schmalen Bildschirmen scrollt die Tabelle */
+  box-sizing: border-box;
 }
 
 .sheet-scroll {
@@ -418,9 +420,10 @@ main {
   text-decoration: none;
 }
 
+/* Breite und Spaltenbreiten setzt engine.js (gemessen am Inhalt, plus leere Spalte rechts) */
 table.sheet {
   border-collapse: collapse;
-  width: 100%;
+  table-layout: fixed;
   font-family: var(--font-excel);
   font-size: 14px;
   color: #1F1F1F;
@@ -531,9 +534,16 @@ td.cell--input {
   color: #1F1F1F;
 }
 
+/* Beim Tippen läuft eine lange Formel wie in Excel über die Nachbarzellen hinaus, statt die Spalte zu verbreitern */
 .cell-editable[contenteditable="true"] {
   caret-color: var(--excel-green-dark);
   cursor: text;
+  position: relative;
+  z-index: 3;
+  width: max-content;
+  min-width: 100%;
+  padding-right: 4px;
+  background: #FFFBEA;
 }
 
 .is-copied {
