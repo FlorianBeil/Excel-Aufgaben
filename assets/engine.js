@@ -711,7 +711,7 @@
         const handle = el("span", { class: "fill-handle" });
         const td = el("td", { class: "cell--input", "data-ref": ref }, [content, handle]);
 
-        inputEntries[ref] = { el: content, td, answer: cellDef.answer || {}, beforeEdit: "", spill: cellDef.spill || null };
+        inputEntries[ref] = { el: content, td, answer: cellDef.answer || {}, beforeEdit: "", raw: "", format: cellDef.format || null, spill: cellDef.spill || null };
 
         content.addEventListener("input", () => {
           keyPoint = null;
@@ -746,24 +746,111 @@
       return { col, row };
     }
 
+    // Liefert den Zellinhalt für Bearbeitungsleiste/Kopieren: bei Eingabezellen die Formel bzw. den
+    // getippten Text (entry.raw), nicht das angezeigte Ergebnis.
     function cellText(ref) {
-      if (inputEntries[ref]) return inputEntries[ref].el.textContent;
+      if (inputEntries[ref]) return inputEntries[ref].raw;
       const def = defs[ref];
       return def ? formatValue(def.value, def.format) : "";
     }
 
     // Für den Formel-Auswerter: liefert den rohen Zellwert (Zahl/Text), nicht die formatierte Anzeige.
+    // Formeln in anderen Eingabezellen werden wie in Excel ausgewertet (mit Schutz vor Zirkelbezügen).
+    const evaluatingRefs = new Set();
     function getCellValue(ref) {
       const def = defs[ref];
       if (def && def.value !== undefined) return def.value;
       const entry = inputEntries[ref];
       if (entry) {
-        const raw = entry.el.textContent.trim();
+        const raw = entry.raw.trim();
         if (raw === "") return undefined;
+        if (raw.startsWith("=")) {
+          if (evaluatingRefs.has(ref) || !window.ExcelFloFormula) return undefined;
+          evaluatingRefs.add(ref);
+          try {
+            const result = window.ExcelFloFormula.evaluate(raw, getCellValue);
+            if (window.ExcelFloFormula.isFormulaError(result)) return undefined;
+            return Array.isArray(result) ? flattenDeep(result)[0] : result;
+          } finally {
+            evaluatingRefs.delete(ref);
+          }
+        }
         const num = parseGermanNumber(raw);
         return num !== null ? num : raw;
       }
       return undefined;
+    }
+
+    /* ---- Ergebnisanzeige in Eingabezellen (wie Excel: Zelle = Ergebnis, Leiste = Formel) ---- */
+
+    // Funktionen, deren Ergebnis eine Anzahl/Position ist – das übernimmt kein €/%/Datum-Format.
+    const NO_FORMAT_FUNCTIONS = new Set(["ANZAHL", "ANZAHL2", "ZÄHLENWENN", "ZÄHLENWENNS", "DATEDIF", "VERGLEICH", "LÄNGE", "FINDEN"]);
+
+    // Wie Excel: Ohne eigenes Format übernimmt ein Zahlenergebnis das Format der ersten
+    // referenzierten Zelle mit Format (z. B. SUMME über €-Beträge → €, EDATUM auf ein Datum → Datum).
+    function inferFormat(raw) {
+      const tokens = tokenizeFormula(raw).filter((t) => t.text.trim() !== "" && t.text !== "=");
+      if (tokens[0] && tokens[0].type === "func" && NO_FORMAT_FUNCTIONS.has(tokens[0].text.toUpperCase())) return null;
+      for (const t of tokens) {
+        if (t.type !== "ref") continue;
+        const parts = t.text.replace(/\$/g, "").toUpperCase().split(":");
+        const refs = parts.length === 2 ? cellsInRange(parts[0], parts[1]) : [parts[0]];
+        for (const r of refs) {
+          if (defs[r] && defs[r].format) return defs[r].format;
+        }
+      }
+      return null;
+    }
+
+    function excelErrorCode(message) {
+      const match = String(message || "").match(/#[A-ZÄÖÜ0-9\/!?]+/);
+      if (match) return { "#N/A": "#NV", "#CALC!": "#KALK!", "#VALUE!": "#WERT!" }[match[0]] || match[0];
+      return /Unbekannte Funktion|Unbekanntes Symbol/.test(String(message)) ? "#NAME?" : "#WERT!";
+    }
+
+    // Excel-Format „Standard“: kein Tausenderpunkt, Dezimalkomma, max. 10 signifikante Stellen.
+    function formatGeneral(n) {
+      if (!isFinite(n)) return "#ZAHL!";
+      const rounded = Number.isInteger(n) ? n : parseFloat(n.toPrecision(10));
+      return String(rounded).replace(".", ",");
+    }
+
+    function renderInputDisplay(ref) {
+      const entry = inputEntries[ref];
+      if (!entry || editingRef === ref) return;
+      const raw = entry.raw;
+      let text = raw;
+      let isNum = /^[-+]?\d[\d.]*(,\d+)?\s*%?$/.test(raw.trim());
+
+      if (raw.startsWith("=") && window.ExcelFloFormula) {
+        let result = window.ExcelFloFormula.evaluate(raw, getCellValue);
+        if (Array.isArray(result)) result = flattenDeep(result)[0]; // Spill: Ankerzelle zeigt das erste Element
+        isNum = false;
+        if (window.ExcelFloFormula.isFormulaError(result)) {
+          text = excelErrorCode(result.message);
+        } else if (typeof result === "number") {
+          let format = entry.format || inferFormat(raw);
+          // Echte Cent-Beträge nicht wegrunden – Rundungsrauschen (3000*1,1 = 3300,0000000000005) aber ignorieren
+          if (format === "currency0" && !Number.isInteger(Math.round(result * 100) / 100)) format = "currency";
+          text = format ? formatValue(result, format) : formatGeneral(result);
+          isNum = true;
+        } else if (typeof result === "boolean") {
+          text = result ? "WAHR" : "FALSCH";
+        } else if (result === undefined || result === null) {
+          text = "0"; // Bezug auf eine leere Zelle ergibt in Excel 0
+          isNum = true;
+        } else {
+          text = String(result);
+        }
+      }
+
+      entry.el.textContent = text;
+      entry.td.classList.toggle("cell--num", isNum);
+    }
+
+    // Alle Eingabezellen neu anzeigen – Ergebnisse können von anderen Eingabezellen abhängen.
+    function renderAllInputDisplays() {
+      Object.keys(inputEntries).forEach(renderInputDisplay);
     }
 
     function clearRangeHighlight() {
@@ -862,8 +949,18 @@
       if (!entry) return;
       entry.td.classList.remove("is-correct", "is-wrong");
 
+      // Programmatische Änderung außerhalb des Bearbeitens (Einfügen, Ausfüllen, Löschen):
+      // entry.raw ist bereits gesetzt, angezeigt wird das Ergebnis.
+      if (editingRef !== ref) {
+        renderAllInputDisplays();
+        if (selectedRef === ref) contentPreview.textContent = entry.raw;
+        updateSpill(ref, entry.raw);
+        return;
+      }
+
       const offset = getCaretOffset(entry.el);
       const text = entry.el.textContent;
+      entry.raw = text;
       const { html, colorMap } = renderFormulaMarkup(text);
       entry.el.innerHTML = html;
       if (document.activeElement === entry.el) setCaretOffset(entry.el, offset);
@@ -881,8 +978,7 @@
     // (z. B. TEXTTEILEN), wird der Rest automatisch in die per `spill` angegebenen
     // Nachbarzellen geschrieben (nur zur Anzeige, nicht editierbar).
     // `spill` ist ein 2D-Raster von Zellbezügen (Zeilen x Spalten), das die Form des erwarteten
-    // Formel-Ergebnisses widerspiegelt; Position [0][0] ist die Ankerzelle selbst (bleibt
-    // unverändert, zeigt weiter den Formeltext). Liefert die Formel ein Array, werden alle
+    // Formel-Ergebnisses widerspiegelt; Position [0][0] ist die Ankerzelle selbst (zeigt – wie in Excel – das erste Element des Ergebnisses). Liefert die Formel ein Array, werden alle
     // anderen Positionen automatisch mit den passenden Werten befüllt (wie Excels Spill).
     function updateSpill(ref, text) {
       const entry = inputEntries[ref];
@@ -981,8 +1077,9 @@
       if (editingRef && editingRef !== ref) commitEdit();
       if (selectedRef !== ref) select(ref);
 
-      entry.beforeEdit = entry.el.textContent;
-      if (typeof replacementChar === "string") entry.el.textContent = replacementChar;
+      entry.beforeEdit = entry.raw;
+      entry.el.textContent = typeof replacementChar === "string" ? replacementChar : entry.raw;
+      entry.td.classList.remove("cell--num"); // beim Tippen linksbündig wie in Excel
 
       entry.el.contentEditable = "true";
       editingRef = ref;
@@ -995,13 +1092,20 @@
 
     function commitEdit() {
       if (!editingRef) return;
+      const committedRef = editingRef;
       const entry = inputEntries[editingRef];
-      if (entry) entry.el.contentEditable = "false";
+      if (entry) {
+        entry.el.contentEditable = "false";
+        entry.raw = entry.el.textContent;
+      }
       editingRef = null;
       toolbar.classList.remove("is-editing");
       keyPoint = null;
       clearRefHighlights();
       argHint.classList.remove("is-visible");
+      // Wie in Excel: nach dem Bestätigen steht das Ergebnis in der Zelle, die Formel in der Leiste.
+      renderAllInputDisplays();
+      if (entry && selectedRef === committedRef) contentPreview.textContent = entry.raw;
     }
 
     function cancelEdit() {
@@ -1141,7 +1245,7 @@
           const colDelta = cols.indexOf(dst.col) - cols.indexOf(src.col);
           finalText = shiftFormula(text, rowDelta, colDelta);
         }
-        entry.el.textContent = finalText;
+        entry.raw = finalText;
         handleContentChanged(destRef);
       });
       clearCopiedVisual();
@@ -1201,7 +1305,7 @@
       } else if (e.key === "Delete" || e.key === "Backspace") {
         if (inputEntries[selectedRef]) {
           e.preventDefault();
-          inputEntries[selectedRef].el.textContent = "";
+          inputEntries[selectedRef].raw = "";
           handleContentChanged(selectedRef);
           contentPreview.textContent = "";
         }
@@ -1375,7 +1479,7 @@
       const { col, row: sourceRow } = refRowCol(sourceRef);
 
       if (sourceEntry && targetRow !== undefined && targetRow !== sourceRow) {
-        const sourceText = sourceEntry.el.textContent;
+        const sourceText = sourceEntry.raw;
         const lo = Math.min(sourceRow, targetRow);
         const hi = Math.max(sourceRow, targetRow);
         for (let r = lo; r <= hi; r++) {
@@ -1383,7 +1487,7 @@
           const targetRef = col + r;
           const targetEntry = inputEntries[targetRef];
           if (!targetEntry) continue;
-          targetEntry.el.textContent = shiftFormula(sourceText, r - sourceRow, 0);
+          targetEntry.raw = shiftFormula(sourceText, r - sourceRow, 0);
           handleContentChanged(targetRef);
         }
         clearRefHighlights();
@@ -1401,8 +1505,9 @@
       clearCopiedVisual();
       argHint.classList.remove("is-visible");
       Object.values(inputEntries).forEach((entry) => {
+        entry.raw = "";
         entry.el.textContent = "";
-        entry.td.classList.remove("is-correct", "is-wrong");
+        entry.td.classList.remove("is-correct", "is-wrong", "cell--num");
         if (entry.spill) {
           const anchorRef = entry.el.dataset.ref;
           entry.spill.forEach((rowRefs) => rowRefs.forEach((r) => { if (r !== anchorRef && cellEls[r]) cellEls[r].textContent = ""; }));
@@ -1623,7 +1728,7 @@
 
     refs.forEach((ref) => {
       const entry = sheet.inputEntries[ref];
-      const result = checkCell(entry.el.textContent, entry.answer, sheet.getCellValue);
+      const result = checkCell(entry.raw, entry.answer, sheet.getCellValue);
       entry.td.classList.remove("is-correct", "is-wrong");
       if (result === true) {
         entry.td.classList.add("is-correct");
