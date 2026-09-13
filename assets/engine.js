@@ -422,17 +422,26 @@
       ]);
 
       root.appendChild(details);
+      details.addEventListener("toggle", () => {
+        if (details.open) trackEvent(data.id, "hints_open");
+      });
 
       if (data.solution) {
         details.querySelector("#btn-solution").addEventListener("click", () => {
           solutionBox.classList.toggle("is-visible");
+          if (solutionBox.classList.contains("is-visible")) trackEvent(data.id, "solution_show");
         });
       }
     }
 
-    const context = { exerciseData: data, manifest, exercisePagePath };
+    // stats: Versuche und Startzeit fürs Tracking (Versuch Nr. / Sekunden bis „Prüfen“)
+    const context = { exerciseData: data, manifest, exercisePagePath, stats: { openedAt: Date.now(), attempts: 0 } };
     document.getElementById("btn-check").addEventListener("click", () => checkExercise(sheet, feedback, context));
-    document.getElementById("btn-reset").addEventListener("click", () => resetExercise(sheet, feedback));
+    document.getElementById("btn-reset").addEventListener("click", () => {
+      resetExercise(sheet, feedback);
+      trackEvent(data.id, "reset");
+    });
+    trackEvent(data.id, "exercise_open");
   }
 
   function formatValue(value, format) {
@@ -1805,6 +1814,12 @@
     overlay.addEventListener("click", close);
   }
 
+  // Anonyme Nutzungs-Ereignisse (assets/tracking.js → Supabase-Tabelle public.events).
+  // Ohne geladenes Modul (z. B. auf den Power-Query-Seiten) passiert nichts.
+  function trackEvent(exerciseId, event, detail) {
+    if (window.ExcelFloTracking) window.ExcelFloTracking.track("funktionen", exerciseId, event, detail);
+  }
+
   function checkExercise(sheet, feedback, context) {
     const refs = Object.keys(sheet.inputEntries);
     let answered = 0;
@@ -1826,6 +1841,18 @@
 
     feedback.classList.remove("is-success", "is-error");
     feedback.innerHTML = "";
+
+    if (context && context.stats) {
+      context.stats.attempts++;
+      trackEvent(context.exerciseData && context.exerciseData.id, "check", {
+        correct: answered > 0 && correct === refs.length,
+        empty: answered === 0,
+        correct_cells: correct,
+        total_cells: refs.length,
+        attempt: context.stats.attempts,
+        seconds: Math.round((Date.now() - context.stats.openedAt) / 1000),
+      });
+    }
 
     if (answered === 0) {
       feedback.classList.add("is-error");
