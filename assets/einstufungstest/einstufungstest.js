@@ -106,8 +106,9 @@
 
   /* ---------------- Rendern ---------------- */
 
-  // nachAktion: nach einem Klick den Fokus auf die neue Überschrift setzen und nach oben scrollen.
-  // Beim ersten Laden nicht – sonst springt die einbettende Ablefy-Seite zum iframe.
+  // nachAktion: nach einem Klick den Fokus auf die neue Überschrift setzen. Gescrollt wird nur,
+  // wenn der Anfang des neuen Bildschirms nicht zu sehen ist – sonst bleibt die Seite, wo sie ist.
+  // Beim ersten Laden nie – sonst springt die einbettende Ablefy-Seite zum iframe.
   function render(nachAktion) {
     root.innerHTML = "";
     if (ansicht === "ergebnis") renderErgebnis();
@@ -116,10 +117,24 @@
 
     if (nachAktion) {
       const ziel = root.querySelector("[data-fokus]");
-      if (window.self === window.top) window.scrollTo(0, 0);
-      else document.documentElement.scrollIntoView({ block: "start" });
       if (ziel) ziel.focus({ preventScroll: true });
+      anfangSichtbarMachen(root.firstElementChild);
     }
+  }
+
+  // IntersectionObserver prüft auch im iframe gegen das tatsächlich sichtbare Browserfenster
+  // (also inklusive Scrollposition der Ablefy-Seite).
+  function anfangSichtbarMachen(anfang) {
+    if (!anfang) return;
+    if (!("IntersectionObserver" in window)) {
+      if (anfang.getBoundingClientRect().top < 0) anfang.scrollIntoView({ block: "start" });
+      return;
+    }
+    const beobachter = new IntersectionObserver((eintraege) => {
+      beobachter.disconnect();
+      if (eintraege[0].intersectionRatio < 0.99) anfang.scrollIntoView({ block: "start" });
+    });
+    beobachter.observe(anfang);
   }
 
   /* ---------------- Startbildschirm ---------------- */
@@ -159,16 +174,18 @@
 
   /* ---------------- Fragebildschirm ---------------- */
 
-  function renderFrage() {
-    const schritt = stand.schritt;
-    const frage = L.frageFuerSchritt(daten, schritt);
-    const abschluss = L.istAbschlussfrage(daten, schritt);
-    const gewaehlt = L.antwortFuerSchritt(daten, stand, schritt);
-    const fortschrittText = abschluss
+  function fortschrittTextFuer(schritt) {
+    return L.istAbschlussfrage(daten, schritt)
       ? text("fortschrittAbschluss")
       : text("fortschrittFrage", { nummer: schritt + 1, gesamt: L.anzahlFragen(daten) });
+  }
 
-    // Fortschritt: sichtbar oben; Screenreader hören ihn stattdessen direkt vor der Frage (siehe unten)
+  function renderFrage() {
+    const schritt = stand.schritt;
+    const abschluss = L.istAbschlussfrage(daten, schritt);
+    const fortschrittText = fortschrittTextFuer(schritt);
+
+    // Fortschritt: sichtbar oben; Screenreader hören ihn stattdessen direkt vor der Frage (siehe frageFieldset)
     const anteil = Math.round(((schritt + 1) / L.anzahlSchritte(daten)) * 100);
     root.appendChild(
       el("div", { class: "test-progress", "aria-hidden": "true" }, [
@@ -180,24 +197,6 @@
     );
 
     const hinweisSlot = el("div", { class: "test-hint-slot", id: "test-hinweis" });
-
-    const optionen = frage.options.map((option, i) => {
-      const input = el("input", {
-        type: "radio",
-        name: "antwort",
-        value: option.id,
-        class: "answer-option__input",
-        "aria-describedby": "test-hinweis",
-      });
-      if (option.id === gewaehlt) input.checked = true;
-      input.addEventListener("change", () => waehleAntwort(option.id));
-
-      return el("label", { class: "answer-option" + (option.id === gewaehlt ? " is-selected" : "") }, [
-        input,
-        el("span", { class: "answer-option__key", "aria-hidden": "true", text: String(i + 1) }),
-        mitFormeln("span", { class: "answer-option__text" }, option.text),
-      ]);
-    });
 
     const nav = el("div", { class: "test-nav" });
     if (schritt > 0) {
@@ -216,18 +215,11 @@
       })
     );
 
-    // Beim Fokuswechsel auf die Frage liest der Screenreader „Frage 4 von 10: …“ vor
-    const prompt = mitFormeln("h1", { class: "test-question__prompt", tabindex: "-1", "data-fokus": "" }, frage.prompt);
-    prompt.insertBefore(el("span", { class: "test-sr-only", text: fortschrittText + ": " }), prompt.firstChild);
-
+    // Hinweis unter den Buttons: Beim Einblenden rutschen sie so nicht nach unten
     const form = el("form", { class: "test-panel test-question", novalidate: "" }, [
-      el("fieldset", {}, [
-        el("legend", {}, [prompt]),
-        abschluss && frage.hinweis ? el("p", { class: "test-muted test-question__note", text: frage.hinweis }) : null,
-        el("div", { class: "answer-list" }, optionen),
-      ]),
-      hinweisSlot,
+      frageFieldset(schritt, true),
       nav,
+      hinweisSlot,
     ]);
     form.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -235,6 +227,71 @@
     });
 
     root.appendChild(form);
+    fragenHoeheAngleichen();
+  }
+
+  // Frage mit Antwortkarten. mitAktionen = false: nur für die unsichtbare Höhenmessung.
+  function frageFieldset(schritt, mitAktionen) {
+    const frage = L.frageFuerSchritt(daten, schritt);
+    const abschluss = L.istAbschlussfrage(daten, schritt);
+    const gewaehlt = mitAktionen ? L.antwortFuerSchritt(daten, stand, schritt) : null;
+
+    const optionen = frage.options.map((option, i) => {
+      const input = el("input", {
+        type: "radio",
+        name: mitAktionen ? "antwort" : "messung",
+        value: option.id,
+        class: "answer-option__input",
+        "aria-describedby": "test-hinweis",
+      });
+      if (mitAktionen) {
+        if (option.id === gewaehlt) input.checked = true;
+        input.addEventListener("change", () => waehleAntwort(option.id));
+      }
+
+      return el("label", { class: "answer-option" + (option.id === gewaehlt ? " is-selected" : "") }, [
+        input,
+        el("span", { class: "answer-option__key", "aria-hidden": "true", text: String(i + 1) }),
+        mitFormeln("span", { class: "answer-option__text" }, option.text),
+      ]);
+    });
+
+    // Beim Fokuswechsel auf die Frage liest der Screenreader „Frage 4 von 10: …“ vor
+    const prompt = mitFormeln("h1", { class: "test-question__prompt", tabindex: "-1", "data-fokus": "" }, frage.prompt);
+    prompt.insertBefore(el("span", { class: "test-sr-only", text: fortschrittTextFuer(schritt) + ": " }), prompt.firstChild);
+
+    return el("fieldset", {}, [
+      el("legend", {}, [prompt]),
+      abschluss && frage.hinweis ? el("p", { class: "test-muted test-question__note", text: frage.hinweis }) : null,
+      el("div", { class: "answer-list" }, optionen),
+    ]);
+  }
+
+  // Alle Fragen gleich hoch, damit Zurück/Weiter beim Durchklicken an derselben Stelle bleiben:
+  // Die längste Frage wird unsichtbar in der aktuellen Breite gemessen (neu bei anderer Breite).
+  let fragenHoehe = { breite: 0, hoehe: 0 };
+
+  function fragenHoeheAngleichen() {
+    const form = root.querySelector(".test-question");
+    if (!form) return;
+    const breite = form.offsetWidth;
+
+    if (fragenHoehe.breite !== breite) {
+      const messung = el("div", { class: "test-panel test-question", "aria-hidden": "true" });
+      messung.style.cssText = "position:absolute;left:-10000px;top:0;visibility:hidden;width:" + breite + "px";
+      document.body.appendChild(messung);
+      let hoehe = 0;
+      for (let s = 0; s < L.anzahlSchritte(daten); s++) {
+        const probe = frageFieldset(s, false);
+        messung.appendChild(probe);
+        hoehe = Math.max(hoehe, probe.offsetHeight);
+        probe.remove();
+      }
+      messung.remove();
+      fragenHoehe = { breite: breite, hoehe: hoehe };
+    }
+
+    form.querySelector("fieldset").style.minHeight = fragenHoehe.hoehe + "px";
   }
 
   function waehleAntwort(optionId) {
@@ -437,7 +494,21 @@
         window.addEventListener("pageshow", (ev) => {
           if (ev.persisted) abbruchGemeldet = false; // aus dem Zurück-Cache wiederhergestellt
         });
-        render(false);
+        window.addEventListener("resize", () => {
+          if (ansicht === "frage") fragenHoeheAngleichen();
+        });
+        if (document.fonts && document.fonts.addEventListener) {
+          document.fonts.addEventListener("loadingdone", () => {
+            fragenHoehe.breite = 0; // Schrift nachgeladen → Höhen neu messen
+            if (ansicht === "frage") fragenHoeheAngleichen();
+          });
+        }
+
+        // Schriften abwarten (höchstens 1,5 s), damit die Fragenhöhe richtig gemessen wird
+        const schriften = document.fonts
+          ? Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 1500))])
+          : Promise.resolve();
+        return schriften.then(() => render(false));
       })
       .catch((err) => {
         console.error(err);

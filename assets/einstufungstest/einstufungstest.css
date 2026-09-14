@@ -4,8 +4,19 @@
  * Portal noch nicht gibt. Mobile-first: Grundregeln fürs Smartphone, ab 640px mehr Luft.
  */
 
+/* Platz für den Scrollbalken immer reservieren – sonst rutscht der Inhalt seitlich,
+   sobald ein Bildschirm länger als das Fenster wird (z. B. Start → erste Frage) */
+html {
+  scrollbar-gutter: stable;
+}
+
 .test-page main {
   padding: 1.5rem 1rem 3rem;
+}
+
+/* Etwas Luft, falls der Anfang eines Bildschirms in den Blick gescrollt werden muss */
+.test-shell > :first-child {
+  scroll-margin-top: 0.75rem;
 }
 
 .test-shell {
