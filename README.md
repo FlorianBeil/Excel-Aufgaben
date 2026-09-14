@@ -112,6 +112,41 @@ Wichtig beim Erstellen von Übungen: Die Typumwandlung in Zahlen erwartet den
 Übungs-IDs müssen **bereichsübergreifend eindeutig** sein, da alle Bereiche
 denselben Fortschrittsspeicher (`progress.js`) nutzen.
 
+## Einstufungstest (`/einstufungstest/`)
+
+Eigenständiges Modul direkt nach dem Kauf: 10 Wissensfragen + eine Frage zum
+Arbeitsalltag → **ein** empfohlenes Startkapitel. Kein Feedback während des
+Tests, keine Hinweise, kein Zeitlimit. Fortschritt bleibt im Browser
+(`localStorage`, Schlüssel `excelflo_einstufungstest_v1`), ein abgebrochener
+Test lässt sich fortsetzen.
+
+```
+/einstufungstest/index.html                    → Seite (Header/Footer wie im Portal)
+/assets/einstufungstest/fragen.json            → ALLE Inhalte: Fragen, Erklärungen, Stufen, Texte, Kapitel-URLs
+/assets/einstufungstest/logik.js               → Auswertung + Speicherstand, ohne DOM (per node testbar)
+/assets/einstufungstest/einstufungstest.js     → Bildschirme, Tastatur (1–4, Enter), Tracking-Aufrufe
+/assets/einstufungstest/einstufungstest.css    → nur neue Bausteine, Rest aus engine.css
+/supabase/einstufungstest.sql                  → Tracking freischalten + Auswertungs-Ansichten
+```
+
+**Inhalte ändern:** nur `fragen.json` bearbeiten (Anleitung steht oben in der
+Datei). Frage-IDs nach dem Livegang nicht mehr ändern – sie werden gespeichert
+und ausgewertet. Fehler in der Datei (z. B. falsche `correctOptionId`, Lücken
+zwischen den Punktgrenzen) meldet die Seite in der Browser-Konsole.
+Kapitel-URLs leer lassen, solange es keine gibt – dann erscheint statt des
+Buttons „Öffne im Kursmenü Kapitel X“.
+
+**Einbettung in Ablefy:** feste iframe-Höhe **1400px** (reicht für alle
+Bildschirme auch auf kleinen Smartphones; nur beim Aufklappen mehrerer
+Erklärungen scrollt es im iframe).
+
+**Tracking** (`assets/tracking.js`, `portal = 'einstufungstest'`):
+`test_start`, `test_resume`, `question_answer` (exercise_id = Frage-ID),
+`test_abort` (beim Verlassen der Seite während einer offenen Frage – nicht
+exakt, ein Neuladen zählt mit), `test_complete`, `chapter_click`,
+`test_restart`. Vorher einmalig `supabase/einstufungstest.sql` im
+Supabase-SQL-Editor ausführen, sonst lehnt die Tabelle die Ereignisse ab.
+
 ## Lokal testen
 
 Da die Seiten `fetch()` für die JSON-Dateien nutzen, funktioniert das direkte

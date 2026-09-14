@@ -1,0 +1,535 @@
+/* Excel.Flo – Einstufungstest
+ * Ergänzung zu engine.css: nutzt dessen Variablen und Klassen (.btn, .page-intro,
+ * .exercise-feedback, .exercise-hints …) und ergänzt nur die Bausteine, die es im
+ * Portal noch nicht gibt. Mobile-first: Grundregeln fürs Smartphone, ab 640px mehr Luft.
+ */
+
+.test-page main {
+  padding: 1.5rem 1rem 3rem;
+}
+
+.test-shell {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.test-muted {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+/* ---------- Karte ---------- */
+
+.test-panel {
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  padding: 1.25rem 1.1rem;
+  margin: 0 0 1.25rem;
+}
+
+.test-panel > p {
+  margin: 0 0 0.9rem;
+}
+
+/* ---------- Startbildschirm ---------- */
+
+.test-start__title {
+  font-size: 1.5rem;
+  line-height: 1.25;
+  margin-bottom: 0.85rem;
+}
+
+.test-panel > .test-start__text {
+  margin-bottom: 0.75rem;
+}
+
+/* Fakten als schlichte Zeile: 10 Fragen · ca. 5 Minuten · Ergebnis sofort */
+.test-facts {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  margin: 1.1rem 0 1.25rem;
+  padding: 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.test-facts li {
+  white-space: nowrap;
+}
+
+/* Trenner hinter dem Eintrag, damit eine neue Zeile nie mit „·“ beginnt */
+.test-facts li:not(:last-child)::after {
+  content: "·";
+  margin: 0 0.45rem;
+}
+
+@media (min-width: 640px) {
+  .test-facts {
+    font-size: 0.92rem;
+  }
+
+  .test-facts li:not(:last-child)::after {
+    margin: 0 0.55rem;
+  }
+}
+
+.test-resume {
+  background: var(--excel-green-tint);
+  border: 1px solid #CFEBDB;
+  border-radius: var(--radius);
+  padding: 0.7rem 0.95rem;
+  color: var(--excel-green-dark);
+  font-size: 0.92rem;
+}
+
+/* ---------- Buttons & Links ---------- */
+
+.test-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.75rem;
+}
+
+.test-btn {
+  min-height: 44px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.test-textlink {
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--excel-green-dark);
+  background: none;
+  border: 0;
+  padding: 0.5rem 0.25rem;
+  min-height: 44px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  align-self: center;
+}
+
+.test-textlink:hover {
+  color: var(--excel-green);
+}
+
+/* Sichtbarer Fokus für Tastaturbedienung */
+.test-page .btn:focus-visible,
+.test-page .test-textlink:focus-visible,
+.test-page summary:focus-visible,
+.test-page a:focus-visible {
+  outline: 3px solid var(--excel-green);
+  outline-offset: 2px;
+}
+
+.test-page [data-fokus]:focus {
+  outline: none; /* Überschrift bekommt den Fokus nur für Screenreader */
+}
+
+/* ---------- Fortschritt ---------- */
+
+.test-progress {
+  margin-bottom: 1rem;
+}
+
+/* Steht direkt auf dem Hintergrundbild: --text-muted erreicht dort nur ~3:1, daher dunkel */
+.test-progress__label {
+  margin: 0 0 0.45rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.test-progress__bar {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--grid-gray);
+  overflow: hidden;
+}
+
+.test-progress__fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--excel-green);
+  transition: width 0.2s ease;
+}
+
+/* ---------- Frage & Antwortkarten ---------- */
+
+.test-question fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.test-question legend {
+  padding: 0;
+  width: 100%;
+}
+
+.test-question__prompt {
+  font-size: 1.2rem;
+  line-height: 1.4;
+  margin-bottom: 1.1rem;
+}
+
+.test-question__note {
+  margin: -0.5rem 0 1rem;
+}
+
+.answer-list {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.answer-option {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  min-height: 44px;
+  padding: 0.8rem 0.95rem;
+  background: var(--surface);
+  border: 1.5px solid #8A968F; /* --grid-gray hätte nur 1,4:1 – Karte muss als Bedienelement erkennbar sein (≥ 3:1) */
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+
+.answer-option:hover {
+  border-color: var(--excel-green);
+}
+
+.answer-option.is-selected,
+.answer-option:has(.answer-option__input:checked) {
+  border-color: var(--excel-green);
+  background: var(--excel-green-tint);
+}
+
+.answer-option:has(.answer-option__input:focus-visible) {
+  outline: 3px solid var(--excel-green);
+  outline-offset: 2px;
+}
+
+/* Echter Auswahlknopf bleibt für Tastatur und Screenreader erhalten, nur unsichtbar */
+.answer-option__input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  pointer-events: none;
+}
+
+.answer-option__key {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.65rem;
+  height: 1.65rem;
+  border-radius: 999px;
+  background: var(--header-gray);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.answer-option.is-selected .answer-option__key,
+.answer-option:has(.answer-option__input:checked) .answer-option__key {
+  background: var(--excel-green);
+  color: #fff;
+}
+
+.answer-option__text {
+  flex: 1;
+  min-width: 0;
+  padding-top: 0.1rem;
+  line-height: 1.45;
+}
+
+.test-formula {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background: var(--header-gray);
+  color: var(--text-primary);
+  padding: 0.05rem 0.35rem;
+  border-radius: 4px;
+  overflow-wrap: anywhere;
+  /* JetBrains Mono macht aus >= sonst ein „≥“ – in Excel muss man aber >= tippen */
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+.answer-option.is-selected .test-formula {
+  background: #fff;
+}
+
+.test-hint-slot .exercise-feedback {
+  margin: 1rem 0 0;
+}
+
+.test-hint-slot .exercise-feedback.is-error {
+  color: #B42318; /* --error-red erreicht auf dem hellroten Grund nur 4,4:1 */
+}
+
+/* Zurück links, Weiter rechts – auch auf dem Smartphone, damit Tab- und Sichtreihenfolge gleich sind */
+.test-nav {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 1.25rem;
+}
+
+.test-nav .btn {
+  flex: 0 0 auto;
+}
+
+.test-nav .test-nav__next {
+  flex: 1 1 auto;
+  margin-left: auto;
+}
+
+/* ---------- Ergebnis ---------- */
+
+.test-result__head {
+  margin-bottom: 1.25rem;
+}
+
+.test-result__title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary); /* auf dem Hintergrundbild */
+  margin-bottom: 0.35rem;
+}
+
+.test-score {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.6rem;
+}
+
+.test-score__value {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 2.25rem;
+  line-height: 1.1;
+  color: var(--text-primary);
+}
+
+.test-score__label {
+  color: var(--text-primary); /* auf dem Hintergrundbild */
+}
+
+.test-startpoint {
+  background: var(--excel-green-tint);
+  border: 1px solid #CFEBDB;
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem;
+  font-weight: 600;
+  color: var(--excel-green-dark);
+}
+
+.test-result .test-result__note {
+  border-top: 1px solid var(--border-color);
+  padding-top: 0.9rem;
+}
+
+.test-result__actions {
+  margin-top: 1.25rem;
+}
+
+.test-next-step {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border: 1.5px solid var(--excel-green);
+  border-radius: var(--radius);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Liste der falsch beantworteten Fragen (Basis: .exercise-hints) */
+.test-review {
+  margin-bottom: 1.25rem;
+}
+
+.test-review summary {
+  min-height: 44px;
+}
+
+/* Zweite Stufe: jede Frage ist selbst aufklappbar */
+.exercise-hints .test-review__list {
+  list-style: none;
+  margin: 0;
+  padding: 0 1.1rem 0.4rem;
+}
+
+.test-review__item {
+  border-top: 1px solid var(--border-color);
+}
+
+/* .exercise-hints summary (Überschriftenschrift, grün, Innenabstand) gilt sonst auch für die innere Ebene */
+.exercise-hints .test-review__prompt {
+  cursor: pointer;
+  padding: 0.75rem 0;
+  min-height: 44px;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--text-primary);
+}
+
+.test-review__prompt::marker {
+  color: var(--excel-green-dark);
+}
+
+.test-review__body {
+  padding: 0 0 1rem 1.1rem;
+}
+
+.test-review__answers {
+  margin: 0 0 0.6rem;
+}
+
+.test-review__answers dt {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.test-review__answers dd {
+  margin: 0 0 0.45rem;
+}
+
+.test-review__correct {
+  color: var(--success-green);
+  font-weight: 600;
+}
+
+.test-review__explanation {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+/* ---------- Neu starten ---------- */
+
+.test-restart {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+}
+
+.test-restart__confirm {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+}
+
+.test-restart__confirm p {
+  margin: 0 0 0.75rem;
+}
+
+.test-load-error {
+  display: block;
+}
+
+/* ---------- Ab Tablet-Breite ---------- */
+
+@media (min-width: 640px) {
+  .test-page main {
+    padding: 2.25rem 1.5rem 4rem;
+  }
+
+  .test-start__title {
+    font-size: 1.75rem;
+  }
+
+  .test-panel {
+    padding: 1.75rem;
+  }
+
+  .test-question__prompt {
+    font-size: 1.35rem;
+  }
+
+  .test-actions {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .test-nav .test-nav__next {
+    flex: 0 0 auto;
+  }
+
+  .test-score__value {
+    font-size: 2.75rem;
+  }
+}
+
+/* ---------- Barrierefreiheit ---------- */
+
+/* Nur für Screenreader, z. B. „Frage 4 von 10:“ vor der Frage */
+.test-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Fußzeile steht auf dem Hintergrundbild – --text-muted wäre dort zu schwach */
+.test-page .site-footer {
+  color: var(--text-primary);
+}
+
+/* Windows-Kontrastmodus: Hintergründe verschwinden, Auswahl über Rahmen und Systemfarben zeigen */
+@media (forced-colors: active) {
+  .answer-option.is-selected,
+  .answer-option:has(.answer-option__input:checked) {
+    border: 3px solid Highlight;
+  }
+
+  .answer-option.is-selected .answer-option__key,
+  .answer-option:has(.answer-option__input:checked) .answer-option__key {
+    background: Highlight;
+    color: HighlightText;
+    forced-color-adjust: none;
+  }
+
+  .test-progress__fill {
+    background: Highlight;
+    forced-color-adjust: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .answer-option,
+  .test-progress__fill {
+    transition: none;
+  }
+}

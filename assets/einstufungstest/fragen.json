@@ -1,0 +1,271 @@
+{
+  "_anleitung": [
+    "Alle Inhalte des Einstufungstests. Diese Datei kannst du ändern, ohne den Code anzufassen.",
+    "Formeln in Texten zwischen Backticks setzen, z. B. `=SUMME(A1:A5)` – sie werden dann als Formel dargestellt.",
+    "Antwortoptionen erscheinen genau in der Reihenfolge dieser Datei. Die Option „Weiß ich nicht“ ist mit \"weissNicht\": true markiert und sollte immer die letzte sein.",
+    "Frage-IDs nach dem Livegang nicht mehr ändern – sie werden gespeichert und ausgewertet. Neue Fragen bekommen eine neue, eindeutige ID.",
+    "typ: grundlagen | funktionen | pivot | daten | fortgeschritten",
+    "Kapitel-URLs: leer lassen, solange es keine gibt. Dann erscheint statt des Buttons ein Hinweis aufs Kursmenü.",
+    "Platzhalter in Texten: {nummer} und {titel} (Kapitel), {punkte} und {gesamt} (Punktzahl), {anzahl} (Fragen)."
+  ],
+
+  "einstellungen": {
+    "urlAlleKapitel": ""
+  },
+
+  "kapitel": {
+    "2": { "titel": "Grundlagen", "url": "" },
+    "4": { "titel": "Funktionen", "url": "" },
+    "7": { "titel": "Erweiterte Funktionen", "url": "" },
+    "8": { "titel": "Pivot-Tabellen", "url": "" },
+    "9": { "titel": "Datenvisualisierung", "url": "" },
+    "11": { "titel": "Finanzfunktionen", "url": "" },
+    "12": { "titel": "Power Query", "url": "" }
+  },
+
+  "fragen": [
+    {
+      "id": "grundlagen-absoluter-bezug",
+      "typ": "grundlagen",
+      "kapitelBezug": "4.5",
+      "prompt": "Du hast in C2 die Formel `=B2*$F$1` und ziehst sie nach unten bis C20. Was passiert mit F1?",
+      "options": [
+        { "id": "a", "text": "F1 bleibt in allen Zeilen unverändert" },
+        { "id": "b", "text": "F1 wird zu F2, F3, F4 und so weiter" },
+        { "id": "c", "text": "Die Formel gibt ab Zeile 3 einen Fehler zurück" },
+        { "id": "d", "text": "Weiß ich nicht", "weissNicht": true }
+      ],
+      "correctOptionId": "a",
+      "erklaerung": "Die Dollarzeichen in `$F$1` fixieren Spalte und Zeile. Beim Herunterziehen passt sich nur der relative Teil an: Aus `B2` wird `B3`, `B4` und so weiter, der Bezug auf F1 bleibt in jeder Zeile gleich. Ohne Dollarzeichen würde Excel F2, F3, F4 verwenden – dort steht meist nichts, und die Formel rechnet still mit 0."
+    },
+    {
+      "id": "grundlagen-als-tabelle-formatieren",
+      "typ": "grundlagen",
+      "kapitelBezug": "3.9",
+      "prompt": "Warum lohnt es sich, einen Datenbereich als Tabelle zu formatieren statt ihn als normalen Bereich zu lassen?",
+      "options": [
+        { "id": "a", "text": "Sie sieht optisch besser aus" },
+        { "id": "b", "text": "Neue Zeilen werden automatisch einbezogen und Formeln passen sich an" },
+        { "id": "c", "text": "Die Datei wird dadurch kleiner" },
+        { "id": "d", "text": "Weiß ich nicht", "weissNicht": true }
+      ],
+      "correctOptionId": "b",
+      "erklaerung": "Eine Tabelle wächst mit: Neue Zeilen gehören automatisch dazu, Formeln in einer Spalte werden für neue Zeilen übernommen, und Pivot-Tabellen oder Diagramme, die auf der Tabelle aufbauen, erfassen die neuen Daten beim Aktualisieren. Die Optik ist nur ein Nebeneffekt, die Dateigröße ändert sich dadurch nicht."
+    },
+    {
+      "id": "funktionen-wenn-und",
+      "typ": "funktionen",
+      "kapitelBezug": "4.9",
+      "prompt": "Ein Bonus wird gezahlt, wenn der Umsatz über 50.000 liegt und die Kundenzufriedenheit mindestens 4 beträgt. Welcher Ansatz ist richtig?",
+      "options": [
+        { "id": "a", "text": "Zwei getrennte WENN-Formeln in zwei Spalten" },
+        { "id": "b", "text": "`=WENN(UND(B2>50000;C2>=4);\"Bonus\";\"kein Bonus\")`" },
+        { "id": "c", "text": "`=WENN(B2>50000;C2>=4;\"kein Bonus\")`" },
+        { "id": "d", "text": "Weiß ich nicht", "weissNicht": true }
+      ],
+      "correctOptionId": "b",
+      "erklaerung": "UND liefert nur dann WAHR, wenn alle Bedingungen gleichzeitig erfüllt sind – WENN macht daraus das Ergebnis. In der dritten Variante steht `C2>=4` an der Stelle des Dann-Werts: Excel prüft dort nichts, sondern gibt bei hohem Umsatz einfach WAHR oder FALSCH aus. Zwei getrennte Spalten liefern zwei Einzelergebnisse, aber keine gemeinsame Entscheidung."
+    },
+    {
+      "id": "funktionen-sverweis-letztes-argument",
+      "typ": "funktionen",
+      "kapitelBezug": "4.7",
+      "prompt": "Dein SVERWEIS liefert ein Ergebnis, aber das falsche – es stammt aus der Zeile darüber. Was ist die wahrscheinlichste Ursache?",
+      "options": [
+        { "id": "a", "text": "Der Suchbereich ist nicht absolut gesetzt" },
+        { "id": "b", "text": "Das letzte Argument fehlt oder steht auf WAHR" },
+        { "id": "c", "text": "Der Spaltenindex ist zu hoch" },
+        { "id": "d", "text": "Weiß ich nicht", "weissNicht": true }
+      ],
+      "correctOptionId": "b",
+      "erklaerung": "Fehlt das letzte Argument oder steht es auf WAHR, sucht SVERWEIS nur ungefähr: Er nimmt den nächstkleineren Wert und geht davon aus, dass die erste Spalte sortiert ist. Findet er keinen exakten Treffer, liefert er deshalb ohne Warnung einen Wert aus einer anderen Zeile. Mit FALSCH als letztem Argument sucht er exakt und zeigt #NV, wenn es keinen Treffer gibt. Ein zu hoher Spaltenindex führt zu #BEZUG!, nicht zu einem falschen Wert."
+    },
+    {
+      "id": "funktionen-summewenns",
+      "typ": "funktionen",
+      "kapitelBezug": "4.12",
+      "prompt": "Du willst den Umsatz summieren – aber nur für Region Nord und nur für das Jahr 2025. Was nimmst du?",
+      "options": [
+        { "id": "a", "text": "SUMMEWENN mit zwei Kriterien" },
+        { "id": "b", "text": "SUMMEWENNS" },
+        { "id": "c", "text": "SUMME kombiniert mit einem Filter" },
+        { "id": "d", "text": "Weiß ich nicht", "weissNicht": true }
+      ],
+      "correctOptionId": "b",
+      "erklaerung": "SUMMEWENN kennt nur ein einziges Kriterium. SUMMEWENNS nimmt beliebig viele Bedingungen auf und summiert nur die Zeilen, auf die alle zutreffen – etwa `=SUMMEWENNS(C:C;A:A;\"Nord\";B:B;2025)`. Achtung beim Umstieg: Bei SUMMEWENNS steht der Summenbereich an erster Stelle. SUMME mit Filter ist keine Lösung, denn SUMME rechnet ausgeblendete Zeilen weiterhin mit."
+    },
+    {
+      "id": "daten-duplikate-entfernen",
+      "typ": "daten",
+      "kapitelBezug": "6.4",
+      "prompt": "Was ist der Unterschied zwischen „Duplikate entfernen“ und einem Filter auf eindeutige Werte?",
+      "options": [
+        { "id": "a", "text": "Es gibt keinen, nur zwei Wege zum selben Ergebnis" },
+        { "id": "b", "text": "Duplikate entfernen löscht Zeilen dauerhaft, der Filter blendet nur aus" },
+        { "id": "c", "text": "Der Filter funktioniert nur bei Zahlen" },
+        { "id": "d", "text": "Weiß ich nicht", "weissNicht": true }
+      ],
+      "correctOptionId": "b",
+      "erklaerung": "„Duplikate entfernen“ löscht die doppelten Zeilen aus deinen Daten – zurück geht es nur mit Rückgängig, solange die Datei noch offen ist. Ein Filter auf eindeutige Werte blendet die Doppelten nur aus, die Originaldaten bleiben vollständig erhalten. Arbeite deshalb vor dem Entfernen am besten mit einer Kopie. Beide Wege funktionieren mit Texten genauso wie mit Zahlen."
+    },
+    {
+      "id": "pivot-feld-in-zeilen",
+      "typ": "pivot",
+      "kapitelBezug": "8.2",
+      "prompt": "Du willst in einer Pivot-Tabelle den Umsatz je Region sehen. Wohin gehört das Feld „Region“?",
+      "options": [
+        { "id": "a", "text": "In den Bereich Werte" },
+        { "id": "b", "text": "In den Bereich Zeilen" },
+        { "id": "c", "text": "In den Bereich Filter" },
+        { "id": "d", "text": "Weiß ich nicht", "weissNicht": true }
+      ],
+      "correctOptionId": "b",
+      "erklaerung": "Im Bereich Zeilen steht, wonach aufgeteilt wird – jede Region bekommt eine eigene Zeile. In den Bereich Werte gehört das, was berechnet wird, hier also der Umsatz. Ein Textfeld wie Region würde dort nur gezählt. Der Bereich Filter schränkt die ganze Tabelle auf eine Auswahl ein, teilt aber nicht nach Regionen auf."
+    },
+    {
+      "id": "pivot-datenschnitt-verbinden",
+      "typ": "pivot",
+      "kapitelBezug": "8.7",
+      "prompt": "Du hast drei Pivot-Tabellen aus derselben Datenquelle und willst alle gleichzeitig nach Region filtern. Was ist der sauberste Weg?",
+      "options": [
+        { "id": "a", "text": "In jeder Pivot-Tabelle denselben Filter manuell setzen" },
+        { "id": "b", "text": "Ein Datenschnitt, der mit allen drei Pivot-Tabellen verbunden wird" },
+        { "id": "c", "text": "Die drei Pivot-Tabellen zu einer zusammenführen" },
+        { "id": "d", "text": "Weiß ich nicht", "weissNicht": true }
+      ],
+      "correctOptionId": "b",
+      "erklaerung": "Ein Datenschnitt lässt sich über die Berichtsverbindungen mit mehreren Pivot-Tabellen derselben Datenquelle verbinden. Ein Klick auf eine Region filtert dann alle drei gleichzeitig. Manuell gesetzte Filter laufen schnell auseinander, sobald jemand nur eine Tabelle ändert – und eine zusammengeführte Pivot-Tabelle zeigt nicht mehr die drei Sichten, die du brauchst."
+    },
+    {
+      "id": "fortgeschritten-wennfehler",
+      "typ": "fortgeschritten",
+      "kapitelBezug": "7.8",
+      "prompt": "Dein Verweis gibt #NV zurück, wenn ein Artikel nicht existiert. Du möchtest stattdessen „nicht gefunden“ anzeigen. Was nimmst du?",
+      "options": [
+        { "id": "a", "text": "WENNFEHLER um den Verweis herum" },
+        { "id": "b", "text": "ISTFEHLER als Ersatz für den Verweis" },
+        { "id": "c", "text": "Die bedingte Formatierung, um den Fehler auszublenden" },
+        { "id": "d", "text": "Weiß ich nicht", "weissNicht": true }
+      ],
+      "correctOptionId": "a",
+      "erklaerung": "WENNFEHLER gibt das Ergebnis des Verweises zurück und springt nur im Fehlerfall auf deinen Ersatztext: `=WENNFEHLER(SVERWEIS(…);\"nicht gefunden\")`. ISTFEHLER liefert lediglich WAHR oder FALSCH, aber keinen Artikelwert. Die bedingte Formatierung ändert nur das Aussehen – der Fehler steht weiter in der Zelle und bringt Summen und Folgeformeln durcheinander. Beachte: WENNFEHLER fängt jeden Fehler ab, auch Tippfehler in der Formel selbst."
+    },
+    {
+      "id": "fortgeschritten-bedingte-formatierung-zeile",
+      "typ": "fortgeschritten",
+      "kapitelBezug": "5.4",
+      "prompt": "Du willst in einer Tabelle die komplette Zeile einfärben, wenn der Status in Spalte D „Offen“ lautet. Wie gehst du vor?",
+      "options": [
+        { "id": "a", "text": "Bedingte Formatierung mit der Regel „Zellwert gleich Offen“" },
+        { "id": "b", "text": "Bedingte Formatierung mit der Formel `=$D2=\"Offen\"` auf den ganzen Bereich" },
+        { "id": "c", "text": "Die Zeilen manuell markieren und einfärben" },
+        { "id": "d", "text": "Weiß ich nicht", "weissNicht": true }
+      ],
+      "correctOptionId": "b",
+      "erklaerung": "Die Regel „Zellwert gleich“ prüft jede Zelle einzeln – eingefärbt wird nur die Zelle, in der „Offen“ steht, nicht die ganze Zeile. Mit der Formel `=$D2=\"Offen\"` schaut jede Zelle des markierten Bereichs in Spalte D ihrer eigenen Zeile nach: Das Dollarzeichen fixiert die Spalte, die Zeilennummer bleibt beweglich. Manuelles Einfärben stimmt nicht mehr, sobald sich ein Status ändert."
+    }
+  ],
+
+  "abschlussfrage": {
+    "id": "schwerpunkt",
+    "prompt": "Was beschreibt deinen Arbeitsalltag am besten?",
+    "hinweis": "Hier gibt es keine richtige oder falsche Antwort.",
+    "options": [
+      {
+        "id": "a",
+        "text": "Berichte und Auswertungen erstellen",
+        "kapitel": "9",
+        "empfehlung": "Weil du viel mit Berichten und Auswertungen arbeitest, lohnt sich für dich zusätzlich Kapitel 9 – Datenvisualisierung."
+      },
+      {
+        "id": "b",
+        "text": "Finanzen, Investitionen, Kredite",
+        "kapitel": "11",
+        "empfehlung": "Weil du mit Finanzen, Investitionen und Krediten arbeitest, lohnt sich für dich zusätzlich Kapitel 11 – Finanzfunktionen."
+      },
+      {
+        "id": "c",
+        "text": "Wiederkehrende Aufgaben automatisieren",
+        "kapitel": "12",
+        "empfehlung": "Weil du wiederkehrende Aufgaben automatisieren willst, lohnt sich für dich zusätzlich Kapitel 12 – Power Query."
+      },
+      {
+        "id": "d",
+        "text": "Gemischt / weiß noch nicht",
+        "kapitel": null,
+        "empfehlung": null
+      }
+    ]
+  },
+
+  "stufen": [
+    {
+      "id": "start-kapitel-2",
+      "minPunkte": 0,
+      "maxPunkte": 3,
+      "startKapitel": "2",
+      "genannteKapitel": ["2"],
+      "beschreibung": "Du kennst Excel vom Sehen, arbeitest aber vieles noch von Hand. Das ist der häufigste Ausgangspunkt – und der mit dem größten Sprung.",
+      "startpunkt": "Dein Startpunkt: Kapitel 2 – Grundlagen. Die Shortcut-Challenge am Ende spart dir ab Tag eins Zeit."
+    },
+    {
+      "id": "start-kapitel-4",
+      "minPunkte": 4,
+      "maxPunkte": 7,
+      "startKapitel": "4",
+      "genannteKapitel": ["4", "8"],
+      "beschreibung": "Die Grundlagen sitzen. Bei Funktionen und Pivot hast du Lücken – genau dort, wo im Alltag die meiste Zeit verloren geht.",
+      "startpunkt": "Dein Startpunkt: Kapitel 4 – Funktionen. Danach direkt weiter zu Kapitel 8, Pivot-Tabellen."
+    },
+    {
+      "id": "start-kapitel-7",
+      "minPunkte": 8,
+      "maxPunkte": 10,
+      "startKapitel": "7",
+      "genannteKapitel": ["7", "12"],
+      "beschreibung": "Funktionen und Pivot beherrschst du. Was fehlt, sind die Werkzeuge für größere und wiederkehrende Datenmengen.",
+      "startpunkt": "Dein Startpunkt: Kapitel 7 – Erweiterte Funktionen, vor allem XVERWEIS und Formelanalyse. Danach Kapitel 12, Power Query."
+    }
+  ],
+
+  "antwortmuster": {
+    "minPunkte": 4,
+    "minFehlantworten": 3,
+    "text": "Auffällig: Du arbeitest schon viel mit Excel, hast dir an einigen Stellen aber Gewohnheiten angeeignet, die still Fehler produzieren. Achte im Kurs besonders auf die Lektionen zu Verweisfunktionen und Fehlerbehandlung."
+  },
+
+  "texte": {
+    "seitenTitel": "Einstufungstest",
+    "startUeberschrift": "Finde deinen Startpunkt im Kurs",
+    "startText": [
+      "Der Kurs hat 12 Kapitel. Statt vorne anzufangen, findest du in fünf Minuten heraus, wo der Einstieg für dich am meisten bringt.",
+      "10 Fragen, keine Prüfung, kein Zeitlimit. Am Ende bekommst du ein Kapitel empfohlen – und kannst trotzdem jederzeit alles ansehen."
+    ],
+    "startEckdaten": ["10 Fragen", "ca. 5 Minuten", "Ergebnis sofort"],
+    "buttonStarten": "Los geht's",
+    "buttonFortsetzen": "Test fortsetzen",
+    "fortsetzenHinweis": "Du hast den Test schon begonnen. Deine bisherigen Antworten sind gespeichert.",
+    "fortschrittFrage": "Frage {nummer} von {gesamt}",
+    "fortschrittAbschluss": "Abschlussfrage",
+    "buttonZurueck": "Zurück",
+    "buttonWeiter": "Weiter",
+    "buttonAuswerten": "Auswertung anzeigen",
+    "hinweisKeineAuswahl": "Wähle eine Antwort aus, um weiterzugehen.",
+    "ergebnisUeberschrift": "Deine Einstufung",
+    "ergebnisPunkte": "{punkte} von {gesamt}",
+    "ergebnisPunkteLabel": "richtig beantwortet",
+    "buttonKapitel": "Zu Kapitel {nummer}",
+    "hinweisOhneLink": "Dein nächster Schritt: Öffne im Kursmenü Kapitel {nummer} – {titel}.",
+    "linkAlleKapitel": "Alle Kapitel ansehen",
+    "fehlerlisteTitelEinzahl": "1 Frage zum Nachlesen",
+    "fehlerlisteTitelMehrzahl": "{anzahl} Fragen zum Nachlesen",
+    "fehlerlisteDeineAntwort": "Deine Antwort",
+    "fehlerlisteRichtigeAntwort": "Richtige Antwort",
+    "fehlerlisteNichtBeantwortet": "Nicht beantwortet („Weiß ich nicht“)",
+    "linkNeuStarten": "Test neu starten",
+    "neuStartenBestaetigung": "Möchtest du den Test wirklich neu starten? Deine bisherigen Antworten werden dabei gelöscht.",
+    "buttonNeuStartenJa": "Ja, neu starten",
+    "buttonAbbrechen": "Abbrechen",
+    "ladeFehler": "Der Einstufungstest konnte nicht geladen werden. Bitte lade die Seite neu."
+  }
+}
