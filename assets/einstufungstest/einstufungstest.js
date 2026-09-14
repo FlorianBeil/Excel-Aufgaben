@@ -357,22 +357,25 @@
   function renderErgebnis() {
     const e = L.auswerten(daten, stand);
 
-    // 1. Punktzahl
+    // 1.–2. Überschrift und Punktzahl – bewusst dezent, die Empfehlung ist die Hauptinformation
     root.appendChild(
       el("div", { class: "test-result__head" }, [
         el("h1", { class: "test-result__title", text: text("ergebnisUeberschrift"), tabindex: "-1", "data-fokus": "" }),
-        el("p", { class: "test-score" }, [
-          el("span", { class: "test-score__value", text: text("ergebnisPunkte", { punkte: e.punkte, gesamt: e.gesamt }) }),
-          el("span", { class: "test-score__label", text: text("ergebnisPunkteLabel") }),
-        ]),
+        el("p", { class: "test-score", text: text("ergebnisPunkte", { punkte: e.punkte, gesamt: e.gesamt }) }),
       ])
     );
 
-    // 2.–4. Stufentext, Antwortmuster, Schwerpunkt
+    // 3.–4. Stufentext und Startpunkt (Kapitel als größte Überschrift der Seite), dann Antwortmuster, Schwerpunkt
     const panel = el("section", { class: "test-panel test-result" });
     if (e.stufe) {
       panel.appendChild(el("p", { class: "test-result__text", text: e.stufe.beschreibung }));
-      panel.appendChild(el("p", { class: "test-startpoint", text: e.stufe.startpunkt }));
+      panel.appendChild(
+        el("div", { class: "test-startpoint" }, [
+          el("p", { class: "test-startpoint__label", text: text("startpunktLabel") }),
+          el("h2", { class: "test-startpoint__title", text: text("startpunktKapitel", e.startKapitel) }),
+          e.stufe.startpunktZusatz ? el("p", { class: "test-startpoint__note", text: e.stufe.startpunktZusatz }) : null,
+        ])
+      );
     }
     if (e.antwortmusterText) panel.appendChild(el("p", { class: "test-result__note", text: e.antwortmusterText }));
     if (e.schwerpunktEmpfehlung) panel.appendChild(el("p", { class: "test-result__note", text: e.schwerpunktEmpfehlung }));
