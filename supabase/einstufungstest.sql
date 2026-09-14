@@ -21,7 +21,9 @@ alter table public.events add constraint events_portal_check
   check (portal in ('funktionen', 'pivot', 'powerquery', 'einstufungstest'));
 
 -- 2. Überblick: eine Zeile mit den wichtigsten Zahlen
-create or replace view public."Auswertung Einstufungstest"
+-- (drop vorher, weil sich Spaltennamen geändert haben können – z. B. Startkapitel 2 → 1)
+drop view if exists public."Auswertung Einstufungstest";
+create view public."Auswertung Einstufungstest"
 with (security_invoker = true) as
 with sitzungen as (
   select
@@ -42,7 +44,7 @@ select
         / nullif(count(*) filter (where gestartet), 0), 1)                                 as "Abschlussquote in %",
   count(*) filter (where abbruch and not abgeschlossen)                                    as "Abgebrochen (nicht fertig)",
   round(avg(case when ergebnis->>'punkte' ~ '^\d{1,2}$' then (ergebnis->>'punkte')::int end), 1) as "Ø Punkte",
-  count(*) filter (where ergebnis->>'startkapitel' = '2')                                  as "Startpunkt Kapitel 2",
+  count(*) filter (where ergebnis->>'startkapitel' = '1')                                  as "Startpunkt Kapitel 1",
   count(*) filter (where ergebnis->>'startkapitel' = '4')                                  as "Startpunkt Kapitel 4",
   count(*) filter (where ergebnis->>'startkapitel' = '7')                                  as "Startpunkt Kapitel 7",
   count(*) filter (where ergebnis->>'antwortmuster' = 'true')                              as "Mit Hinweis Antwortmuster",

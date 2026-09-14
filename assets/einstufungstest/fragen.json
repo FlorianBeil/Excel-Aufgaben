@@ -14,10 +14,9 @@
   },
 
   "kapitel": {
-    "2": { "titel": "Grundlagen", "url": "" },
+    "1": { "titel": "Einführung in Excel", "url": "" },
     "4": { "titel": "Funktionen", "url": "" },
     "7": { "titel": "Erweiterte Funktionen", "url": "" },
-    "8": { "titel": "Pivot-Tabellen", "url": "" },
     "9": { "titel": "Datenvisualisierung", "url": "" },
     "11": { "titel": "Finanzfunktionen", "url": "" },
     "12": { "titel": "Power Query", "url": "" }
@@ -200,31 +199,31 @@
 
   "stufen": [
     {
-      "id": "start-kapitel-2",
+      "id": "start-kapitel-1",
       "minPunkte": 0,
       "maxPunkte": 3,
-      "startKapitel": "2",
-      "genannteKapitel": ["2"],
+      "startKapitel": "1",
+      "genannteKapitel": ["1"],
       "beschreibung": "Du kennst Excel vom Sehen, arbeitest aber vieles noch von Hand. Das ist der häufigste Ausgangspunkt – und der mit dem größten Sprung.",
-      "startpunkt": "Dein Startpunkt: Kapitel 2 – Grundlagen. Die Shortcut-Challenge am Ende spart dir ab Tag eins Zeit."
+      "startpunkt": "Dein Startpunkt: Kapitel 1 – Einführung in Excel. Die Shortcut-Challenge am Ende spart dir ab Tag eins Zeit."
     },
     {
       "id": "start-kapitel-4",
       "minPunkte": 4,
       "maxPunkte": 7,
       "startKapitel": "4",
-      "genannteKapitel": ["4", "8"],
+      "genannteKapitel": ["4"],
       "beschreibung": "Die Grundlagen sitzen. Bei Funktionen und Pivot hast du Lücken – genau dort, wo im Alltag die meiste Zeit verloren geht.",
-      "startpunkt": "Dein Startpunkt: Kapitel 4 – Funktionen. Danach direkt weiter zu Kapitel 8, Pivot-Tabellen."
+      "startpunkt": "Dein Startpunkt: Kapitel 4 – Funktionen."
     },
     {
       "id": "start-kapitel-7",
       "minPunkte": 8,
       "maxPunkte": 10,
       "startKapitel": "7",
-      "genannteKapitel": ["7", "12"],
+      "genannteKapitel": ["7"],
       "beschreibung": "Funktionen und Pivot beherrschst du. Was fehlt, sind die Werkzeuge für größere und wiederkehrende Datenmengen.",
-      "startpunkt": "Dein Startpunkt: Kapitel 7 – Erweiterte Funktionen, vor allem XVERWEIS und Formelanalyse. Danach Kapitel 12, Power Query."
+      "startpunkt": "Dein Startpunkt: Kapitel 7 – Erweiterte Funktionen, vor allem XVERWEIS und Formelanalyse."
     }
   ],
 
