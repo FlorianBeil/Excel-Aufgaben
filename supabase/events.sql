@@ -31,27 +31,57 @@ create policy "events_insert_only" on public.events
 revoke all on public.events from anon, authenticated;
 grant insert on public.events to anon, authenticated;
 
--- Auswertung pro Übung. Im Dashboard unter Table Editor → events_uebersicht ansehen
--- (security_invoker + revoke: über die öffentliche API nicht lesbar).
-create or replace view public.events_uebersicht
+-- Lesbare Auswertungen fürs Dashboard (Table Editor). Die Tabelle heißt technisch
+-- weiter „events“ – die Portale schreiben unter diesem Namen, bitte nicht umbenennen.
+-- security_invoker + revoke: über die öffentliche API nicht lesbar.
+drop view if exists public.events_uebersicht; -- frühere Version der Übersicht
+
+-- Eine Zeile pro Übung
+create or replace view public."Auswertung Übungsportal"
 with (security_invoker = true) as
 select
-  portal,
-  exercise_id,
-  count(distinct session_id) filter (where event = 'exercise_open')                              as sitzungen_geoeffnet,
-  count(*)                   filter (where event = 'check')                                      as pruefungen,
-  count(distinct session_id) filter (where event = 'check' and detail->>'correct' = 'true')      as sitzungen_geloest,
+  portal                                                                                         as "Portal",
+  exercise_id                                                                                    as "Übung",
+  count(distinct session_id) filter (where event = 'exercise_open')                              as "Sitzungen geöffnet",
+  count(*)                   filter (where event = 'check')                                      as "Prüfungen",
+  count(distinct session_id) filter (where event = 'check' and detail->>'correct' = 'true')      as "Sitzungen gelöst",
   round(100.0 * count(distinct session_id) filter (where event = 'check' and detail->>'correct' = 'true')
-        / nullif(count(distinct session_id) filter (where event = 'exercise_open'), 0), 1)       as loesungsquote_prozent,
+        / nullif(count(distinct session_id) filter (where event = 'exercise_open'), 0), 1)       as "Lösungsquote in %",
   round(avg(case when detail->>'attempt' ~ '^\d{1,6}$' then (detail->>'attempt')::int end)
-        filter (where event = 'check' and detail->>'correct' = 'true'), 1)                       as versuche_bis_richtig,
+        filter (where event = 'check' and detail->>'correct' = 'true'), 1)                       as "Versuche bis richtig",
   round(avg(case when detail->>'seconds' ~ '^\d{1,7}$' then (detail->>'seconds')::int end)
-        filter (where event = 'check' and detail->>'correct' = 'true'))                          as sekunden_bis_richtig,
-  count(distinct session_id) filter (where event = 'hints_open')                                 as sitzungen_tipps,
-  count(distinct session_id) filter (where event = 'solution_show')                              as sitzungen_loesung_angezeigt,
-  max(created_at)                                                                                as zuletzt
+        filter (where event = 'check' and detail->>'correct' = 'true'))                          as "Sekunden bis richtig",
+  count(distinct session_id) filter (where event = 'hints_open')                                 as "Sitzungen mit Tipps",
+  count(distinct session_id) filter (where event = 'solution_show')                              as "Sitzungen mit Lösung angezeigt",
+  max(created_at) at time zone 'Europe/Berlin'                                                   as "Zuletzt genutzt"
 from public.events
 group by portal, exercise_id
 order by portal, exercise_id;
 
-revoke all on public.events_uebersicht from anon, authenticated;
+revoke all on public."Auswertung Übungsportal" from anon, authenticated;
+
+-- Jeder einzelne Klick, neueste zuerst, mit deutscher Uhrzeit und lesbarer Aktion
+create or replace view public."Auswertung Einzelklicks"
+with (security_invoker = true) as
+select
+  created_at at time zone 'Europe/Berlin'                                                        as "Zeitpunkt",
+  portal                                                                                         as "Portal",
+  exercise_id                                                                                    as "Übung",
+  case event
+    when 'exercise_open'    then 'Übung geöffnet'
+    when 'check'            then 'Prüfen'
+    when 'hints_open'       then 'Tipps geöffnet'
+    when 'solution_show'    then 'Lösung angezeigt'
+    when 'data_source_open' then 'Datenquelle angezeigt'
+    when 'reset'            then 'Zurückgesetzt'
+    else event
+  end                                                                                            as "Aktion",
+  case when event = 'check' then
+    case when detail->>'correct' = 'true' then 'richtig' else 'falsch' end
+  end                                                                                            as "Ergebnis",
+  detail                                                                                         as "Details",
+  session_id                                                                                     as "Sitzung"
+from public.events
+order by created_at desc;
+
+revoke all on public."Auswertung Einzelklicks" from anon, authenticated;
